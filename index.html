@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>seojae</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #f7f5f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .entry {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .pixel-grid {
+      display: grid;
+      gap: 0;
+      image-rendering: pixelated;
+      zoom: 0.4;
+      transition: transform 0.15s ease;
+    }
+
+    .entry:hover .pixel-grid { transform: translateY(-2px); }
+
+    .px { width: 5px; height: 5px; }
+    .K  { background: #111; }
+    ._  { background: transparent; }
+
+    .name {
+      font-family: monospace;
+      font-size: 6pt;
+      color: #111;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="entry" onclick="location.href='books.html'">
+  <div class="pixel-grid" id="grid"></div>
+  <span class="name">seojae</span>
+</div>
+
+<script>
+const PIXELS = [
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', 'K', 'K', 'K', '_', '_'],
+  ['_', '_', '_', '_', '_', 'K', 'K', 'K', 'K', '_', 'K', '_', '_', '_', 'K', '_'],
+  ['_', '_', '_', '_', 'K', '_', 'K', '_', 'K', 'K', 'K', '_', 'K', '_', 'K', '_'],
+  ['_', '_', '_', 'K', '_', 'K', '_', '_', '_', 'K', '_', '_', '_', '_', 'K', '_'],
+  ['_', '_', 'K', '_', 'K', '_', 'K', '_', 'K', '_', 'K', '_', '_', 'K', 'K', '_'],
+  ['_', '_', 'K', 'K', '_', '_', '_', 'K', '_', 'K', '_', 'K', 'K', 'K', '_', '_'],
+  ['_', '_', 'K', '_', 'K', '_', 'K', '_', '_', '_', 'K', 'K', '_', '_', '_', '_'],
+  ['_', '_', 'K', 'K', '_', 'K', '_', 'K', '_', 'K', '_', 'K', 'K', '_', '_', '_'],
+  ['_', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', '_', '_'],
+  ['_', 'K', '_', '_', '_', '_', 'K', '_', 'K', '_', '_', '_', '_', 'K', '_', '_'],
+  ['_', 'K', 'K', 'K', 'K', 'K', 'K', '_', 'K', 'K', 'K', 'K', 'K', 'K', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+];
+
+const COLS = PIXELS[0].length;
+const grid = document.getElementById('grid');
+grid.style.gridTemplateColumns = `repeat(${COLS}, 5px)`;
+grid.style.gridTemplateRows    = `repeat(${PIXELS.length}, 5px)`;
+
+PIXELS.forEach(row => {
+  row.forEach(c => {
+    const div = document.createElement('div');
+    div.className = `px ${c}`;
+    grid.appendChild(div);
+  });
+});
+</script>
+
+</body>
+</html>

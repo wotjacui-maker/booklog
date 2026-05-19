@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>seojae — 독서 기록</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #f7f5f2;
+      --text:    #111;
+      --muted:   #999;
+      --border:  #ddd;
+      --surface: #fff;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: monospace;
+      min-height: 100vh;
+    }
+
+    /* ── 헤더 ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-link {
+      font-size: 8pt;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .back-link:hover { color: var(--text); }
+
+    .add-btn {
+      width: 24px;
+      height: 24px;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .add-btn:hover { opacity: 0.75; }
+
+    /* ── 검색 ── */
+    .search-wrap {
+      padding: 12px 24px 0;
+    }
+    .search-wrap input {
+      width: 100%;
+      font-family: monospace;
+      font-size: 8pt;
+      padding: 6px 0;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      outline: none;
+    }
+    .search-wrap input::placeholder { color: var(--muted); }
+
+    /* ── 책 목록 ── */
+    main {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ── 섹션 ── */
+    .book-section { display: flex; flex-direction: column; gap: 0; }
+
+    .section-label {
+      font-size: 7pt;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0;
+    }
+
+    /* ── 책 한 줄 ── */
+    .book-row {
+      padding: 10px 0;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .book-row:hover .book-name { text-decoration: underline; }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* bar-track, bar-fill은 turtle-track-wrap으로 대체 */
+    .turtle-track-wrap {
+      flex: 1;
+      position: relative;
+      height: 14px; /* turtle 높이 (14×5px × zoom 0.2 = 14px) */
+      overflow: visible;
+    }
+
+    .turtle-track-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .bar-pct {
+      font-size: 7pt;
+      color: var(--muted);
+      width: 28px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .book-name {
+      font-size: 8pt;
+      color: var(--text);
+    }
+
+    .book-completed {
+      font-size: 7pt;
+      color: var(--muted);
+    }
+
+    /* ── 빈 상태 ── */
+    .empty-state {
+      padding: 60px 24px;
+      text-align: center;
+      font-size: 8pt;
+      color: var(--muted);
+    }
+    .hidden { display: none !important; }
+
+    /* ── 모달 ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
+    }
+
+    .modal {
+      background: var(--surface);
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 9pt;
+      font-weight: bold;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 7pt;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      font-family: monospace;
+      font-size: 8pt;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--text);
+    }
+    textarea { resize: vertical; }
+
+    .required { color: #c00; }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      font-family: monospace;
+      font-size: 8pt;
+      padding: 6px 14px;
+      border: 1px solid var(--text);
+      cursor: pointer;
+      background: transparent;
+      color: var(--text);
+    }
+    .btn:hover { background: var(--text); color: var(--bg); }
+    .btn-primary { background: var(--text); color: var(--bg); }
+    .btn-primary:hover { opacity: 0.75; }
+    .btn-danger { border-color: #c00; color: #c00; }
+    .btn-danger:hover { background: #c00; color: #fff; }
+    .btn-sm { padding: 4px 10px; font-size: 7pt; }
+
+    /* ── 상세 모달 ── */
+    .detail-title {
+      font-size: 10pt;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .detail-author {
+      font-size: 7pt;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .progress-section {
+      margin-bottom: 20px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 7pt;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .progress-bar-track {
+      height: 5px;
+      background: var(--border);
+      margin-bottom: 10px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--text);
+      transition: width 0.4s ease;
+    }
+    .progress-update {
+      display: flex;
+      gap: 6px;
+    }
+    .progress-update input { flex: 1; }
+
+    .session-section h3 {
+      font-size: 7pt;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
+
+    .session-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .session-form input { flex: 1; min-width: 80px; }
+
+    .session-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .session-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 7pt;
+    }
+    .session-date { color: var(--muted); }
+    .session-pages { font-weight: bold; margin-top: 2px; }
+    .session-note { color: var(--muted); margin-top: 2px; }
+    .session-delete {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 10px;
+      padding: 0 4px;
+    }
+    .session-delete:hover { color: #c00; }
+
+    /* ── 책 검색 ── */
+    .book-search-wrap {
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .book-search-row {
+      display: flex;
+      gap: 6px;
+    }
+    .book-search-row input {
+      flex: 1;
+    }
+    .book-search-results {
+      list-style: none;
+      margin-top: 6px;
+      border: 1px solid var(--border);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .book-search-results li {
+      padding: 8px 10px;
+      font-size: 7pt;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .book-search-results li:last-child { border-bottom: none; }
+    .book-search-results li:hover { background: var(--bg); }
+    .bsr-title  { font-size: 8pt; color: var(--text); }
+    .bsr-author { color: var(--muted); }
+    .bsr-empty  { color: var(--muted); cursor: default; }
+    .bsr-empty:hover { background: none !important; }
+
+    .ttb-key-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 7pt;
+      color: var(--muted);
+    }
+    .key-link {
+      background: none;
+      border: none;
+      font-family: monospace;
+      font-size: 7pt;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+    .key-link:hover { color: var(--text); }
+    .key-set { color: #4a7; }
+
+    .ttb-key-edit {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .ttb-key-edit input { flex: 1; }
+
+    .lookup-btn {
+      font-family: monospace;
+      font-size: 7pt;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-top: 4px;
+      display: inline-block;
+    }
+    .lookup-btn:hover { color: var(--text); }
+    .lookup-btn:disabled { opacity: 0.4; cursor: default; }
+
+    .lookup-result {
+      font-size: 7pt;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--text);
+    }
+    .lookup-result .lr-item { display: flex; gap: 8px; }
+    .lookup-result .lr-key  { color: var(--muted); min-width: 36px; flex-shrink: 0; }
+    .lookup-result .lr-val  { word-break: keep-all; }
+    .lookup-result .lr-sep  {
+      border: none; border-top: 1px dashed var(--border);
+      margin: 2px 0;
+    }
+    .lookup-result .lr-more {
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .completed-date {
+      font-size: 7pt;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .detail-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 2px 6px;
+    }
+    .close-btn:hover { color: var(--text); }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 480px) {
+      header { padding: 14px 16px; }
+      main { padding: 16px; }
+      .search-wrap { padding: 10px 16px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span></span>
+    <button class="add-btn" id="openAddModal">+</button>
+  </header>
+
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="search" />
+  </div>
+
+  <main id="bookList"></main>
+
+  <div class="empty-state hidden" id="emptyState">
+    아직 기록된 책이 없어요.
+  </div>
+
+  <!-- ── 책 추가 모달 ── -->
+  <div class="modal-overlay hidden" id="addModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">NEW BOOK</h2>
+        <button class="close-btn" id="closeAddModal">✕</button>
+      </div>
+
+      <!-- 검색 -->
+      <div class="book-search-wrap">
+        <div class="book-search-row">
+          <input type="text" id="bookSearchInput" placeholder="제목으로 검색…" autocomplete="off" />
+          <button type="button" class="btn btn-sm btn-primary" id="bookSearchBtn">검색</button>
+        </div>
+        <div class="ttb-key-row" id="ttbKeyRow">
+          <span>알라딘 TTB키가 없으면 검색이 안 돼요.</span>
+          <button type="button" class="key-link" id="showKeyInput">키 설정</button>
+        </div>
+        <div class="ttb-key-edit hidden" id="ttbKeyEdit">
+          <input type="text" id="ttbKeyInput" placeholder="ttbxxxxxxxx (aladin.co.kr에서 무료 발급)" />
+          <button type="button" class="btn btn-sm btn-primary" id="saveKeyBtn">저장</button>
+        </div>
+        <ul class="book-search-results hidden" id="bookSearchResults"></ul>
+      </div>
+
+      <form id="addBookForm" autocomplete="off">
+        <label>제목 <span class="required">*</span>
+          <input type="text" id="inputTitle" required placeholder="책 제목" />
+        </label>
+        <label>저자
+          <input type="text" id="inputAuthor" placeholder="저자명" />
+        </label>
+        <label>총 페이지 수
+          <input type="number" id="inputPages" min="1" placeholder="예: 320" />
+        </label>
+        <label>상태
+          <select id="inputStatus">
+            <option value="wish">읽고 싶어요</option>
+            <option value="reading">읽는 중</option>
+            <option value="done">완독</option>
+          </select>
+        </label>
+        <label>메모
+          <textarea id="inputNote" rows="2" placeholder="메모"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn" id="closeAddModal2">취소</button>
+          <button type="submit" class="btn btn-primary">추가</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── 책 상세 모달 ── -->
+  <div class="modal-overlay hidden" id="detailModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="detail-title" id="detailTitle"></div>
+          <div class="detail-author" id="detailAuthor"></div>
+          <button class="lookup-btn" id="lookupBtn">↗ 검색</button>
+        </div>
+        <button class="close-btn" id="closeDetailModal">✕</button>
+      </div>
+
+      <div class="lookup-result hidden" id="lookupResult"></div>
+
+      <div class="progress-section">
+        <div class="progress-label">
+          <span id="progressText">0 / 0 페이지</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-update">
+          <input type="number" id="currentPageInput" min="0" placeholder="현재 페이지" />
+          <button class="btn btn-sm btn-primary" id="updateProgressBtn">업데이트</button>
+        </div>
+      </div>
+
+      <div class="completed-date hidden" id="completedDate"></div>
+
+      <div class="detail-actions">
+        <button class="btn btn-sm" id="editBookBtn">편집</button>
+        <button class="btn btn-sm btn-danger" id="deleteBookBtn">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 편집 모달 ── -->
+  <div class="modal-overlay hidden" id="editModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">EDIT</h2>
+        <button class="close-btn" id="closeEditModal">✕</button>
+      </div>
+      <form id="editBookForm" autocomplete="off">
+        <input type="hidden" id="editId" />
+        <label>제목 <span class="required">*</span>
+          <input type="text" id="editTitle" required />
+        </label>
+        <label>저자
+          <input type="text" id="editAuthor" />
+        </label>
+        <label>총 페이지 수
+          <input type="number" id="editPages" min="1" />
+        </label>
+        <label>상태
+          <select id="editStatus">
+            <option value="wish">읽고 싶어요</option>
+            <option value="reading">읽는 중</option>
+            <option value="done">완독</option>
+          </select>
+        </label>
+        <label>메모
+          <textarea id="editNote" rows="2"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn" id="closeEditModal2">취소</button>
+          <button type="submit" class="btn btn-primary">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js?v=3"></script>
+</body>
+</html>

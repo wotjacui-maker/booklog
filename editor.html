@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>픽셀 에디터</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a1a;
+      color: #eee;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px;
+      gap: 20px;
+      min-height: 100vh;
+    }
+
+    h1 { font-size: 13px; letter-spacing: 2px; color: #aaa; }
+
+    /* ── 툴바 ── */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tool-btn {
+      padding: 6px 14px;
+      border: 1.5px solid #444;
+      border-radius: 6px;
+      background: #2a2a2a;
+      color: #ccc;
+      font-family: monospace;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+    .tool-btn:hover   { border-color: #888; color: #fff; }
+    .tool-btn.active  { background: #eee; color: #111; border-color: #eee; }
+    .tool-btn.danger  { border-color: #833; color: #f88; }
+    .tool-btn.danger:hover { background: #833; color: #fff; }
+
+    .sep { width: 1px; height: 24px; background: #444; }
+
+    /* 그리드 크기 입력 */
+    .size-input {
+      display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888;
+    }
+    .size-input input {
+      width: 36px; padding: 4px 6px; background: #2a2a2a; border: 1.5px solid #444;
+      color: #ccc; border-radius: 4px; font-family: monospace; font-size: 11px;
+      text-align: center;
+    }
+
+    /* ── 캔버스 영역 ── */
+    .canvas-wrap {
+      position: relative;
+      cursor: crosshair;
+    }
+
+    canvas#grid {
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    /* ── 미리보기 ── */
+    .preview-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-label { font-size: 10px; color: #666; letter-spacing: 1px; }
+    canvas#preview {
+      image-rendering: pixelated;
+      background: #f7f5f2;
+    }
+
+    /* ── 코드 출력 ── */
+    .code-section {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: #666;
+      letter-spacing: 1px;
+    }
+    textarea#codeOut {
+      width: 100%;
+      height: 160px;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #7ec98a;
+      font-family: monospace;
+      font-size: 10px;
+      padding: 12px;
+      resize: vertical;
+      outline: none;
+    }
+
+    .copy-toast {
+      font-size: 10px;
+      color: #7ec98a;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .copy-toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<h1>PIXEL EDITOR</h1>
+
+<!-- 툴바 -->
+<div class="toolbar">
+  <button class="tool-btn active" id="btnDraw"  onclick="setTool('draw')">✏️ 그리기</button>
+  <button class="tool-btn"        id="btnErase" onclick="setTool('erase')">⬜ 지우기</button>
+  <div class="sep"></div>
+  <button class="tool-btn" onclick="clearAll()">🗑 전체 지우기</button>
+  <button class="tool-btn" onclick="invertAll()">◑ 반전</button>
+  <div class="sep"></div>
+  <div class="size-input">
+    W <input id="wInput" type="number" value="16" min="4" max="32" onchange="resizeGrid()">
+    H <input id="hInput" type="number" value="14" min="4" max="32" onchange="resizeGrid()">
+  </div>
+</div>
+
+<!-- 캔버스 -->
+<div class="canvas-wrap">
+  <canvas id="grid"></canvas>
+</div>
+
+<!-- 미리보기 -->
+<div class="preview-section">
+  <div class="preview-label">PREVIEW (5px/pixel)</div>
+  <canvas id="preview"></canvas>
+</div>
+
+<!-- 코드 출력 -->
+<div class="code-section">
+  <div class="code-header">
+    <span>PIXEL MAP (index.html 에 붙여넣기)</span>
+    <span class="copy-toast" id="toast">복사됨!</span>
+    <button class="tool-btn" onclick="copyCode()">📋 복사</button>
+  </div>
+  <textarea id="codeOut" readonly></textarea>
+</div>
+
+<script>
+const CELL = 28;          // 에디터 셀 크기(px)
+const BORDER = 1;         // 격자선 두께
+const FILLED  = '#111111';
+const EMPTY   = '#ffffff';
+const GRID_CLR = '#cccccc';
+
+let cols = 16, rows = 14;
+let pixels = [];          // pixels[r][c] = true(검정) | false(흰)
+let tool  = 'draw';       // 'draw' | 'erase'
+let painting = false;
+let paintVal = true;
+
+const gridCanvas   = document.getElementById('grid');
+const prevCanvas   = document.getElementById('preview');
+const gc           = gridCanvas.getContext('2d');
+const pc           = prevCanvas.getContext('2d');
+
+// ── 초기화 ──
+function init() {
+  pixels = Array.from({length: rows}, () => Array(cols).fill(false));
+  gridCanvas.width  = cols * (CELL + BORDER) + BORDER;
+  gridCanvas.height = rows * (CELL + BORDER) + BORDER;
+  drawGrid();
+  updatePreview();
+  updateCode();
+}
+
+function resizeGrid() {
+  const nw = parseInt(document.getElementById('wInput').value) || 16;
+  const nh = parseInt(document.getElementById('hInput').value) || 14;
+  // 기존 데이터 보존하면서 크기 조정
+  const newPx = Array.from({length: nh}, (_, r) =>
+    Array.from({length: nw}, (_, c) =>
+      (pixels[r] && pixels[r][c]) ? pixels[r][c] : false
+    )
+  );
+  cols   = nw;
+  rows   = nh;
+  pixels = newPx;
+  gridCanvas.width  = cols * (CELL + BORDER) + BORDER;
+  gridCanvas.height = rows * (CELL + BORDER) + BORDER;
+  drawGrid();
+  updatePreview();
+  updateCode();
+}
+
+// ── 그리기 ──
+function drawGrid() {
+  gc.fillStyle = GRID_CLR;
+  gc.fillRect(0, 0, gridCanvas.width, gridCanvas.height);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = c * (CELL + BORDER) + BORDER;
+      const y = r * (CELL + BORDER) + BORDER;
+      gc.fillStyle = pixels[r][c] ? FILLED : EMPTY;
+      gc.fillRect(x, y, CELL, CELL);
+    }
+  }
+}
+
+function updatePreview() {
+  const PX = 5;
+  prevCanvas.width  = cols * PX;
+  prevCanvas.height = rows * PX;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      pc.fillStyle = pixels[r][c] ? '#111' : 'transparent';
+      pc.clearRect(c * PX, r * PX, PX, PX);
+      if (pixels[r][c]) pc.fillRect(c * PX, r * PX, PX, PX);
+    }
+  }
+}
+
+function updateCode() {
+  const lines = pixels.map(row => {
+    const cells = row.map(v => v ? "'K'" : "'_'");
+    return '  [' + cells.join(', ') + ']';
+  });
+  document.getElementById('codeOut').value =
+    'const PIXELS = [\n' + lines.join(',\n') + '\n];';
+}
+
+// ── 픽셀 좌표 계산 ──
+function cellAt(e) {
+  const rect = gridCanvas.getBoundingClientRect();
+  const scaleX = gridCanvas.width  / rect.width;
+  const scaleY = gridCanvas.height / rect.height;
+  const px = (e.clientX - rect.left) * scaleX;
+  const py = (e.clientY - rect.top)  * scaleY;
+  const c = Math.floor(px / (CELL + BORDER));
+  const r = Math.floor(py / (CELL + BORDER));
+  return { r, c };
+}
+
+function paint(r, c) {
+  if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+  pixels[r][c] = paintVal;
+  // 해당 셀만 다시 그리기
+  const x = c * (CELL + BORDER) + BORDER;
+  const y = r * (CELL + BORDER) + BORDER;
+  gc.fillStyle = pixels[r][c] ? FILLED : EMPTY;
+  gc.fillRect(x, y, CELL, CELL);
+  updatePreview();
+  updateCode();
+}
+
+// ── 마우스/터치 이벤트 ──
+gridCanvas.addEventListener('mousedown', e => {
+  e.preventDefault();
+  painting = true;
+  const { r, c } = cellAt(e);
+  paintVal = (tool === 'draw') ? true : false;
+  paint(r, c);
+});
+gridCanvas.addEventListener('mousemove', e => {
+  if (!painting) return;
+  const { r, c } = cellAt(e);
+  paint(r, c);
+});
+window.addEventListener('mouseup',   () => { painting = false; });
+window.addEventListener('mouseleave', () => { painting = false; });
+
+// 터치 지원
+gridCanvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  painting = true;
+  const t = e.touches[0];
+  const { r, c } = cellAt(t);
+  paintVal = (tool === 'draw') ? true : false;
+  paint(r, c);
+}, { passive: false });
+gridCanvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!painting) return;
+  const t = e.touches[0];
+  const { r, c } = cellAt(t);
+  paint(r, c);
+}, { passive: false });
+gridCanvas.addEventListener('touchend', () => { painting = false; });
+
+// ── 툴 변경 ──
+function setTool(t) {
+  tool = t;
+  document.getElementById('btnDraw').classList.toggle('active', t === 'draw');
+  document.getElementById('btnErase').classList.toggle('active', t === 'erase');
+}
+
+// ── 유틸 ──
+function clearAll() {
+  pixels = Array.from({length: rows}, () => Array(cols).fill(false));
+  drawGrid();
+  updatePreview();
+  updateCode();
+}
+
+function invertAll() {
+  pixels = pixels.map(row => row.map(v => !v));
+  drawGrid();
+  updatePreview();
+  updateCode();
+}
+
+function copyCode() {
+  const code = document.getElementById('codeOut').value;
+  navigator.clipboard.writeText(code).then(() => {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1500);
+  });
+}
+
+// ── 시작 ──
+init();
+</script>
+</body>
+</html>

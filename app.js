@@ -1,0 +1,554 @@
+// ── 스토리지 ──
+const STORAGE_KEY = 'bookshelf_v1';
+
+function loadBooks() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function saveBooks(books) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+}
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+// 완독 처리 — status가 done이 되는 순간 completedAt 기록
+function markDoneIfNeeded(book) {
+  if (book.status === 'done' && !book.completedAt) {
+    book.completedAt = new Date().toISOString();
+  }
+  if (book.status !== 'done') {
+    book.completedAt = null;
+  }
+}
+
+// ── 상태 ──
+let books = loadBooks();
+let currentSearch = '';
+let activeBookId = null;
+
+// ── DOM ──
+const bookList    = document.getElementById('bookList');
+const emptyState  = document.getElementById('emptyState');
+const searchInput = document.getElementById('searchInput');
+
+const addModal    = document.getElementById('addModal');
+const detailModal = document.getElementById('detailModal');
+const editModal   = document.getElementById('editModal');
+
+function openModal(m)  { m.classList.remove('hidden'); }
+function closeModal(m) { m.classList.add('hidden'); }
+
+[addModal, detailModal, editModal].forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m); })
+);
+
+document.getElementById('openAddModal').addEventListener('click', () => openModal(addModal));
+document.getElementById('closeDetailModal').addEventListener('click', () => {
+  closeModal(detailModal);
+  document.getElementById('lookupResult').classList.add('hidden');
+  document.getElementById('lookupBtn').textContent = '↗ 검색';
+});
+document.getElementById('closeEditModal').addEventListener('click',  () => closeModal(editModal));
+document.getElementById('closeEditModal2').addEventListener('click', () => closeModal(editModal));
+
+searchInput.addEventListener('input', () => {
+  currentSearch = searchInput.value.trim().toLowerCase();
+  renderList();
+});
+
+// ── 책 추가 ──
+document.getElementById('addBookForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const book = {
+    id:          generateId(),
+    title:       document.getElementById('inputTitle').value.trim(),
+    author:      document.getElementById('inputAuthor').value.trim(),
+    totalPages:  parseInt(document.getElementById('inputPages').value) || 0,
+    currentPage: 0,
+    status:      document.getElementById('inputStatus').value,
+    note:        document.getElementById('inputNote').value.trim(),
+    completedAt: null,
+    createdAt:   new Date().toISOString(),
+  };
+  markDoneIfNeeded(book);
+  books.unshift(book);
+  saveBooks(books);
+  document.getElementById('addBookForm').reset();
+  closeModal(addModal);
+  renderList();
+});
+
+// ── 렌더링 ──
+const SECTIONS = [
+  { status: 'reading', label: '읽는 중' },
+  { status: 'wish',    label: '읽고 싶어요' },
+  { status: 'done',    label: '완독' },
+];
+
+function renderList() {
+  bookList.innerHTML = '';
+  let total = 0;
+
+  SECTIONS.forEach(({ status, label }) => {
+    const filtered = books.filter(b => {
+      const matchStatus = b.status === status;
+      const matchSearch = !currentSearch ||
+        b.title.toLowerCase().includes(currentSearch) ||
+        b.author.toLowerCase().includes(currentSearch);
+      return matchStatus && matchSearch;
+    });
+    if (filtered.length === 0) return;
+    total += filtered.length;
+
+    const section = document.createElement('section');
+    section.className = 'book-section';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'section-label';
+    hdr.textContent = label;
+    section.appendChild(hdr);
+
+    filtered.forEach(book => section.appendChild(createRow(book)));
+    bookList.appendChild(section);
+  });
+
+  emptyState.classList.toggle('hidden', total > 0);
+}
+
+function createRow(book) {
+  const pct = book.totalPages > 0
+    ? Math.min(100, Math.round((book.currentPage / book.totalPages) * 100))
+    : (book.status === 'done' ? 100 : 0);
+
+  const row = document.createElement('div');
+  row.className = 'book-row';
+
+  // ── 거북이 트랙 ──
+  const barRow = document.createElement('div');
+  barRow.className = 'bar-row';
+
+  const trackWrap = document.createElement('div');
+  trackWrap.className = 'turtle-track-wrap';
+
+  // 바닥 선
+  const trackLine = document.createElement('div');
+  trackLine.className = 'turtle-track-line';
+  trackWrap.appendChild(trackLine);
+
+  // 발자국: 22px 타일을 끊김 없이 반복, 거북이 직전까지
+  if (pct > 0) {
+    const fillEl = document.createElement('div');
+    fillEl.style.position         = 'absolute';
+    fillEl.style.left             = '0';
+    fillEl.style.bottom           = '0';
+    fillEl.style.width            = `calc(${pct}% - 8px)`;
+    fillEl.style.height           = '6px';
+    fillEl.style.backgroundImage  = `url(${getFootprintBg()})`;
+    fillEl.style.backgroundRepeat = 'repeat-x';
+    fillEl.style.backgroundSize   = '22px 6px';
+    fillEl.style.backgroundPosition = 'left bottom';
+    fillEl.style.imageRendering   = 'pixelated';
+    trackWrap.appendChild(fillEl);
+  }
+
+  // 거북이: translateX(-pct%) 로 left edge=0%, center=50%, right edge=100%
+  const turtleEl = makePxGrid(TURTLE_PIXELS, 0.2);
+  turtleEl.style.position  = 'absolute';
+  turtleEl.style.left      = pct + '%';
+  turtleEl.style.bottom    = '0';
+  turtleEl.style.transform = `translateX(-${pct}%)`;
+  trackWrap.appendChild(turtleEl);
+
+  const pctEl = document.createElement('span');
+  pctEl.className   = 'bar-pct';
+  pctEl.textContent = pct + '%';
+
+  barRow.appendChild(trackWrap);
+  barRow.appendChild(pctEl);
+  row.appendChild(barRow);
+
+  const nameEl = document.createElement('div');
+  nameEl.className   = 'book-name';
+  nameEl.textContent = book.title;
+  row.appendChild(nameEl);
+
+  if (book.completedAt) {
+    const doneEl = document.createElement('div');
+    doneEl.className   = 'book-completed';
+    doneEl.textContent = fmtDate(book.completedAt) + ' 완독';
+    row.appendChild(doneEl);
+  }
+
+  row.addEventListener('click', () => openDetail(book.id));
+  return row;
+}
+
+// ── 상세 모달 ──
+function openDetail(id) {
+  const book = books.find(b => b.id === id);
+  if (!book) return;
+  activeBookId = id;
+
+  document.getElementById('detailTitle').textContent  = book.title;
+  document.getElementById('detailAuthor').textContent = book.author || '저자 미입력';
+
+  const pct = book.totalPages > 0
+    ? Math.min(100, Math.round((book.currentPage / book.totalPages) * 100))
+    : (book.status === 'done' ? 100 : 0);
+
+  document.getElementById('progressText').textContent = `${book.currentPage} / ${book.totalPages || '?'} 페이지`;
+  document.getElementById('progressPct').textContent  = `${pct}%`;
+  document.getElementById('progressFill').style.width = `${pct}%`;
+  document.getElementById('currentPageInput').value   = book.currentPage || '';
+  document.getElementById('currentPageInput').max     = book.totalPages || '';
+
+  const dateEl = document.getElementById('completedDate');
+  if (book.completedAt) {
+    dateEl.textContent = `완독일 · ${fmtDate(book.completedAt)}`;
+    dateEl.classList.remove('hidden');
+  } else {
+    dateEl.classList.add('hidden');
+  }
+
+  openModal(detailModal);
+}
+
+// 진행률 업데이트
+document.getElementById('updateProgressBtn').addEventListener('click', () => {
+  const book = books.find(b => b.id === activeBookId);
+  if (!book) return;
+  const val = parseInt(document.getElementById('currentPageInput').value);
+  if (isNaN(val) || val < 0) return;
+  book.currentPage = val;
+  if (book.totalPages > 0 && val >= book.totalPages) {
+    book.status = 'done';
+  }
+  markDoneIfNeeded(book);
+  saveBooks(books);
+  openDetail(activeBookId);
+  renderList();
+});
+
+// 삭제
+document.getElementById('deleteBookBtn').addEventListener('click', () => {
+  const book = books.find(b => b.id === activeBookId);
+  if (!book || !confirm(`"${book.title}" 을 삭제할까요?`)) return;
+  books = books.filter(b => b.id !== activeBookId);
+  saveBooks(books);
+  closeModal(detailModal);
+  renderList();
+});
+
+// 편집 열기
+document.getElementById('editBookBtn').addEventListener('click', () => {
+  const book = books.find(b => b.id === activeBookId);
+  if (!book) return;
+  document.getElementById('editId').value     = book.id;
+  document.getElementById('editTitle').value  = book.title;
+  document.getElementById('editAuthor').value = book.author;
+  document.getElementById('editPages').value  = book.totalPages || '';
+  document.getElementById('editStatus').value = book.status;
+  document.getElementById('editNote').value   = book.note;
+  closeModal(detailModal);
+  openModal(editModal);
+});
+
+// 편집 저장
+document.getElementById('editBookForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const book = books.find(b => b.id === document.getElementById('editId').value);
+  if (!book) return;
+  book.title      = document.getElementById('editTitle').value.trim();
+  book.author     = document.getElementById('editAuthor').value.trim();
+  book.totalPages = parseInt(document.getElementById('editPages').value) || 0;
+  book.status     = document.getElementById('editStatus').value;
+  book.note       = document.getElementById('editNote').value.trim();
+  markDoneIfNeeded(book);
+  saveBooks(books);
+  closeModal(editModal);
+  renderList();
+});
+
+// ── 픽셀 아트 ──
+const TURTLE_PIXELS = [
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','K','K','K','_','_'],
+  ['_','_','_','_','_','K','K','K','K','_','K','_','_','_','K','_'],
+  ['_','_','_','_','K','_','K','_','K','K','K','_','K','_','K','_'],
+  ['_','_','_','K','_','K','_','_','_','K','_','_','_','_','K','_'],
+  ['_','_','K','_','K','_','K','_','K','_','K','_','_','K','K','_'],
+  ['_','_','K','K','_','_','_','K','_','K','_','K','K','K','_','_'],
+  ['_','_','K','_','K','_','K','_','_','_','K','K','_','_','_','_'],
+  ['_','_','K','K','_','K','_','K','_','K','_','K','K','_','_','_'],
+  ['_','K','K','K','K','K','K','K','K','K','K','K','K','K','_','_'],
+  ['_','K','_','_','_','_','K','_','K','_','_','_','_','K','_','_'],
+  ['_','K','K','K','K','K','K','_','K','K','K','K','K','K','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+];
+
+const FOOTPRINT_PIXELS = [
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','K','K','_','_','_','_','K','K','_','_','_'],
+  ['_','_','K','K','_','_','_','_','K','K','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+];
+
+// 발자국 canvas: 빈 앞·뒤 컬럼을 잘라서 타일이 이음새 없이 반복되게 함
+// 원본 K가 있는 영역: col 2-12 (11칸), row 7-8 (2줄)
+// 이 타일 끝(col 10)과 다음 타일 시작(col 0→원본col2) 사이 = 0칸 간격 → 완전 연속
+let _fpBg = null;
+function getFootprintBg() {
+  if (_fpBg) return _fpBg;
+  const SCALE = 2;
+  const TRIM_START = 2;   // 원본 col 2부터
+  const TRIM_COLS  = 11;  // col 2-12 → 11칸
+  const MARK_ROWS  = [7, 8];
+  const W = TRIM_COLS * SCALE;              // 22
+  const H = (MARK_ROWS.length + 1) * SCALE; // 6
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  MARK_ROWS.forEach((origRow, ri) => {
+    const rowData = FOOTPRINT_PIXELS[origRow];
+    for (let c = TRIM_START; c < TRIM_START + TRIM_COLS; c++) {
+      if (rowData[c] === 'K') {
+        ctx.fillStyle = '#111111';
+        ctx.fillRect((c - TRIM_START) * SCALE, (ri + 1) * SCALE, SCALE, SCALE);
+      }
+    }
+  });
+  _fpBg = canvas.toDataURL();
+  return _fpBg;
+}
+
+function makePxGrid(pixels, zoom) {
+  const cols = pixels[0].length;
+  const rows = pixels.length;
+  const el = document.createElement('div');
+  el.style.display = 'grid';
+  el.style.gridTemplateColumns = `repeat(${cols}, 5px)`;
+  el.style.gridTemplateRows    = `repeat(${rows}, 5px)`;
+  el.style.zoom = zoom;
+  el.style.imageRendering = 'pixelated';
+  el.style.gap = '0';
+  el.style.flexShrink = '0';
+  pixels.forEach(row => row.forEach(c => {
+    const px = document.createElement('div');
+    px.style.width  = '5px';
+    px.style.height = '5px';
+    if (c === 'K') px.style.background = '#111';
+    el.appendChild(px);
+  }));
+  return el;
+}
+
+// ── 헬퍼 ──
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// ── 알라딘 TTB 키 관리 ──
+const TTB_KEY = 'aladin_ttb_key';
+
+function getTtbKey() { return localStorage.getItem(TTB_KEY) || ''; }
+function saveTtbKey(k) { localStorage.setItem(TTB_KEY, k.trim()); }
+
+const ttbKeyRow  = document.getElementById('ttbKeyRow');
+const ttbKeyEdit = document.getElementById('ttbKeyEdit');
+const ttbKeyInput = document.getElementById('ttbKeyInput');
+const showKeyInputBtn = document.getElementById('showKeyInput');
+const saveKeyBtn = document.getElementById('saveKeyBtn');
+
+function refreshKeyUI() {
+  const key = getTtbKey();
+  if (key) {
+    ttbKeyRow.innerHTML = `<span class="key-set">TTB키 설정됨</span><button type="button" class="key-link" id="showKeyInput">변경</button>`;
+    document.getElementById('showKeyInput').addEventListener('click', showKeyEditPanel);
+  } else {
+    ttbKeyRow.innerHTML = `<span>알라딘 TTB키가 없으면 검색이 안 돼요.</span><button type="button" class="key-link" id="showKeyInput">키 설정</button>`;
+    document.getElementById('showKeyInput').addEventListener('click', showKeyEditPanel);
+  }
+  ttbKeyEdit.classList.add('hidden');
+}
+
+function showKeyEditPanel() {
+  ttbKeyInput.value = getTtbKey();
+  ttbKeyEdit.classList.remove('hidden');
+  ttbKeyInput.focus();
+}
+
+saveKeyBtn.addEventListener('click', () => {
+  const val = ttbKeyInput.value.trim();
+  if (!val) return;
+  saveTtbKey(val);
+  refreshKeyUI();
+});
+
+refreshKeyUI();
+
+// ── 알라딘 JSONP 검색 ──
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cb = '__aladin_' + Date.now();
+    window[cb] = data => { delete window[cb]; s.remove(); resolve(data); };
+    const s = document.createElement('script');
+    s.onerror = () => { delete window[cb]; s.remove(); reject(new Error('network')); };
+    s.src = url + '&CallBack=' + cb;
+    document.head.appendChild(s);
+  });
+}
+
+function fillForm(item) {
+  document.getElementById('inputTitle').value  = item.title || '';
+  document.getElementById('inputAuthor').value = item.author || '';
+  document.getElementById('inputPages').value  = item.subInfo?.itemPage || '';
+  document.getElementById('bookSearchResults').classList.add('hidden');
+}
+
+const bookSearchBtn     = document.getElementById('bookSearchBtn');
+const bookSearchInput   = document.getElementById('bookSearchInput');
+const bookSearchResults = document.getElementById('bookSearchResults');
+
+async function runBookSearch() {
+  const query = bookSearchInput.value.trim();
+  if (!query) return;
+
+  const key = getTtbKey();
+  if (!key) {
+    showKeyEditPanel();
+    return;
+  }
+
+  if (!navigator.onLine) {
+    bookSearchResults.innerHTML = '<li class="bsr-empty">오프라인 상태예요.</li>';
+    bookSearchResults.classList.remove('hidden');
+    return;
+  }
+
+  bookSearchBtn.textContent = '…';
+  bookSearchBtn.disabled = true;
+
+  try {
+    const q   = encodeURIComponent(query);
+    const url = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${q}&QueryType=Title&MaxResults=5&SearchTarget=Book&output=js&Version=20131101`;
+    const data = await jsonp(url);
+    const items = data.item || [];
+
+    if (!items.length) {
+      bookSearchResults.innerHTML = '<li class="bsr-empty">결과가 없어요.</li>';
+    } else {
+      bookSearchResults.innerHTML = '';
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span class="bsr-title">${esc(item.title || '—')}</span>
+          <span class="bsr-author">${esc(item.author || '—')}</span>
+        `;
+        li.addEventListener('click', () => fillForm(item));
+        bookSearchResults.appendChild(li);
+      });
+    }
+    bookSearchResults.classList.remove('hidden');
+  } catch {
+    bookSearchResults.innerHTML = '<li class="bsr-empty">검색 중 오류가 발생했어요.</li>';
+    bookSearchResults.classList.remove('hidden');
+  } finally {
+    bookSearchBtn.textContent = '검색';
+    bookSearchBtn.disabled = false;
+  }
+}
+
+bookSearchBtn.addEventListener('click', runBookSearch);
+bookSearchInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); runBookSearch(); } });
+
+// 모달 닫을 때 검색 초기화
+function resetAddModal() {
+  bookSearchInput.value = '';
+  bookSearchResults.classList.add('hidden');
+  bookSearchResults.innerHTML = '';
+  refreshKeyUI();
+}
+document.getElementById('closeAddModal').addEventListener('click',  () => { closeModal(addModal); resetAddModal(); });
+document.getElementById('closeAddModal2').addEventListener('click', () => { closeModal(addModal); resetAddModal(); });
+
+// ── 책 정보 검색 (Aladin API) ──
+document.getElementById('lookupBtn').addEventListener('click', async () => {
+  const book = books.find(b => b.id === activeBookId);
+  if (!book) return;
+
+  const resultEl = document.getElementById('lookupResult');
+  const btn      = document.getElementById('lookupBtn');
+  const key      = getTtbKey();
+
+  if (!key) {
+    resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">알라딘 TTB키를 먼저 설정해주세요.</span></div>';
+    resultEl.classList.remove('hidden');
+    return;
+  }
+
+  if (!navigator.onLine) {
+    resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">오프라인 상태예요.</span></div>';
+    resultEl.classList.remove('hidden');
+    return;
+  }
+
+  btn.textContent = '...';
+  btn.disabled = true;
+  resultEl.classList.add('hidden');
+
+  try {
+    const q   = encodeURIComponent(book.title);
+    const url = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${q}&QueryType=Title&MaxResults=3&SearchTarget=Book&output=js&Version=20131101`;
+    const data  = await jsonp(url);
+    const items = data.item || [];
+
+    if (!items.length) {
+      resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">검색 결과가 없어요.</span></div>';
+      resultEl.classList.remove('hidden');
+      return;
+    }
+
+    resultEl.innerHTML = items.map((item, i) => {
+      const pub     = item.publisher || '';
+      const date    = (item.pubDate || '').slice(0, 4);
+      const pubLine = [pub, date].filter(Boolean).join(' · ');
+      const sep     = i < items.length - 1 ? '<hr class="lr-sep">' : '';
+      return `
+        <div class="lr-item"><span class="lr-key">제목</span><span class="lr-val">${esc(item.title || '—')}</span></div>
+        <div class="lr-item"><span class="lr-key">저자</span><span class="lr-val">${esc(item.author || '—')}</span></div>
+        ${pubLine ? `<div class="lr-item"><span class="lr-key">출판</span><span class="lr-val">${esc(pubLine)}</span></div>` : ''}
+        ${sep}
+      `;
+    }).join('');
+
+    resultEl.classList.remove('hidden');
+  } catch {
+    resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">검색 중 오류가 발생했어요.</span></div>';
+    resultEl.classList.remove('hidden');
+  } finally {
+    btn.textContent = '↗ 검색';
+    btn.disabled = false;
+  }
+});
+
+// ── 시작 ──
+renderList();

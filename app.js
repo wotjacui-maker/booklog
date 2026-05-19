@@ -407,7 +407,7 @@ refreshKeyUI();
 async function kakaoSearch(query, size = 5) {
   const key = getKakaoKey();
   const res = await fetch(
-    `https://dapi.kakao.com/v3/search/book?query=${encodeURIComponent(query)}&target=title&size=${size}`,
+    `https://dapi.kakao.com/v2/search/book?query=${encodeURIComponent(query)}&size=${size}`,
     { headers: { Authorization: `KakaoAK ${key}` } }
   );
   if (!res.ok) throw new Error(res.status);

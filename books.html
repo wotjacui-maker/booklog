@@ -42,19 +42,16 @@
     .back-link:hover { color: var(--text); }
 
     .add-btn {
-      width: 24px;
-      height: 24px;
-      background: var(--text);
-      color: var(--bg);
+      background: none;
       border: none;
-      font-size: 16px;
-      line-height: 1;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-family: 'Noto Sans KR', monospace;
+      font-size: 7pt;
+      color: var(--muted);
+      letter-spacing: 2px;
+      padding: 0;
     }
-    .add-btn:hover { opacity: 0.75; }
+    .add-btn:hover { color: var(--text); }
 
     /* ── 검색 ── */
     .search-wrap {
@@ -460,7 +457,7 @@
 
   <header>
     <span></span>
-    <button class="add-btn" id="openAddModal">+</button>
+    <button class="add-btn" id="openAddModal">new</button>
   </header>
 
   <div class="search-wrap">

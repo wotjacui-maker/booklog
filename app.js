@@ -373,10 +373,9 @@ async function googleSearch(query, size = 5) {
   const apiUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx` +
     `?TTBKey=${ALADIN_TTB}&Query=${encodeURIComponent(query)}` +
     `&QueryType=Title&MaxResults=${size}&SearchTarget=Book&output=js&Version=20131101`;
-  const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`);
+  const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(apiUrl)}`);
   if (!res.ok) throw new Error(res.status);
-  const wrapper = await res.json();
-  const books = JSON.parse(wrapper.contents);
+  const books = await res.json();
   return (books.item || []).map(item => ({
     title:   item.title || '',
     authors: [item.author || ''],

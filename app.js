@@ -366,60 +366,37 @@ function fmtDate(iso) {
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 
-// ── Kakao API 키 관리 ──
-const KAKAO_KEY = 'kakao_api_key';
-
-function getKakaoKey() { return localStorage.getItem(KAKAO_KEY) || ''; }
-function saveKakaoKey(k) { localStorage.setItem(KAKAO_KEY, k.trim()); }
-
-const ttbKeyRow   = document.getElementById('ttbKeyRow');
-const ttbKeyEdit  = document.getElementById('ttbKeyEdit');
-const ttbKeyInput = document.getElementById('ttbKeyInput');
-const saveKeyBtn  = document.getElementById('saveKeyBtn');
-
-function refreshKeyUI() {
-  const key = getKakaoKey();
-  if (key) {
-    ttbKeyRow.innerHTML = `<span class="key-set">검색 사용 가능</span><button type="button" class="key-link" id="showKeyInput">키 변경</button>`;
-  } else {
-    ttbKeyRow.innerHTML = `<span>Kakao API키를 설정하면 검색 가능해요.</span><button type="button" class="key-link" id="showKeyInput">키 설정</button>`;
-  }
-  document.getElementById('showKeyInput').addEventListener('click', showKeyEditPanel);
-  ttbKeyEdit.classList.add('hidden');
-}
-
-function showKeyEditPanel() {
-  ttbKeyInput.value = getKakaoKey();
-  ttbKeyEdit.classList.remove('hidden');
-  ttbKeyInput.focus();
-}
-
-saveKeyBtn.addEventListener('click', () => {
-  const val = ttbKeyInput.value.trim();
-  if (!val) return;
-  saveKakaoKey(val);
-  refreshKeyUI();
-});
-
-refreshKeyUI();
-
-// ── Kakao Books API 검색 ──
-async function kakaoSearch(query, size = 5) {
-  const key = getKakaoKey();
+// ── Google Books API 검색 (키 불필요, CORS 지원) ──
+async function googleSearch(query, size = 5) {
   const res = await fetch(
-    `https://dapi.kakao.com/v2/search/book?query=${encodeURIComponent(query)}&size=${size}`,
-    { headers: { Authorization: `KakaoAK ${key}` } }
+    `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=${size}&langRestrict=ko`
   );
   if (!res.ok) throw new Error(res.status);
-  return (await res.json()).documents || [];
+  const data = await res.json();
+  return (data.items || []).map(item => {
+    const info = item.volumeInfo || {};
+    return {
+      title:   info.title || '',
+      authors: info.authors || [],
+      pages:   info.pageCount || 0,
+    };
+  });
 }
 
 function fillForm(item) {
   document.getElementById('inputTitle').value  = item.title || '';
   document.getElementById('inputAuthor').value = (item.authors || []).join(', ');
-  document.getElementById('inputPages').value  = '';
+  document.getElementById('inputPages').value  = item.pages || '';
   document.getElementById('bookSearchResults').classList.add('hidden');
 }
+
+// 키 관련 UI 요소 — 숨김 처리
+(function() {
+  const row  = document.getElementById('ttbKeyRow');
+  const edit = document.getElementById('ttbKeyEdit');
+  if (row)  row.style.display  = 'none';
+  if (edit) edit.style.display = 'none';
+})();
 
 const bookSearchBtn     = document.getElementById('bookSearchBtn');
 const bookSearchInput   = document.getElementById('bookSearchInput');
@@ -429,7 +406,6 @@ async function runBookSearch() {
   const query = bookSearchInput.value.trim();
   if (!query) return;
 
-  if (!getKakaoKey()) { showKeyEditPanel(); return; }
   if (!navigator.onLine) {
     bookSearchResults.innerHTML = '<li class="bsr-empty">오프라인 상태예요.</li>';
     bookSearchResults.classList.remove('hidden');
@@ -440,7 +416,7 @@ async function runBookSearch() {
   bookSearchBtn.disabled = true;
 
   try {
-    const items = await kakaoSearch(query, 5);
+    const items = await googleSearch(query, 5);
     if (!items.length) {
       bookSearchResults.innerHTML = '<li class="bsr-empty">결과가 없어요.</li>';
     } else {
@@ -485,11 +461,6 @@ document.getElementById('lookupBtn').addEventListener('click', async () => {
   const resultEl = document.getElementById('lookupResult');
   const btn      = document.getElementById('lookupBtn');
 
-  if (!getKakaoKey()) {
-    resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">Kakao API키를 먼저 설정해주세요.</span></div>';
-    resultEl.classList.remove('hidden');
-    return;
-  }
   if (!navigator.onLine) {
     resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">오프라인 상태예요.</span></div>';
     resultEl.classList.remove('hidden');
@@ -501,7 +472,7 @@ document.getElementById('lookupBtn').addEventListener('click', async () => {
   resultEl.classList.add('hidden');
 
   try {
-    const items = await kakaoSearch(book.title, 3);
+    const items = await googleSearch(book.title, 3);
 
     if (!items.length) {
       resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">검색 결과가 없어요.</span></div>';
@@ -511,8 +482,8 @@ document.getElementById('lookupBtn').addEventListener('click', async () => {
 
     resultEl.innerHTML = items.map((item, i) => {
       const authors = (item.authors || []).join(', ') || '—';
-      const pub     = item.publisher || '';
-      const date    = (item.datetime || '').slice(0, 4);
+      const pub     = '';
+      const date    = '';
       const pubLine = [pub, date].filter(Boolean).join(' · ');
       const sep     = i < items.length - 1 ? '<hr class="lr-sep">' : '';
       return `

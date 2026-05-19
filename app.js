@@ -173,7 +173,7 @@ function createRow(book) {
   nameEl.textContent = book.title;
   row.appendChild(nameEl);
 
-  if (book.createdAt) {
+  if (book.status !== 'wish' && book.createdAt) {
     const dateEl = document.createElement('div');
     dateEl.className = 'book-completed';
     dateEl.textContent = book.completedAt

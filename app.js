@@ -456,8 +456,8 @@ async function runBookSearch() {
       });
     }
     bookSearchResults.classList.remove('hidden');
-  } catch {
-    bookSearchResults.innerHTML = '<li class="bsr-empty">검색 중 오류가 발생했어요.</li>';
+  } catch(err) {
+    bookSearchResults.innerHTML = `<li class="bsr-empty">오류: ${err.message}</li>`;
     bookSearchResults.classList.remove('hidden');
   } finally {
     bookSearchBtn.textContent = '검색';

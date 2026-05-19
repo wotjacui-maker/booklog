@@ -1,0 +1,12 @@
+{
+  "name": "seojae booklog",
+  "short_name": "booklog",
+  "start_url": "/booklog/books.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

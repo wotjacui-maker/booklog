@@ -1,12 +1,29 @@
+// ── Firebase 설정 ──
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAEqBSiNTrNLFbwYU8ASN8m88S1Ho-RlwU",
+  authDomain: "booklog-2b5d0.firebaseapp.com",
+  projectId: "booklog-2b5d0",
+  storageBucket: "booklog-2b5d0.firebasestorage.app",
+  messagingSenderId: "188307139074",
+  appId: "1:188307139074:web:9c52728d1232db35f9551b",
+  databaseURL: "https://booklog-2b5d0-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+firebase.initializeApp(FIREBASE_CONFIG);
+const booksRef = firebase.database().ref('bookshelf_v1');
+
 // ── 스토리지 ──
 const STORAGE_KEY = 'bookshelf_v1';
 
-function loadBooks() {
+function loadBooksLocal() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
   catch { return []; }
 }
-function saveBooks(books) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+function saveLocal(arr) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+}
+function saveBooks(arr) {
+  saveLocal(arr);
+  booksRef.set(JSON.stringify(arr));
 }
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -23,7 +40,7 @@ function markDoneIfNeeded(book) {
 }
 
 // ── 상태 ──
-let books = loadBooks();
+let books = loadBooksLocal();
 let currentSearch = '';
 let activeBookId = null;
 
@@ -565,4 +582,18 @@ document.getElementById('lookupBtn').addEventListener('click', async () => {
 
 // ── 시작 ──
 document.getElementById('turtleFace').appendChild(makePxGrid(TURTLE_FACE_PIXELS, 0.2));
-renderList();
+
+// Firebase 동기화
+booksRef.on('value', snapshot => {
+  const raw = snapshot.val();
+  if (raw !== null) {
+    // Firebase에 데이터 있음 → 로컬 덮어쓰기
+    books = JSON.parse(raw);
+    saveLocal(books);
+  } else if (books.length) {
+    // Firebase 비어있고 로컬에 데이터 있음 → Firebase로 마이그레이션
+    booksRef.set(JSON.stringify(books));
+    return;
+  }
+  renderList();
+});

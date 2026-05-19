@@ -366,32 +366,30 @@ function fmtDate(iso) {
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 
-// ── 알라딘 TTB 키 관리 ──
-const TTB_KEY = 'aladin_ttb_key';
+// ── Kakao API 키 관리 ──
+const KAKAO_KEY = 'kakao_api_key';
 
-function getTtbKey() { return localStorage.getItem(TTB_KEY) || ''; }
-function saveTtbKey(k) { localStorage.setItem(TTB_KEY, k.trim()); }
+function getKakaoKey() { return localStorage.getItem(KAKAO_KEY) || ''; }
+function saveKakaoKey(k) { localStorage.setItem(KAKAO_KEY, k.trim()); }
 
-const ttbKeyRow  = document.getElementById('ttbKeyRow');
-const ttbKeyEdit = document.getElementById('ttbKeyEdit');
+const ttbKeyRow   = document.getElementById('ttbKeyRow');
+const ttbKeyEdit  = document.getElementById('ttbKeyEdit');
 const ttbKeyInput = document.getElementById('ttbKeyInput');
-const showKeyInputBtn = document.getElementById('showKeyInput');
-const saveKeyBtn = document.getElementById('saveKeyBtn');
+const saveKeyBtn  = document.getElementById('saveKeyBtn');
 
 function refreshKeyUI() {
-  const key = getTtbKey();
+  const key = getKakaoKey();
   if (key) {
-    ttbKeyRow.innerHTML = `<span class="key-set">TTB키 설정됨</span><button type="button" class="key-link" id="showKeyInput">변경</button>`;
-    document.getElementById('showKeyInput').addEventListener('click', showKeyEditPanel);
+    ttbKeyRow.innerHTML = `<span class="key-set">검색 사용 가능</span><button type="button" class="key-link" id="showKeyInput">키 변경</button>`;
   } else {
-    ttbKeyRow.innerHTML = `<span>알라딘 TTB키가 없으면 검색이 안 돼요.</span><button type="button" class="key-link" id="showKeyInput">키 설정</button>`;
-    document.getElementById('showKeyInput').addEventListener('click', showKeyEditPanel);
+    ttbKeyRow.innerHTML = `<span>Kakao API키를 설정하면 검색 가능해요.</span><button type="button" class="key-link" id="showKeyInput">키 설정</button>`;
   }
+  document.getElementById('showKeyInput').addEventListener('click', showKeyEditPanel);
   ttbKeyEdit.classList.add('hidden');
 }
 
 function showKeyEditPanel() {
-  ttbKeyInput.value = getTtbKey();
+  ttbKeyInput.value = getKakaoKey();
   ttbKeyEdit.classList.remove('hidden');
   ttbKeyInput.focus();
 }
@@ -399,28 +397,27 @@ function showKeyEditPanel() {
 saveKeyBtn.addEventListener('click', () => {
   const val = ttbKeyInput.value.trim();
   if (!val) return;
-  saveTtbKey(val);
+  saveKakaoKey(val);
   refreshKeyUI();
 });
 
 refreshKeyUI();
 
-// ── 알라딘 JSONP 검색 ──
-function jsonp(url) {
-  return new Promise((resolve, reject) => {
-    const cb = '__aladin_' + Date.now();
-    window[cb] = data => { delete window[cb]; s.remove(); resolve(data); };
-    const s = document.createElement('script');
-    s.onerror = () => { delete window[cb]; s.remove(); reject(new Error('network')); };
-    s.src = url + '&CallBack=' + cb;
-    document.head.appendChild(s);
-  });
+// ── Kakao Books API 검색 ──
+async function kakaoSearch(query, size = 5) {
+  const key = getKakaoKey();
+  const res = await fetch(
+    `https://dapi.kakao.com/v3/search/book?query=${encodeURIComponent(query)}&target=title&size=${size}`,
+    { headers: { Authorization: `KakaoAK ${key}` } }
+  );
+  if (!res.ok) throw new Error(res.status);
+  return (await res.json()).documents || [];
 }
 
 function fillForm(item) {
   document.getElementById('inputTitle').value  = item.title || '';
-  document.getElementById('inputAuthor').value = item.author || '';
-  document.getElementById('inputPages').value  = item.subInfo?.itemPage || '';
+  document.getElementById('inputAuthor').value = (item.authors || []).join(', ');
+  document.getElementById('inputPages').value  = '';
   document.getElementById('bookSearchResults').classList.add('hidden');
 }
 
@@ -432,12 +429,7 @@ async function runBookSearch() {
   const query = bookSearchInput.value.trim();
   if (!query) return;
 
-  const key = getTtbKey();
-  if (!key) {
-    showKeyEditPanel();
-    return;
-  }
-
+  if (!getKakaoKey()) { showKeyEditPanel(); return; }
   if (!navigator.onLine) {
     bookSearchResults.innerHTML = '<li class="bsr-empty">오프라인 상태예요.</li>';
     bookSearchResults.classList.remove('hidden');
@@ -448,11 +440,7 @@ async function runBookSearch() {
   bookSearchBtn.disabled = true;
 
   try {
-    const q   = encodeURIComponent(query);
-    const url = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${q}&QueryType=Title&MaxResults=5&SearchTarget=Book&output=js&Version=20131101`;
-    const data = await jsonp(url);
-    const items = data.item || [];
-
+    const items = await kakaoSearch(query, 5);
     if (!items.length) {
       bookSearchResults.innerHTML = '<li class="bsr-empty">결과가 없어요.</li>';
     } else {
@@ -461,7 +449,7 @@ async function runBookSearch() {
         const li = document.createElement('li');
         li.innerHTML = `
           <span class="bsr-title">${esc(item.title || '—')}</span>
-          <span class="bsr-author">${esc(item.author || '—')}</span>
+          <span class="bsr-author">${esc((item.authors || []).join(', ') || '—')}</span>
         `;
         li.addEventListener('click', () => fillForm(item));
         bookSearchResults.appendChild(li);
@@ -480,7 +468,6 @@ async function runBookSearch() {
 bookSearchBtn.addEventListener('click', runBookSearch);
 bookSearchInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); runBookSearch(); } });
 
-// 모달 닫을 때 검색 초기화
 function resetAddModal() {
   bookSearchInput.value = '';
   bookSearchResults.classList.add('hidden');
@@ -490,21 +477,19 @@ function resetAddModal() {
 document.getElementById('closeAddModal').addEventListener('click',  () => { closeModal(addModal); resetAddModal(); });
 document.getElementById('closeAddModal2').addEventListener('click', () => { closeModal(addModal); resetAddModal(); });
 
-// ── 책 정보 검색 (Aladin API) ──
+// ── 책 정보 검색 (Kakao Books API) ──
 document.getElementById('lookupBtn').addEventListener('click', async () => {
   const book = books.find(b => b.id === activeBookId);
   if (!book) return;
 
   const resultEl = document.getElementById('lookupResult');
   const btn      = document.getElementById('lookupBtn');
-  const key      = getTtbKey();
 
-  if (!key) {
-    resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">알라딘 TTB키를 먼저 설정해주세요.</span></div>';
+  if (!getKakaoKey()) {
+    resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">Kakao API키를 먼저 설정해주세요.</span></div>';
     resultEl.classList.remove('hidden');
     return;
   }
-
   if (!navigator.onLine) {
     resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">오프라인 상태예요.</span></div>';
     resultEl.classList.remove('hidden');
@@ -516,10 +501,7 @@ document.getElementById('lookupBtn').addEventListener('click', async () => {
   resultEl.classList.add('hidden');
 
   try {
-    const q   = encodeURIComponent(book.title);
-    const url = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${key}&Query=${q}&QueryType=Title&MaxResults=3&SearchTarget=Book&output=js&Version=20131101`;
-    const data  = await jsonp(url);
-    const items = data.item || [];
+    const items = await kakaoSearch(book.title, 3);
 
     if (!items.length) {
       resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">검색 결과가 없어요.</span></div>';
@@ -528,18 +510,18 @@ document.getElementById('lookupBtn').addEventListener('click', async () => {
     }
 
     resultEl.innerHTML = items.map((item, i) => {
+      const authors = (item.authors || []).join(', ') || '—';
       const pub     = item.publisher || '';
-      const date    = (item.pubDate || '').slice(0, 4);
+      const date    = (item.datetime || '').slice(0, 4);
       const pubLine = [pub, date].filter(Boolean).join(' · ');
       const sep     = i < items.length - 1 ? '<hr class="lr-sep">' : '';
       return `
         <div class="lr-item"><span class="lr-key">제목</span><span class="lr-val">${esc(item.title || '—')}</span></div>
-        <div class="lr-item"><span class="lr-key">저자</span><span class="lr-val">${esc(item.author || '—')}</span></div>
+        <div class="lr-item"><span class="lr-key">저자</span><span class="lr-val">${esc(authors)}</span></div>
         ${pubLine ? `<div class="lr-item"><span class="lr-key">출판</span><span class="lr-val">${esc(pubLine)}</span></div>` : ''}
         ${sep}
       `;
     }).join('');
-
     resultEl.classList.remove('hidden');
   } catch {
     resultEl.innerHTML = '<div class="lr-item"><span class="lr-val" style="color:#999">검색 중 오류가 발생했어요.</span></div>';

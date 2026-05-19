@@ -119,6 +119,12 @@
 
     .turtle-track-line { display: none; }
 
+    @keyframes struggle {
+      0%   { transform: scaleY(-1) rotate(-20deg); }
+      50%  { transform: scaleY(-1) rotate(20deg); }
+      100% { transform: scaleY(-1) rotate(-20deg); }
+    }
+
     .bar-pct {
       font-size: 7pt;
       color: var(--muted);

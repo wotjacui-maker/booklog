@@ -70,6 +70,7 @@ document.getElementById('addBookForm').addEventListener('submit', e => {
     note:        document.getElementById('inputNote').value.trim(),
     completedAt: null,
     createdAt:   new Date().toISOString(),
+    updatedAt:   new Date().toISOString(),
   };
   markDoneIfNeeded(book);
   books.unshift(book);
@@ -152,13 +153,18 @@ function createRow(book) {
     trackWrap.appendChild(fillEl);
   }
 
-  // 거북이: translateX(-pct%) 로 left edge=0%, center=50%, right edge=100%
+  // 거북이
+  const stale = book.status === 'reading' && isStale(book);
+  const turtlePos = document.createElement('div');
+  turtlePos.style.cssText = `position:absolute; left:${pct}%; bottom:0; transform:translateX(-${pct}%)`;
   const turtleEl = makePxGrid(TURTLE_PIXELS, 0.2);
-  turtleEl.style.position  = 'absolute';
-  turtleEl.style.left      = pct + '%';
-  turtleEl.style.bottom    = '0';
-  turtleEl.style.transform = `translateX(-${pct}%)`;
-  trackWrap.appendChild(turtleEl);
+  if (stale) {
+    turtleEl.style.animation      = 'struggle 0.6s ease-in-out infinite';
+    turtleEl.style.transformOrigin = 'center center';
+    turtleEl.style.display         = 'block';
+  }
+  turtlePos.appendChild(turtleEl);
+  trackWrap.appendChild(turtlePos);
 
   const pctEl = document.createElement('span');
   pctEl.className   = 'bar-pct';
@@ -223,6 +229,7 @@ document.getElementById('updateProgressBtn').addEventListener('click', () => {
   const val = parseInt(document.getElementById('currentPageInput').value);
   if (isNaN(val) || val < 0) return;
   book.currentPage = val;
+  book.updatedAt = new Date().toISOString();
   if (book.totalPages > 0 && val >= book.totalPages) {
     book.status = 'done';
   }
@@ -354,6 +361,13 @@ function makePxGrid(pixels, zoom) {
     el.appendChild(px);
   }));
   return el;
+}
+
+const STALE_DAYS = 14;
+function isStale(book) {
+  const last = book.updatedAt || book.createdAt;
+  if (!last) return false;
+  return (Date.now() - new Date(last).getTime()) / 86400000 > STALE_DAYS;
 }
 
 // ── 헬퍼 ──

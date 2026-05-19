@@ -275,7 +275,7 @@ document.getElementById('editBookForm').addEventListener('submit', e => {
 });
 
 // ── 픽셀 아트 ──
-const STALE_DAYS = 0; // 예시용 (실제: 30)
+const STALE_DAYS = 30;
 function isStale(book) {
   if (book.status !== 'reading') return false;
   const last = book.updatedAt || book.createdAt;

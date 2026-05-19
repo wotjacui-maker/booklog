@@ -154,17 +154,12 @@ function createRow(book) {
   }
 
   // 거북이
-  const stale = book.status === 'reading' && isStale(book);
-  const turtlePos = document.createElement('div');
-  turtlePos.style.cssText = `position:absolute; left:${pct}%; bottom:0; transform:translateX(-${pct}%)`;
   const turtleEl = makePxGrid(TURTLE_PIXELS, 0.2);
-  if (stale) {
-    turtleEl.style.animation      = 'struggle 0.6s ease-in-out infinite';
-    turtleEl.style.transformOrigin = 'center center';
-    turtleEl.style.display         = 'block';
-  }
-  turtlePos.appendChild(turtleEl);
-  trackWrap.appendChild(turtlePos);
+  turtleEl.style.position  = 'absolute';
+  turtleEl.style.left      = pct + '%';
+  turtleEl.style.bottom    = '0';
+  turtleEl.style.transform = `translateX(-${pct}%)`;
+  trackWrap.appendChild(turtleEl);
 
   const pctEl = document.createElement('span');
   pctEl.className   = 'bar-pct';
@@ -361,13 +356,6 @@ function makePxGrid(pixels, zoom) {
     el.appendChild(px);
   }));
   return el;
-}
-
-const STALE_DAYS = 14;
-function isStale(book) {
-  const last = book.updatedAt || book.createdAt;
-  if (!last) return false;
-  return (Date.now() - new Date(last).getTime()) / 86400000 > STALE_DAYS;
 }
 
 // ── 헬퍼 ──

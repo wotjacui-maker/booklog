@@ -143,7 +143,7 @@ function createRow(book) {
     fillEl.style.position         = 'absolute';
     fillEl.style.left             = '0';
     fillEl.style.bottom           = '0';
-    fillEl.style.width            = `calc(${pct}% - 8px)`;
+    fillEl.style.width            = `calc(${pct}% - ${(pct * 0.16).toFixed(1)}px)`;
     fillEl.style.height           = '6px';
     fillEl.style.backgroundImage  = `url(${getFootprintBg()})`;
     fillEl.style.backgroundRepeat = 'repeat-x';

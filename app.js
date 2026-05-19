@@ -65,7 +65,7 @@ document.getElementById('addBookForm').addEventListener('submit', e => {
     title:       document.getElementById('inputTitle').value.trim(),
     author:      document.getElementById('inputAuthor').value.trim(),
     totalPages:  parseInt(document.getElementById('inputPages').value) || 0,
-    currentPage: 0,
+    currentPage: parseInt(document.getElementById('inputCurrentPage').value) || 0,
     status:      document.getElementById('inputStatus').value,
     note:        document.getElementById('inputNote').value.trim(),
     completedAt: null,

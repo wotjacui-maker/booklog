@@ -173,11 +173,13 @@ function createRow(book) {
   nameEl.textContent = book.title;
   row.appendChild(nameEl);
 
-  if (book.completedAt) {
-    const doneEl = document.createElement('div');
-    doneEl.className   = 'book-completed';
-    doneEl.textContent = fmtDate(book.completedAt) + ' 완독';
-    row.appendChild(doneEl);
+  if (book.createdAt) {
+    const dateEl = document.createElement('div');
+    dateEl.className = 'book-completed';
+    dateEl.textContent = book.completedAt
+      ? `${fmtDate(book.createdAt)} ~ ${fmtDate(book.completedAt)}`
+      : fmtDate(book.createdAt);
+    row.appendChild(dateEl);
   }
 
   row.addEventListener('click', () => openDetail(book.id));

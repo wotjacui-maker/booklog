@@ -366,21 +366,18 @@ function fmtDate(iso) {
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 
-// ── Google Books API 검색 (키 불필요, CORS 지원) ──
+// ── Open Library 검색 (키 불필요, 무제한) ──
 async function googleSearch(query, size = 5) {
   const res = await fetch(
-    `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=${size}&langRestrict=ko`
+    `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${size}&lang=kor`
   );
   if (!res.ok) throw new Error(res.status);
   const data = await res.json();
-  return (data.items || []).map(item => {
-    const info = item.volumeInfo || {};
-    return {
-      title:   info.title || '',
-      authors: info.authors || [],
-      pages:   info.pageCount || 0,
-    };
-  });
+  return (data.docs || []).slice(0, size).map(doc => ({
+    title:   doc.title || '',
+    authors: doc.author_name || [],
+    pages:   doc.number_of_pages_median || 0,
+  }));
 }
 
 function fillForm(item) {

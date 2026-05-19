@@ -154,7 +154,7 @@ function createRow(book) {
   }
 
   // 거북이
-  const turtleEl = makePxGrid(TURTLE_PIXELS, 0.2);
+  const turtleEl = makePxGrid(isStale(book) ? TURTLE_PIXELS_FLIPPED : TURTLE_PIXELS, 0.2);
   turtleEl.style.position  = 'absolute';
   turtleEl.style.left      = pct + '%';
   turtleEl.style.bottom    = '0';
@@ -275,6 +275,31 @@ document.getElementById('editBookForm').addEventListener('submit', e => {
 });
 
 // ── 픽셀 아트 ──
+const STALE_DAYS = 0; // 예시용 (실제: 30)
+function isStale(book) {
+  if (book.status !== 'reading') return false;
+  const last = book.updatedAt || book.createdAt;
+  if (!last) return false;
+  return (Date.now() - new Date(last).getTime()) / 86400000 > STALE_DAYS;
+}
+
+const TURTLE_PIXELS_FLIPPED = [
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_','K','K','K','K','K','K','_','K','K','K','K','K','K','_','_'],
+  ['_','K','_','_','_','_','K','_','K','_','_','_','_','K','_','_'],
+  ['_','K','K','K','K','K','K','K','K','K','K','K','K','K','_','_'],
+  ['_','_','K','K','_','K','_','K','_','K','_','K','K','_','_','_'],
+  ['_','_','K','_','K','_','K','_','_','_','K','K','_','_','_','_'],
+  ['_','_','K','K','_','_','_','K','_','K','_','K','K','K','_','_'],
+  ['_','_','K','_','K','_','K','_','K','_','K','_','_','K','K','_'],
+  ['_','_','_','K','_','K','_','_','_','K','_','_','_','_','K','_'],
+  ['_','_','_','_','K','_','K','_','K','K','K','_','K','_','K','_'],
+  ['_','_','_','_','_','K','K','K','K','_','K','_','_','_','K','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','K','K','K','_','_'],
+  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+];
+
 const TURTLE_PIXELS = [
   ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
   ['_','_','_','_','_','_','_','_','_','_','_','K','K','K','_','_'],

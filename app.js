@@ -81,9 +81,9 @@ document.getElementById('addBookForm').addEventListener('submit', e => {
 
 // ── 렌더링 ──
 const SECTIONS = [
-  { status: 'reading', label: '읽는 중' },
-  { status: 'wish',    label: '읽고 싶어요' },
-  { status: 'done',    label: '완독' },
+  { status: 'reading', label: 'reading' },
+  { status: 'wish',    label: 'to read' },
+  { status: 'done',    label: 'done' },
 ];
 
 function renderList() {

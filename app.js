@@ -366,17 +366,21 @@ function fmtDate(iso) {
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 
-// ── Open Library 검색 (키 불필요, 무제한) ──
+// ── 알라딘 검색 (allorigins.win CORS 프록시) ──
+const ALADIN_TTB = 'ttbwotjacui1421001';
+
 async function googleSearch(query, size = 5) {
-  const res = await fetch(
-    `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${size}`
-  );
+  const apiUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx` +
+    `?TTBKey=${ALADIN_TTB}&Query=${encodeURIComponent(query)}` +
+    `&QueryType=Title&MaxResults=${size}&SearchTarget=Book&output=js&Version=20131101`;
+  const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`);
   if (!res.ok) throw new Error(res.status);
-  const data = await res.json();
-  return (data.docs || []).slice(0, size).map(doc => ({
-    title:   doc.title || '',
-    authors: doc.author_name || [],
-    pages:   doc.number_of_pages_median || 0,
+  const wrapper = await res.json();
+  const books = JSON.parse(wrapper.contents);
+  return (books.item || []).map(item => ({
+    title:   item.title || '',
+    authors: [item.author || ''],
+    pages:   item.itemPage || 0,
   }));
 }
 

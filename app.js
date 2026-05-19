@@ -366,16 +366,30 @@ function fmtDate(iso) {
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 
-// ── 알라딘 검색 (allorigins.win CORS 프록시) ──
+// ── 알라딘 검색 (CORS 프록시 순차 시도) ──
 const ALADIN_TTB = 'ttbwotjacui1421001';
 
 async function googleSearch(query, size = 5) {
   const apiUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx` +
     `?TTBKey=${ALADIN_TTB}&Query=${encodeURIComponent(query)}` +
     `&QueryType=Title&MaxResults=${size}&SearchTarget=Book&output=js&Version=20131101`;
-  const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(apiUrl)}`);
-  if (!res.ok) throw new Error(res.status);
-  const books = await res.json();
+
+  const proxies = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+  ];
+
+  let books;
+  for (const makeUrl of proxies) {
+    try {
+      const res = await fetch(makeUrl(apiUrl));
+      if (!res.ok) continue;
+      books = await res.json();
+      if (books) break;
+    } catch {}
+  }
+  if (!books) throw new Error('검색 서비스 연결 실패');
   return (books.item || []).map(item => ({
     title:   item.title || '',
     authors: [item.author || ''],

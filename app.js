@@ -369,7 +369,7 @@ function fmtDate(iso) {
 // ── Open Library 검색 (키 불필요, 무제한) ──
 async function googleSearch(query, size = 5) {
   const res = await fetch(
-    `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${size}&lang=kor`
+    `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${size}`
   );
   if (!res.ok) throw new Error(res.status);
   const data = await res.json();

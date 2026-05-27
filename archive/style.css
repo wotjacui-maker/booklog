@@ -20,8 +20,6 @@ h1 {
 
 h1 .reset-link {
   cursor: pointer;
-  border-bottom: 1px solid #111;
-  padding-bottom: 1px;
 }
 
 h1 .reset-link:hover {
@@ -94,7 +92,6 @@ img {
 #search {
   background: none;
   border: none;
-  border-bottom: 1px solid #111;
   color: #111;
   font-family: WantedSansVariable, sans-serif;
   font-size: 9pt;
@@ -147,4 +144,55 @@ img {
 @keyframes trail-fade {
   0%   { opacity: 0.6; }
   100% { opacity: 0; }
+}
+
+/* ── Mobile cards ── */
+#mobile-cards { display: none; }
+
+@media (max-width: 600px) {
+  table, .h2-wrap { display: none; }
+
+  .layout {
+    padding: 0 0 40px 0;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  #mobile-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    border-top: 1px solid #111;
+    border-left: 1px solid #111;
+  }
+
+  .store-card {
+    border-right: 1px solid #111;
+    border-bottom: 1px solid #111;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .store-card.card-hidden { display: none; }
+
+  .card-name {
+    font-size: 9pt;
+    font-weight: 400;
+    padding: 8px 10px;
+    border-bottom: 1px solid #111;
+  }
+
+  .card-img {
+    width: 100%;
+    display: block;
+    filter: grayscale(100%);
+  }
+
+  .card-addr {
+    font-size: 7.5pt;
+    font-weight: 300;
+    padding: 6px 10px;
+    color: #555;
+    flex: 1;
+  }
 }

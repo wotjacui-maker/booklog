@@ -110,89 +110,150 @@
 			</tr>
 		  </tbody>
 		</table>
+		<div id="mobile-cards"></div>
 	</div>
 
 <script>
+// ── 이미지 전환 ──
+function switchImage(img) {
+  const images = JSON.parse(img.dataset.images);
+  const next = (parseInt(img.dataset.index) + 1) % images.length;
+  img.src = images[next];
+  img.dataset.index = next;
+}
+
+// ── 모바일 카드 빌드 ──
+function buildMobileCards() {
+  const container = document.getElementById('mobile-cards');
+  container.innerHTML = '';
+  const rows = Array.from(document.querySelectorAll('tbody tr'));
+  for (let i = 0; i < rows.length; i += 3) {
+    const nameRow = rows[i];
+    const photoRow = rows[i + 1];
+    const addrRow = rows[i + 2];
+    if (!addrRow) continue;
+    const nameCells = Array.from(nameRow.querySelectorAll('td'));
+    nameCells.forEach(function(nameTd, idx) {
+      const photoTd = photoRow.querySelectorAll('td')[idx];
+      const addrTd  = addrRow.querySelectorAll('td')[idx];
+      const srcImg  = photoTd ? photoTd.querySelector('img') : null;
+      if (!srcImg) return; // 플레이스홀더 제외
+      const card = document.createElement('div');
+      card.className = 'store-card';
+      if (nameTd.id) card.dataset.storeId = nameTd.id;
+      card.dataset.name = nameTd.textContent.trim();
+      card.dataset.addr = addrTd ? addrTd.textContent.trim() : '';
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'card-name';
+      nameDiv.textContent = nameTd.textContent.trim();
+      card.appendChild(nameDiv);
+      const img = document.createElement('img');
+      img.className = 'card-img';
+      img.src = srcImg.src;
+      img.dataset.images = srcImg.dataset.images;
+      img.dataset.index  = '0';
+      img.addEventListener('click', function() { switchImage(this); });
+      card.appendChild(img);
+      const addrDiv = document.createElement('div');
+      addrDiv.className = 'card-addr';
+      addrDiv.textContent = card.dataset.addr;
+      card.appendChild(addrDiv);
+      container.appendChild(card);
+    });
+  }
+}
+
+// ── 카드 셔플 ──
+function shuffleCards() {
+  const container = document.getElementById('mobile-cards');
+  const cards = Array.from(container.querySelectorAll('.store-card'));
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cards[i], cards[j]] = [cards[j], cards[i]];
+  }
+  cards.forEach(function(c) { container.appendChild(c); });
+}
+
+// ── 필터 (테이블 + 카드 동시) ──
+function filterByAddress(keyword) {
+  // 테이블
+  const rows = document.querySelectorAll('tbody tr');
+  for (let i = 0; i < rows.length; i += 3) {
+    const nameRow  = rows[i];
+    const photoRow = rows[i + 1];
+    const addrRow  = rows[i + 2];
+    if (!addrRow) continue;
+    const nameCells = nameRow.querySelectorAll('td');
+    const addrCells = addrRow.querySelectorAll('td');
+    addrCells.forEach(function(addrTd, colIndex) {
+      const nameText = nameCells[colIndex] ? nameCells[colIndex].textContent : '';
+      const matches  = !keyword || nameText.includes(keyword) || addrTd.textContent.includes(keyword);
+      const display  = matches ? '' : 'none';
+      nameCells[colIndex].style.display = display;
+      photoRow.querySelectorAll('td')[colIndex].style.display = display;
+      addrTd.style.display = display;
+    });
+  }
+  // 모바일 카드
+  document.querySelectorAll('.store-card').forEach(function(card) {
+    const matches = !keyword ||
+      card.dataset.name.includes(keyword) ||
+      card.dataset.addr.includes(keyword);
+    card.classList.toggle('card-hidden', !matches);
+  });
+}
+
+// ── 초기화 (셔플 포함) ──
 function resetFilter() {
   document.getElementById('search').value = '';
   filterByAddress('');
+  shuffleCards();
   history.replaceState(null, '', window.location.pathname);
 }
 
-function filterByAddress(keyword) {
-    const rows = document.querySelectorAll('tbody tr');
-    // 3행씩 그룹 (이름, 사진, 주소)
-    for (let i = 0; i < rows.length; i += 3) {
-        const nameRow = rows[i];
-        const photoRow = rows[i + 1];
-        const addrRow = rows[i + 2];
-        if (!addrRow) continue;
-
-        const nameCells = nameRow.querySelectorAll('td');
-        const addrCells = addrRow.querySelectorAll('td');
-        addrCells.forEach(function(addrTd, colIndex) {
-            const nameText = nameCells[colIndex] ? nameCells[colIndex].textContent : '';
-            const addrText = addrTd.textContent;
-            const matches = !keyword || nameText.includes(keyword) || addrText.includes(keyword);
-            const display = matches ? '' : 'none';
-            nameCells[colIndex].style.display = display;
-            photoRow.querySelectorAll('td')[colIndex].style.display = display;
-            addrTd.style.display = display;
-        });
-    }
-}
-
-function switchImage(img) {
-    const images = JSON.parse(img.dataset.images);
-    const next = (parseInt(img.dataset.index) + 1) % images.length;
-    img.src = images[next];
-    img.dataset.index = next;
-}
-
-// custom cursor
+// ── 커스텀 커서 ──
 const cursor = document.createElement('div');
 cursor.id = 'cursor';
 cursor.textContent = '⊹';
 document.body.appendChild(cursor);
-
 const trail = ['⋆', '˚', '₊', '⊹', '˚', '⋆'];
 let trailIndex = 0;
-
 document.addEventListener('mousemove', function(e) {
-    cursor.style.left = e.clientX + 'px';
-    cursor.style.top = e.clientY + 'px';
-
-    const dot = document.createElement('div');
-    dot.className = 'cursor-trail';
-    dot.textContent = trail[trailIndex % trail.length];
-    trailIndex++;
-    dot.style.left = e.clientX + 'px';
-    dot.style.top = e.clientY + 'px';
-    document.body.appendChild(dot);
-
-    setTimeout(() => dot.remove(), 600);
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+  const dot = document.createElement('div');
+  dot.className = 'cursor-trail';
+  dot.textContent = trail[trailIndex++ % trail.length];
+  dot.style.left = e.clientX + 'px';
+  dot.style.top  = e.clientY + 'px';
+  document.body.appendChild(dot);
+  setTimeout(() => dot.remove(), 600);
 });
+
+// ── 초기 실행 ──
+buildMobileCards();
+shuffleCards();
 </script>
 
 <script>
 // 지도에서 링크로 진입했을 때 해당 책방만 표시
 (function() {
   if (!window.location.hash) return;
-  const targetEl = document.getElementById(window.location.hash.slice(1));
+  const targetId = window.location.hash.slice(1);
+  const targetEl = document.getElementById(targetId);
   if (!targetEl || targetEl.tagName !== 'TD') return;
 
+  // 테이블 필터
   const nameRow = targetEl.parentElement;
   const allCells = Array.from(nameRow.querySelectorAll('td'));
   const colIndex = allCells.indexOf(targetEl);
   if (colIndex === -1) return;
-
   const rows = document.querySelectorAll('tbody tr');
   for (let i = 0; i < rows.length; i += 3) {
     const nRow = rows[i];
     const pRow = rows[i + 1];
     const aRow = rows[i + 2];
     if (!aRow) continue;
-
     const isTargetGroup = (nRow === nameRow);
     [nRow, pRow, aRow].forEach(function(row) {
       Array.from(row.querySelectorAll('td')).forEach(function(cell, idx) {
@@ -200,6 +261,11 @@ document.addEventListener('mousemove', function(e) {
       });
     });
   }
+
+  // 모바일 카드 필터
+  document.querySelectorAll('.store-card').forEach(function(card) {
+    card.classList.toggle('card-hidden', card.dataset.storeId !== targetId);
+  });
 })();
 </script>
 </body>

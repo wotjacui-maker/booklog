@@ -1,0 +1,201 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #ffffff;
+  --border:    #e0d9ce;
+  --text:      #2c2416;
+  --muted:     #8a7e6e;
+  --accent:    #6b5344;
+  --accent-lt: #c9a98a;
+  --radius:    10px;
+  --shadow:    0 2px 12px rgba(0,0,0,.08);
+  --trans:     .18s ease;
+}
+
+body {
+  font-family: 'Pretendard Variable', 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  background: #fff;
+  color: var(--text);
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ── 거북이 픽셀 네비 ── */
+.turtle-nav {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 200;
+  cursor: pointer;
+  text-decoration: none;
+  opacity: 0.5;
+  transition: opacity var(--trans), transform var(--trans);
+}
+.turtle-nav:hover { opacity: 1; transform: translateY(-2px); }
+
+.pixel-grid {
+  display: grid;
+  image-rendering: pixelated;
+  zoom: 0.32;
+}
+.px { width: 5px; height: 5px; }
+.K  { background: #111; }
+._  { background: transparent; }
+
+/* ── Map ── */
+.map-main {
+  width: 100%;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+}
+
+#map-container {
+  width: 100%;
+  height: 100%;
+}
+
+#map {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+}
+
+/* ── Dong paths ── */
+.dong {
+  fill: #fff;
+  stroke: #666;
+  stroke-width: 0.08px;
+  cursor: pointer;
+  transition: fill var(--trans);
+  vector-effect: non-scaling-stroke;
+}
+.dong.dong-hover    { fill: #f5f0e8; }
+.dong.dong-selected { fill: var(--accent-lt); }
+
+/* ── Gu boundary paths (rendered on top) ── */
+.gu {
+  fill: none;
+  stroke: #111;
+  stroke-width: 0.32px;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+/* ── Labels ── */
+.dong-label {
+  font-family: 'Pretendard Variable', 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  font-weight: 300;
+  fill: #555;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
+.gu-label {
+  font-family: 'Pretendard Variable', 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  font-weight: 300;
+  fill: #222;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Tooltip ── */
+.tooltip {
+  position: fixed;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  pointer-events: none;
+  z-index: 200;
+  white-space: nowrap;
+}
+
+/* ── Info panel ── */
+.info-panel {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 28px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  z-index: 100;
+  min-width: 160px;
+}
+
+.info-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.info-gu {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ── Loading / Error ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  z-index: 50;
+  gap: 10px;
+}
+
+.overlay-text { font-size: .95rem; color: var(--muted); }
+.overlay-sub  { font-size: .8rem; color: #bbb; }
+
+/* ── Hint ── */
+.hint {
+  position: absolute;
+  bottom: 28px;
+  right: 28px;
+  font-size: .75rem;
+  color: var(--muted);
+  background: rgba(255,255,255,0.9);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ── Bookstore dots ── */
+.bookstore-dot {
+  fill: #e03131;
+  stroke: #fff;
+  stroke-width: 0.8px;
+  cursor: pointer;
+  vector-effect: non-scaling-stroke;
+}
+
+.bookstore-dot.has-archive {
+  fill: #e07b00;
+  stroke-width: 1.2px;
+}
+
+.hidden { display: none !important; }
+
+@media (max-width: 600px) {
+  .hint { display: none; }
+}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>서울 지도</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 거북이 픽셀 네비 -->
+  <a href="../index.html" class="turtle-nav" title="독서기록">
+    <div class="pixel-grid" id="turtle-grid"></div>
+  </a>
+
+  <main class="map-main">
+    <div id="map-container">
+      <div id="loading" class="overlay">
+        <div class="overlay-text">지도를 불러오는 중...</div>
+        <div class="overlay-sub">잠시만 기다려 주세요</div>
+      </div>
+      <div id="map-error" class="overlay hidden">
+        <div class="overlay-text">지도를 불러오지 못했습니다</div>
+        <div id="error-msg" class="overlay-sub"></div>
+      </div>
+      <svg id="map"></svg>
+    </div>
+
+    <div id="tooltip" class="tooltip hidden"></div>
+
+    <div id="info-panel" class="info-panel hidden">
+      <div id="info-name" class="info-name"></div>
+      <div id="info-gu" class="info-gu"></div>
+    </div>
+
+    <div class="hint">스크롤로 확대 · 드래그로 이동</div>
+  </main>
+
+  <script>
+    const PIXELS = [
+      ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+      ['_','_','_','_','_','_','_','_','_','_','_','K','K','K','_','_'],
+      ['_','_','_','_','_','K','K','K','K','_','K','_','_','_','K','_'],
+      ['_','_','_','_','K','_','K','_','K','K','K','_','K','_','K','_'],
+      ['_','_','_','K','_','K','_','_','_','K','_','_','_','_','K','_'],
+      ['_','_','K','_','K','_','K','_','K','_','K','_','_','K','K','_'],
+      ['_','_','K','K','_','_','_','K','_','K','_','K','K','K','_','_'],
+      ['_','_','K','_','K','_','K','_','_','_','K','K','_','_','_','_'],
+      ['_','_','K','K','_','K','_','K','_','K','_','K','K','_','_','_'],
+      ['_','K','K','K','K','K','K','K','K','K','K','K','K','K','_','_'],
+      ['_','K','_','_','_','_','K','_','K','_','_','_','_','K','_','_'],
+      ['_','K','K','K','K','K','K','_','K','K','K','K','K','K','_','_'],
+      ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+      ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+    ];
+    const COLS = PIXELS[0].length;
+    const grid = document.getElementById('turtle-grid');
+    grid.style.gridTemplateColumns = `repeat(${COLS}, 5px)`;
+    grid.style.gridTemplateRows    = `repeat(${PIXELS.length}, 5px)`;
+    PIXELS.forEach(row => row.forEach(c => {
+      const d = document.createElement('div');
+      d.className = `px ${c}`;
+      grid.appendChild(d);
+    }));
+  </script>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="bookstores.js"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>

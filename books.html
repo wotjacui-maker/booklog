@@ -47,6 +47,15 @@
     }
     .back-link:hover { color: var(--text); }
 
+    /* ── 거북이 홈 버튼 ── */
+    .turtle-home {
+      display: inline-block;
+      text-decoration: none;
+      opacity: 0.5;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .turtle-home:hover { opacity: 1; transform: translateY(-1px); }
+
     .add-btn {
       background: none;
       border: none;
@@ -462,7 +471,7 @@
 <body>
 
   <header>
-    <div id="turtleFace"></div>
+    <a href="index.html" class="turtle-home" title="메인으로"><div id="turtleFace"></div></a>
     <button class="add-btn" id="openAddModal">new</button>
   </header>
 

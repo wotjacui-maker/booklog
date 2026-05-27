@@ -9,6 +9,7 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no">
 	<link rel="stylesheet" href="style.css">
 	<link rel="icon" type="image/png" href="">
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=77f29b7cf911eacc646d85b8ef204385&libraries=services"></script>
 
 </head>
 <body>
@@ -27,7 +28,7 @@
 			<a href="../seoul-map/index.html" class="leaf-nav" title="지도로">
 				<div id="nav-leaf"></div>
 			</a>
-			<input type="text" id="search" placeholder="서점 이름이나 동네로 검색" oninput="filterByAddress(this.value)">
+			<input type="text" id="search" placeholder="서점 이름 또는 동네로 검색하세요" oninput="filterByAddress(this.value)">
 			<button class="add-store-btn" onclick="openStoreModal()" title="책방 등록">+</button>
 		</div>
 		<table>
@@ -309,8 +310,7 @@ function closeStoreModal() {
   document.getElementById('store-modal').classList.add('hidden');
 }
 
-// ── 카카오 주소 검색 ──
-const KAKAO_KEY = '77f29b7cf911eacc646d85b8ef204385';
+// ── 카카오 주소 검색 (Kakao Maps SDK) ──
 let _addrTimer = null;
 
 function searchAddr(q) {
@@ -318,17 +318,14 @@ function searchAddr(q) {
   const dropdown = document.getElementById('addr-dropdown');
   if (!q.trim()) { dropdown.classList.add('hidden'); return; }
   _addrTimer = setTimeout(function() {
-    fetch('https://dapi.kakao.com/v2/local/search/keyword.json?query=' + encodeURIComponent(q) + '&size=5', {
-      headers: { 'Authorization': 'KakaoAK ' + KAKAO_KEY }
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
+    const ps = new kakao.maps.services.Places();
+    ps.keywordSearch(q, function(data, status) {
       dropdown.innerHTML = '';
-      if (!data.documents || !data.documents.length) {
+      if (status !== kakao.maps.services.Status.OK || !data.length) {
         dropdown.classList.add('hidden');
         return;
       }
-      data.documents.forEach(function(place) {
+      data.slice(0, 5).forEach(function(place) {
         const li = document.createElement('li');
         li.className = 'addr-item';
         const nameSpan = document.createElement('span');
@@ -351,8 +348,7 @@ function searchAddr(q) {
         dropdown.appendChild(li);
       });
       dropdown.classList.remove('hidden');
-    })
-    .catch(function() { dropdown.classList.add('hidden'); });
+    });
   }, 350);
 }
 
@@ -444,9 +440,10 @@ document.addEventListener('mousemove', function(e) {
   el.style.gap = '0';
   el.style.imageRendering = 'pixelated';
   el.style.gridTemplateColumns = 'repeat(16, 5px)';
-  el.style.gridTemplateRows = 'repeat(14, 5px)';
-  el.style.zoom = '0.18';
-  LEAF.forEach(function(row) {
+  const leafRows = LEAF.slice(2, 11);
+  el.style.gridTemplateRows = 'repeat(' + leafRows.length + ', 5px)';
+  el.style.zoom = '0.5';
+  leafRows.forEach(function(row) {
     row.forEach(function(c) {
       const d = document.createElement('div');
       d.style.width = '5px';

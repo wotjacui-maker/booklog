@@ -100,6 +100,7 @@ img {
   transition: opacity 0.15s ease, transform 0.15s ease;
   cursor: pointer !important;
   flex-shrink: 0;
+  margin-top: 3px;
 }
 .leaf-nav:hover { opacity: 1; transform: translateY(-1px); }
 
@@ -225,6 +226,7 @@ img {
   line-height: 1;
   transition: opacity 0.15s;
   margin-left: 4px;
+  margin-top: 3px;
 }
 .add-store-btn:hover { opacity: 1; }
 

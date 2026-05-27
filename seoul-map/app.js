@@ -75,6 +75,11 @@ function renderMap(dongData) {
   const H = container.clientHeight;
   const PAD = 40;
 
+  // 화면 너비에 비례해 폰트 크기 조정 (모바일에서 지도가 작아도 글자가 비례하도록)
+  const fontScale = Math.min(1, W / 800);
+  const GU_BASE   = Math.max(5, 11 * fontScale);
+  const DONG_BASE = Math.max(4,  9 * fontScale);
+
   const svg = d3.select('#map')
     .attr('width', W)
     .attr('height', H);
@@ -150,7 +155,7 @@ function renderMap(dongData) {
       .attr('class', 'gu-label')
       .attr('x', cx)
       .attr('y', cy)
-      .attr('font-size', '11px')
+      .attr('font-size', `${GU_BASE}px`)
       .text(getGuEn(guNm));
   });
 
@@ -163,7 +168,7 @@ function renderMap(dongData) {
     .attr('class', 'dong-label')
     .attr('x', d => path.centroid(d)[0])
     .attr('y', d => path.centroid(d)[1])
-    .attr('font-size', '10px')
+    .attr('font-size', `${DONG_BASE}px`)
     .text(d => d.properties.dong_nm)
     .style('opacity', 0);
 
@@ -171,8 +176,9 @@ function renderMap(dongData) {
     const t = event.transform;
     g.attr('transform', t);
 
-    const guFontSize   = Math.max(5, 11 / t.k);
-    const dongFontSize = Math.max(4, 9 / t.k);
+    // 줌 아웃 시 베이스 이상으로 커지지 않도록 캡 적용
+    const guFontSize   = Math.min(GU_BASE,   Math.max(4, GU_BASE   / t.k));
+    const dongFontSize = Math.min(DONG_BASE, Math.max(3, DONG_BASE / t.k));
 
     guLabels.selectAll('.gu-label')
       .attr('font-size', `${guFontSize}px`)

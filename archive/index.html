@@ -28,6 +28,7 @@
 				<div id="nav-leaf"></div>
 			</a>
 			<input type="text" id="search" placeholder="서점 이름이나 동네로 검색" oninput="filterByAddress(this.value)">
+			<button class="add-store-btn" onclick="openStoreModal()" title="책방 등록">+</button>
 		</div>
 		<table>
           <tbody>
@@ -114,6 +115,7 @@
 		  </tbody>
 		</table>
 		<div id="mobile-cards"></div>
+		<div id="custom-section"></div>
 	</div>
 
 <script>
@@ -204,6 +206,13 @@ function filterByAddress(keyword) {
       card.dataset.addr.includes(keyword);
     card.classList.toggle('card-hidden', !matches);
   });
+  // 커스텀 서점 데스크탑 카드
+  document.querySelectorAll('.custom-card-d').forEach(function(card) {
+    const matches = !keyword ||
+      card.dataset.name.includes(keyword) ||
+      card.dataset.addr.includes(keyword);
+    card.classList.toggle('c-hidden', !matches);
+  });
 }
 
 // ── 초기화 (셔플 포함) ──
@@ -211,7 +220,147 @@ function resetFilter() {
   document.getElementById('search').value = '';
   filterByAddress('');
   shuffleCards();
+  document.querySelectorAll('.custom-card-d').forEach(c => c.classList.remove('c-hidden'));
   history.replaceState(null, '', window.location.pathname);
+}
+
+// ── 커스텀 서점 저장/로드 ──
+function getCustomStores() {
+  try { return JSON.parse(localStorage.getItem('bookroom_stores') || '[]'); }
+  catch(e) { return []; }
+}
+function saveCustomStores(arr) {
+  localStorage.setItem('bookroom_stores', JSON.stringify(arr));
+}
+
+// ── 데스크탑 커스텀 그리드 ──
+function buildCustomSection() {
+  const stores = getCustomStores();
+  const section = document.getElementById('custom-section');
+  if (!section) return;
+  section.innerHTML = '';
+  if (!stores.length) return;
+  const grid = document.createElement('div');
+  grid.className = 'custom-grid';
+  stores.forEach(function(store) {
+    const card = document.createElement('div');
+    card.className = 'custom-card-d';
+    card.id = store.id;
+    card.dataset.name = store.name;
+    card.dataset.addr = store.address || '';
+    const nd = document.createElement('div');
+    nd.className = 'c-name'; nd.textContent = store.name;
+    card.appendChild(nd);
+    if (store.images && store.images[0]) {
+      const img = document.createElement('img');
+      img.className = 'c-img';
+      img.src = store.images[0];
+      img.dataset.images = JSON.stringify(store.images);
+      img.dataset.index = '0';
+      img.addEventListener('click', function() { switchImage(this); });
+      card.appendChild(img);
+    }
+    const ad = document.createElement('div');
+    ad.className = 'c-addr'; ad.textContent = store.address || '';
+    card.appendChild(ad);
+    grid.appendChild(card);
+  });
+  section.appendChild(grid);
+}
+
+// ── 모바일 카드에 커스텀 서점 추가 ──
+function appendCustomMobileCards() {
+  const container = document.getElementById('mobile-cards');
+  getCustomStores().forEach(function(store) {
+    const card = document.createElement('div');
+    card.className = 'store-card';
+    card.dataset.storeId = store.id;
+    card.dataset.name = store.name;
+    card.dataset.addr = store.address || '';
+    const nd = document.createElement('div');
+    nd.className = 'card-name'; nd.textContent = store.name;
+    card.appendChild(nd);
+    if (store.images && store.images[0]) {
+      const img = document.createElement('img');
+      img.className = 'card-img';
+      img.src = store.images[0];
+      img.dataset.images = JSON.stringify(store.images);
+      img.dataset.index = '0';
+      img.addEventListener('click', function() { switchImage(this); });
+      card.appendChild(img);
+    }
+    const ad = document.createElement('div');
+    ad.className = 'card-addr'; ad.textContent = store.address || '';
+    card.appendChild(ad);
+    container.appendChild(card);
+  });
+}
+
+// ── 모달 ──
+function openStoreModal() {
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-addr').value = '';
+  document.getElementById('f-lat').value = '';
+  document.getElementById('f-lng').value = '';
+  document.getElementById('f-images').innerHTML = '<input type="text" class="f-img-url" placeholder="사진 URL" />';
+  document.getElementById('store-modal').classList.remove('hidden');
+}
+function closeStoreModal() {
+  document.getElementById('store-modal').classList.add('hidden');
+}
+
+// ── 지오코딩 (Nominatim) ──
+function geocodeAddr() {
+  const addr = document.getElementById('f-addr').value.trim();
+  if (!addr) return;
+  const url = 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(addr) + '&format=json&limit=1&accept-language=ko';
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data && data[0]) {
+        document.getElementById('f-lat').value = parseFloat(data[0].lat).toFixed(6);
+        document.getElementById('f-lng').value = parseFloat(data[0].lon).toFixed(6);
+      } else {
+        alert('위치를 찾지 못했어요. 더 구체적인 주소를 입력해보세요.');
+      }
+    })
+    .catch(function() { alert('위치 검색 중 오류가 발생했어요.'); });
+}
+
+// ── 사진 URL 필드 추가 ──
+function addImgField() {
+  const container = document.getElementById('f-images');
+  if (container.querySelectorAll('input').length >= 4) return;
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'f-img-url'; inp.placeholder = '사진 URL';
+  container.appendChild(inp);
+}
+
+// ── 등록 제출 ──
+function submitStore() {
+  const name = document.getElementById('f-name').value.trim();
+  const addr = document.getElementById('f-addr').value.trim();
+  const lat  = document.getElementById('f-lat').value.trim();
+  const lng  = document.getElementById('f-lng').value.trim();
+  if (!name) { alert('책방 이름을 입력해주세요.'); return; }
+  if (!lat || !lng) { alert('위치를 먼저 찾아주세요.'); return; }
+  const images = Array.from(document.querySelectorAll('.f-img-url'))
+    .map(function(i) { return i.value.trim(); }).filter(Boolean);
+  const store = {
+    id: 'custom_' + Date.now(),
+    name: name, address: addr,
+    lat: parseFloat(lat), lng: parseFloat(lng),
+    images: images,
+    addedAt: new Date().toISOString().slice(0, 10)
+  };
+  const stores = getCustomStores();
+  stores.push(store);
+  saveCustomStores(stores);
+  closeStoreModal();
+  buildCustomSection();
+  buildMobileCards();
+  appendCustomMobileCards();
+  shuffleCards();
 }
 
 // ── 커스텀 커서 ──
@@ -271,7 +420,9 @@ document.addEventListener('mousemove', function(e) {
 })();
 
 // ── 초기 실행 ──
+buildCustomSection();
 buildMobileCards();
+appendCustomMobileCards();
 shuffleCards();
 </script>
 
@@ -307,6 +458,49 @@ shuffleCards();
     card.classList.toggle('card-hidden', card.dataset.storeId !== targetId);
   });
 })();
+
+// 커스텀 서점 해시 처리 (지도에서 진입 시)
+(function() {
+  if (!window.location.hash) return;
+  const targetId = window.location.hash.slice(1);
+  if (!targetId.startsWith('custom_')) return;
+  // 데스크탑: 해당 카드만 표시
+  document.querySelectorAll('.custom-card-d').forEach(function(card) {
+    card.classList.toggle('c-hidden', card.id !== targetId);
+  });
+  // 테이블 숨기기
+  document.querySelectorAll('tbody tr').forEach(function(r) { r.style.display = 'none'; });
+  // 모바일: 해당 카드만 표시
+  document.querySelectorAll('.store-card').forEach(function(card) {
+    card.classList.toggle('card-hidden', card.dataset.storeId !== targetId);
+  });
+})();
 </script>
+
+	<!-- 책방 등록 모달 -->
+	<div id="store-modal" class="store-modal hidden">
+		<div class="store-modal-box">
+			<div class="store-modal-head">
+				<span>책방 등록</span>
+				<span class="store-modal-close" onclick="closeStoreModal()">×</span>
+			</div>
+			<div class="store-form">
+				<input type="text" id="f-name" placeholder="책방 이름" />
+				<div class="f-row">
+					<input type="text" id="f-addr" placeholder="주소" />
+					<button class="f-small-btn" onclick="geocodeAddr()">위치 찾기</button>
+				</div>
+				<div class="f-row" style="gap:10px;">
+					<input type="text" id="f-lat" placeholder="위도" readonly />
+					<input type="text" id="f-lng" placeholder="경도" readonly />
+				</div>
+				<div id="f-images">
+					<input type="text" class="f-img-url" placeholder="사진 URL" />
+				</div>
+				<button class="f-small-btn" onclick="addImgField()" style="align-self:flex-start;">+ 사진 추가</button>
+				<button class="f-submit" onclick="submitStore()">등록</button>
+			</div>
+		</div>
+	</div>
 </body>
 </html>

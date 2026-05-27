@@ -210,3 +210,142 @@ img {
     flex: 1;
   }
 }
+
+/* ── 서점 등록 버튼 ── */
+.add-store-btn {
+  background: none;
+  border: none;
+  font-family: WantedSansVariable, sans-serif;
+  font-size: 18pt;
+  font-weight: 200;
+  color: #111;
+  cursor: pointer !important;
+  padding: 0;
+  opacity: 0.3;
+  line-height: 1;
+  transition: opacity 0.15s;
+  margin-left: 4px;
+}
+.add-store-btn:hover { opacity: 1; }
+
+/* ── 커스텀 서점 데스크탑 그리드 ── */
+.custom-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+  border-top: 1px solid #111;
+  border-left: 1px solid #111;
+}
+.custom-card-d {
+  border-right: 1px solid #111;
+  border-bottom: 1px solid #111;
+  display: flex;
+  flex-direction: column;
+}
+.custom-card-d .c-name {
+  font-size: 10pt;
+  font-weight: 400;
+  padding: 6px 8px;
+  border-bottom: 1px solid #111;
+}
+.custom-card-d .c-img {
+  width: 200px;
+  display: block;
+  filter: grayscale(100%);
+  cursor: pointer !important;
+}
+.custom-card-d .c-img:hover { filter: grayscale(0%); }
+.custom-card-d .c-addr {
+  font-size: 8pt;
+  font-weight: 300;
+  padding: 6px 8px;
+  color: #555;
+  flex: 1;
+}
+.custom-card-d.c-hidden { display: none; }
+
+@media (max-width: 600px) {
+  #custom-section { display: none; }
+}
+
+/* ── 등록 모달 ── */
+.store-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+.store-modal.hidden { display: none; }
+.store-modal-box {
+  background: #fff;
+  border: 1px solid #111;
+  width: 300px;
+  max-width: 92vw;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.store-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9pt;
+  font-weight: 400;
+}
+.store-modal-close {
+  cursor: pointer !important;
+  font-size: 16pt;
+  font-weight: 200;
+  line-height: 1;
+  opacity: 0.45;
+}
+.store-modal-close:hover { opacity: 1; }
+.store-form { display: flex; flex-direction: column; gap: 9px; }
+.store-form input[type="text"] {
+  width: 100%;
+  font-family: WantedSansVariable, sans-serif;
+  font-size: 9pt;
+  font-weight: 300;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  background: transparent;
+  outline: none;
+  padding: 5px 0;
+  color: #111;
+  cursor: text !important;
+}
+.store-form input[type="text"]:focus { border-bottom-color: #111; }
+.store-form input::placeholder { color: rgba(0,0,0,0.3); }
+.store-form input[readonly] { color: #aaa; font-size: 8pt; cursor: default !important; }
+.f-row { display: flex; gap: 6px; align-items: flex-end; }
+.f-row input { flex: 1; }
+.f-small-btn {
+  background: none;
+  border: 1px solid #111;
+  font-family: WantedSansVariable, sans-serif;
+  font-size: 7.5pt;
+  padding: 4px 8px;
+  cursor: pointer !important;
+  white-space: nowrap;
+  color: #111;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+}
+.f-small-btn:hover { background: #111; color: #fff; }
+.f-submit {
+  width: 100%;
+  background: #111;
+  color: #fff;
+  border: none;
+  font-family: WantedSansVariable, sans-serif;
+  font-size: 9pt;
+  font-weight: 400;
+  padding: 10px;
+  cursor: pointer !important;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+.f-submit:hover { opacity: 0.7; }

@@ -86,8 +86,22 @@ img {
 }
 
 .search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 10px;
 }
+
+.leaf-nav {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  opacity: 0.45;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  cursor: pointer !important;
+  flex-shrink: 0;
+}
+.leaf-nav:hover { opacity: 1; transform: translateY(-1px); }
 
 #search {
   background: none;

@@ -24,6 +24,9 @@
 
 		<div class="h2-wrap"><h2>사진을 클릭하면 더 많은 사진을 확인할 수 있습니다.</h2></div>
 		<div class="search-wrap">
+			<a href="../seoul-map/index.html" class="leaf-nav" title="지도로">
+				<div id="nav-leaf"></div>
+			</a>
 			<input type="text" id="search" placeholder="서점 이름이나 동네로 검색" oninput="filterByAddress(this.value)">
 		</div>
 		<table>
@@ -229,6 +232,43 @@ document.addEventListener('mousemove', function(e) {
   document.body.appendChild(dot);
   setTimeout(() => dot.remove(), 600);
 });
+
+// ── 나뭇잎 네비 렌더링 ──
+(function() {
+  const LEAF = [
+    ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+    ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+    ['_','_','_','_','_','_','_','K','_','_','_','_','_','_','_','_'],
+    ['_','_','_','_','_','_','K','_','K','_','_','_','_','_','_','_'],
+    ['_','_','_','_','_','K','_','_','_','K','_','_','_','_','_','_'],
+    ['_','_','_','_','_','K','_','K','_','K','_','_','_','_','_','_'],
+    ['_','_','_','_','_','K','_','K','_','K','_','_','_','_','_','_'],
+    ['_','_','_','_','_','K','_','K','_','K','_','_','_','_','_','_'],
+    ['_','_','_','_','_','_','K','_','K','_','_','_','_','_','_','_'],
+    ['_','_','_','_','_','_','_','K','_','_','_','_','_','_','_','_'],
+    ['_','_','_','_','_','_','_','_','K','K','_','_','_','_','_','_'],
+    ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+    ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+    ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ];
+  const el = document.getElementById('nav-leaf');
+  if (!el) return;
+  el.style.display = 'grid';
+  el.style.gap = '0';
+  el.style.imageRendering = 'pixelated';
+  el.style.gridTemplateColumns = 'repeat(16, 5px)';
+  el.style.gridTemplateRows = 'repeat(14, 5px)';
+  el.style.zoom = '0.18';
+  LEAF.forEach(function(row) {
+    row.forEach(function(c) {
+      const d = document.createElement('div');
+      d.style.width = '5px';
+      d.style.height = '5px';
+      d.style.background = c === 'K' ? '#111' : 'transparent';
+      el.appendChild(d);
+    });
+  });
+})();
 
 // ── 초기 실행 ──
 buildMobileCards();

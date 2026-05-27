@@ -24,9 +24,7 @@
 		<div class="h2-wrap"><h2>사진을 클릭하면 더 많은 사진을 확인할 수 있습니다.</h2></div>
 		<div class="table-wrap">
 		<div class="search-wrap">
-			<a href="../seoul-map/index.html" class="leaf-nav" title="지도로">
-				<div id="nav-leaf"></div>
-			</a>
+			<a href="../seoul-map/index.html" class="leaf-nav" title="지도로">⊹</a>
 			<input type="text" id="search" placeholder="서점 이름 또는 동네로 검색하세요" oninput="filterByAddress(this.value)">
 			<button class="add-store-btn" onclick="openStoreModal()" title="책방 등록">+</button>
 		</div>
@@ -158,7 +156,7 @@ function buildMobileCards() {
       img.src = srcImg.src;
       img.dataset.images = srcImg.dataset.images;
       img.dataset.index  = '0';
-      img.addEventListener('click', function() { switchImage(this); });
+      img.addEventListener('click', function() { this.classList.toggle('color'); });
       card.appendChild(img);
       const addrDiv = document.createElement('div');
       addrDiv.className = 'card-addr';
@@ -258,7 +256,7 @@ function buildCustomSection() {
       img.src = store.images[0];
       img.dataset.images = JSON.stringify(store.images);
       img.dataset.index = '0';
-      img.addEventListener('click', function() { switchImage(this); });
+      img.addEventListener('click', function() { this.classList.toggle('color'); });
       card.appendChild(img);
     }
     const ad = document.createElement('div');
@@ -287,7 +285,7 @@ function appendCustomMobileCards() {
       img.src = store.images[0];
       img.dataset.images = JSON.stringify(store.images);
       img.dataset.index = '0';
-      img.addEventListener('click', function() { switchImage(this); });
+      img.addEventListener('click', function() { this.classList.toggle('color'); });
       card.appendChild(img);
     }
     const ad = document.createElement('div');
@@ -362,43 +360,6 @@ document.addEventListener('mousemove', function(e) {
   setTimeout(() => dot.remove(), 600);
 });
 
-// ── 나뭇잎 네비 렌더링 ──
-(function() {
-  const LEAF = [
-    ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
-    ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
-    ['_','_','_','_','_','_','_','K','_','_','_','_','_','_','_','_'],
-    ['_','_','_','_','_','_','K','_','K','_','_','_','_','_','_','_'],
-    ['_','_','_','_','_','K','_','_','_','K','_','_','_','_','_','_'],
-    ['_','_','_','_','_','K','_','K','_','K','_','_','_','_','_','_'],
-    ['_','_','_','_','_','K','_','K','_','K','_','_','_','_','_','_'],
-    ['_','_','_','_','_','K','_','K','_','K','_','_','_','_','_','_'],
-    ['_','_','_','_','_','_','K','_','K','_','_','_','_','_','_','_'],
-    ['_','_','_','_','_','_','_','K','_','_','_','_','_','_','_','_'],
-    ['_','_','_','_','_','_','_','_','K','K','_','_','_','_','_','_'],
-    ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
-    ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
-    ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
-  ];
-  const el = document.getElementById('nav-leaf');
-  if (!el) return;
-  el.style.display = 'grid';
-  el.style.gap = '0';
-  el.style.imageRendering = 'pixelated';
-  el.style.gridTemplateColumns = 'repeat(16, 5px)';
-  const leafRows = LEAF.slice(2, 11);
-  el.style.gridTemplateRows = 'repeat(' + leafRows.length + ', 5px)';
-  el.style.zoom = '0.27';
-  leafRows.forEach(function(row) {
-    row.forEach(function(c) {
-      const d = document.createElement('div');
-      d.style.width = '5px';
-      d.style.height = '5px';
-      d.style.background = c === 'K' ? '#111' : 'transparent';
-      el.appendChild(d);
-    });
-  });
-})();
 
 // ── 초기 실행 ──
 buildCustomSection();

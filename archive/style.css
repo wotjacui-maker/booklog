@@ -89,12 +89,13 @@ img {
 .table-wrap {
   display: inline-flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
 }
 
 .search-wrap {
   display: flex;
   align-items: center;
+  align-self: stretch;
   gap: 10px;
   margin-bottom: 10px;
 }
@@ -103,6 +104,8 @@ img {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
+  font-size: 9pt;
+  color: #111;
   opacity: 0.45;
   transition: opacity 0.15s ease, transform 0.15s ease;
   cursor: pointer !important;
@@ -121,6 +124,8 @@ img {
   outline: none;
   padding: 4px 0;
   width: 210px;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 #search::placeholder {
@@ -209,7 +214,9 @@ img {
     width: 100%;
     display: block;
     filter: grayscale(100%);
+    transition: filter 0.2s ease;
   }
+  .card-img.color { filter: grayscale(0%); }
 
   .card-addr {
     font-size: 7.5pt;

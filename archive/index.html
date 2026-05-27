@@ -12,7 +12,7 @@
 
 </head>
 <body>
-	<h1>⊹ ⋆ ˚. ₊ ⊹ ⋆ ˚. ⊹ ₊ book_room ⊹ ⋆ ˚. ₊ ⊹ ⋆ ˚. ⊹ ₊</h1>
+	<h1>⊹ ⋆ ˚. ₊ ⊹ ⋆ ˚. ⊹ ₊ <span class="reset-link" onclick="resetFilter()">book_room</span> ⊹ ⋆ ˚. ₊ ⊹ ⋆ ˚. ⊹ ₊</h1>
 		<p>
 			ⓒ 202604 made by jaeseo
 			마음에 드는 책방을 짓기 위해 책방을 모으고 있습니다.
@@ -113,6 +113,12 @@
 	</div>
 
 <script>
+function resetFilter() {
+  document.getElementById('search').value = '';
+  filterByAddress('');
+  history.replaceState(null, '', window.location.pathname);
+}
+
 function filterByAddress(keyword) {
     const rows = document.querySelectorAll('tbody tr');
     // 3행씩 그룹 (이름, 사진, 주소)

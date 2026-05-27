@@ -37,19 +37,6 @@ function getGuEn(guNm) {
   return GU_EN[guNm] || guNm;
 }
 
-function getCustomMapStores() {
-  try {
-    return JSON.parse(localStorage.getItem('bookroom_stores') || '[]')
-      .filter(s => s.lat && s.lng)
-      .map(s => ({
-        name: s.name,
-        lat: parseFloat(s.lat),
-        lng: parseFloat(s.lng),
-        archiveId: s.id,
-        custom: true
-      }));
-  } catch(e) { return []; }
-}
 
 fetch(GEOJSON_URL)
   .then(res => {
@@ -248,10 +235,8 @@ function renderMap(dongData) {
   const BASE_R = 4;
   const dotLayer = g.append('g').attr('class', 'bookstore-layer');
 
-  const allStores = [...BOOKSTORES, ...getCustomMapStores()];
-
   const dots = dotLayer.selectAll('.bookstore-dot')
-    .data(allStores)
+    .data(BOOKSTORES)
     .join('circle')
     .attr('class', 'bookstore-dot')
     .classed('has-archive', d => !!d.archiveId)

@@ -349,3 +349,45 @@ img {
   margin-top: 2px;
 }
 .f-submit:hover { opacity: 0.7; }
+
+/* ── 주소 검색 드롭다운 ── */
+.f-addr-wrap {
+  position: relative;
+  flex-direction: column;
+  align-items: stretch;
+}
+.addr-dropdown {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #111;
+  list-style: none;
+  z-index: 600;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.addr-dropdown.hidden { display: none; }
+.addr-item {
+  padding: 8px 10px;
+  cursor: pointer !important;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-bottom: 1px solid #eee;
+}
+.addr-item:last-child { border-bottom: none; }
+.addr-item:hover { background: #f7f7f7; }
+.addr-place {
+  font-size: 9pt;
+  font-weight: 400;
+  color: #111;
+}
+.addr-road {
+  font-size: 7.5pt;
+  font-weight: 300;
+  color: #888;
+}

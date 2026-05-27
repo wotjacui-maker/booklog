@@ -309,23 +309,61 @@ function closeStoreModal() {
   document.getElementById('store-modal').classList.add('hidden');
 }
 
-// ── 지오코딩 (Nominatim) ──
-function geocodeAddr() {
-  const addr = document.getElementById('f-addr').value.trim();
-  if (!addr) return;
-  const url = 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(addr) + '&format=json&limit=1&accept-language=ko';
-  fetch(url)
+// ── 카카오 주소 검색 ──
+const KAKAO_KEY = '77f29b7cf911eacc646d85b8ef204385';
+let _addrTimer = null;
+
+function searchAddr(q) {
+  clearTimeout(_addrTimer);
+  const dropdown = document.getElementById('addr-dropdown');
+  if (!q.trim()) { dropdown.classList.add('hidden'); return; }
+  _addrTimer = setTimeout(function() {
+    fetch('https://dapi.kakao.com/v2/local/search/keyword.json?query=' + encodeURIComponent(q) + '&size=5', {
+      headers: { 'Authorization': 'KakaoAK ' + KAKAO_KEY }
+    })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      if (data && data[0]) {
-        document.getElementById('f-lat').value = parseFloat(data[0].lat).toFixed(6);
-        document.getElementById('f-lng').value = parseFloat(data[0].lon).toFixed(6);
-      } else {
-        alert('위치를 찾지 못했어요. 더 구체적인 주소를 입력해보세요.');
+      dropdown.innerHTML = '';
+      if (!data.documents || !data.documents.length) {
+        dropdown.classList.add('hidden');
+        return;
       }
+      data.documents.forEach(function(place) {
+        const li = document.createElement('li');
+        li.className = 'addr-item';
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'addr-place';
+        nameSpan.textContent = place.place_name;
+        const roadSpan = document.createElement('span');
+        roadSpan.className = 'addr-road';
+        roadSpan.textContent = place.road_address_name || place.address_name;
+        li.appendChild(nameSpan);
+        li.appendChild(roadSpan);
+        li.addEventListener('click', function() {
+          document.getElementById('f-addr').value = place.road_address_name || place.address_name;
+          document.getElementById('f-lat').value = parseFloat(place.y).toFixed(6);
+          document.getElementById('f-lng').value = parseFloat(place.x).toFixed(6);
+          if (!document.getElementById('f-name').value.trim()) {
+            document.getElementById('f-name').value = place.place_name;
+          }
+          dropdown.classList.add('hidden');
+        });
+        dropdown.appendChild(li);
+      });
+      dropdown.classList.remove('hidden');
     })
-    .catch(function() { alert('위치 검색 중 오류가 발생했어요.'); });
+    .catch(function() { dropdown.classList.add('hidden'); });
+  }, 350);
 }
+
+// 드롭다운 외부 클릭 시 닫기
+document.addEventListener('click', function(e) {
+  const wrap = document.querySelector('.f-addr-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    const dd = document.getElementById('addr-dropdown');
+    if (dd) dd.classList.add('hidden');
+  }
+});
 
 // ── 사진 URL 필드 추가 ──
 function addImgField() {
@@ -486,9 +524,9 @@ shuffleCards();
 			</div>
 			<div class="store-form">
 				<input type="text" id="f-name" placeholder="책방 이름" />
-				<div class="f-row">
-					<input type="text" id="f-addr" placeholder="주소" />
-					<button class="f-small-btn" onclick="geocodeAddr()">위치 찾기</button>
+				<div class="f-row f-addr-wrap">
+					<input type="text" id="f-addr" placeholder="장소 이름이나 주소로 검색" oninput="searchAddr(this.value)" autocomplete="off" />
+					<ul id="addr-dropdown" class="addr-dropdown hidden"></ul>
 				</div>
 				<div class="f-row" style="gap:10px;">
 					<input type="text" id="f-lat" placeholder="위도" readonly />

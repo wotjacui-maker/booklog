@@ -180,6 +180,8 @@ img {
   table, .h2-wrap { display: none; }
   .table-wrap { width: 100%; }
 
+  .search-wrap { padding: 0 12px; }
+
   .layout {
     padding: 0 0 40px 0;
     align-items: flex-start;

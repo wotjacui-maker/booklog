@@ -140,26 +140,29 @@ function buildMobileCards() {
     if (!addrRow) continue;
     const nameCells = Array.from(nameRow.querySelectorAll('td'));
     nameCells.forEach(function(nameTd, idx) {
+      const name = nameTd.textContent.trim();
+      if (!name) return; // 빈 슬롯 제외
       const photoTd = photoRow.querySelectorAll('td')[idx];
       const addrTd  = addrRow.querySelectorAll('td')[idx];
       const srcImg  = photoTd ? photoTd.querySelector('img') : null;
-      if (!srcImg) return; // 플레이스홀더 제외
       const card = document.createElement('div');
       card.className = 'store-card';
       if (nameTd.id) card.dataset.storeId = nameTd.id;
-      card.dataset.name = nameTd.textContent.trim();
+      card.dataset.name = name;
       card.dataset.addr = addrTd ? addrTd.textContent.trim() : '';
       const nameDiv = document.createElement('div');
       nameDiv.className = 'card-name';
-      nameDiv.textContent = nameTd.textContent.trim();
+      nameDiv.textContent = name;
       card.appendChild(nameDiv);
-      const img = document.createElement('img');
-      img.className = 'card-img';
-      img.src = srcImg.src;
-      img.dataset.images = srcImg.dataset.images;
-      img.dataset.index  = '0';
-      img.addEventListener('click', function() { this.classList.toggle('color'); });
-      card.appendChild(img);
+      if (srcImg) {
+        const img = document.createElement('img');
+        img.className = 'card-img';
+        img.src = srcImg.src;
+        img.dataset.images = srcImg.dataset.images || JSON.stringify([srcImg.src]);
+        img.dataset.index  = '0';
+        img.addEventListener('click', function() { this.classList.toggle('color'); });
+        card.appendChild(img);
+      }
       const addrDiv = document.createElement('div');
       addrDiv.className = 'card-addr';
       addrDiv.textContent = card.dataset.addr;

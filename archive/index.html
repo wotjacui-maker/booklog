@@ -35,8 +35,8 @@
 			  <td id="thanks-books">thanks--books</td>
 			  <td id="pisache">pisache</td>
 			  <td id="cheonggyecheon">청계천서점</td>
-			  <td>책방이름5</td>
-			  <td>책방이름6</td>
+			  <td data-slot="name">책방이름5</td>
+			  <td data-slot="name">책방이름6</td>
 			</tr>
 			<tr>
 				<td>
@@ -75,46 +75,45 @@
 						onclick="switchImage(this)"
 					>
 				</td>
-				<td>책방사진5</td>
-				<td>책방사진6</td>
+				<td data-slot="photo">책방사진5</td>
+				<td data-slot="photo">책방사진6</td>
 			</tr>
 			<tr class="address-row">
 				<td>연남 Yeonnam</td>
 				<td>합정과 상수 중간 Hapjeong, Sangsu</td>
 				<td>동묘앞 역과 가까운 청계천 인근</td>
 				<td>동묘시장 그 자체, 청계천</td>
-				<td>주소5</td>
-				<td>주소6</td>
+				<td data-slot="addr">주소5</td>
+				<td data-slot="addr">주소6</td>
 			</tr>
 			<tr>
-				<td>책방이름7</td>
-				<td>책방이름8</td>
-				<td>책방이름9</td>
-				<td>책방이름10</td>
-				<td>책방이름11</td>
-				<td>책방이름12</td>
+				<td data-slot="name">책방이름7</td>
+				<td data-slot="name">책방이름8</td>
+				<td data-slot="name">책방이름9</td>
+				<td data-slot="name">책방이름10</td>
+				<td data-slot="name">책방이름11</td>
+				<td data-slot="name">책방이름12</td>
 			</tr>
 			<tr>
-				<td>책방사진7</td>
-				<td>책방사진8</td>
-				<td>책방사진9</td>
-				<td>책방사진10</td>
-				<td>책방사진11</td>
-				<td>책방사진12</td>
+				<td data-slot="photo">책방사진7</td>
+				<td data-slot="photo">책방사진8</td>
+				<td data-slot="photo">책방사진9</td>
+				<td data-slot="photo">책방사진10</td>
+				<td data-slot="photo">책방사진11</td>
+				<td data-slot="photo">책방사진12</td>
 			</tr>
 			<tr class="address-row">
-				<td>주소7</td>
-				<td>주소8</td>
-				<td>주소9</td>
-				<td>주소10</td>
-				<td>주소11</td>
-				<td>주소12</td>
+				<td data-slot="addr">주소7</td>
+				<td data-slot="addr">주소8</td>
+				<td data-slot="addr">주소9</td>
+				<td data-slot="addr">주소10</td>
+				<td data-slot="addr">주소11</td>
+				<td data-slot="addr">주소12</td>
 			</tr>
 		  </tbody>
 		</table>
 		</div><!-- /.table-wrap -->
 		<div id="mobile-cards"></div>
-		<div id="custom-section"></div>
 	</div>
 
 <script>
@@ -205,13 +204,7 @@ function filterByAddress(keyword) {
       card.dataset.addr.includes(keyword);
     card.classList.toggle('card-hidden', !matches);
   });
-  // 커스텀 서점 데스크탑 카드
-  document.querySelectorAll('.custom-card-d').forEach(function(card) {
-    const matches = !keyword ||
-      card.dataset.name.includes(keyword) ||
-      card.dataset.addr.includes(keyword);
-    card.classList.toggle('c-hidden', !matches);
-  });
+
 }
 
 // ── 초기화 (셔플 포함) ──
@@ -219,7 +212,6 @@ function resetFilter() {
   document.getElementById('search').value = '';
   filterByAddress('');
   shuffleCards();
-  document.querySelectorAll('.custom-card-d').forEach(c => c.classList.remove('c-hidden'));
   history.replaceState(null, '', window.location.pathname);
 }
 
@@ -232,66 +224,32 @@ function saveCustomStores(arr) {
   localStorage.setItem('bookroom_stores', JSON.stringify(arr));
 }
 
-// ── 데스크탑 커스텀 그리드 ──
-function buildCustomSection() {
+// ── 커스텀 서점 → 표 빈 슬롯에 채우기 ──
+function fillTableSlots() {
   const stores = getCustomStores();
-  const section = document.getElementById('custom-section');
-  if (!section) return;
-  section.innerHTML = '';
-  if (!stores.length) return;
-  const grid = document.createElement('div');
-  grid.className = 'custom-grid';
-  stores.forEach(function(store) {
-    const card = document.createElement('div');
-    card.className = 'custom-card-d';
-    card.id = store.id;
-    card.dataset.name = store.name;
-    card.dataset.addr = store.address || '';
-    const nd = document.createElement('div');
-    nd.className = 'c-name'; nd.textContent = store.name;
-    card.appendChild(nd);
-    if (store.images && store.images[0]) {
-      const img = document.createElement('img');
-      img.className = 'c-img';
-      img.src = store.images[0];
-      img.dataset.images = JSON.stringify(store.images);
-      img.dataset.index = '0';
-      img.addEventListener('click', function() { this.classList.toggle('color'); });
-      card.appendChild(img);
-    }
-    const ad = document.createElement('div');
-    ad.className = 'c-addr'; ad.textContent = store.address || '';
-    card.appendChild(ad);
-    grid.appendChild(card);
-  });
-  section.appendChild(grid);
-}
+  const nameSlots  = Array.from(document.querySelectorAll('[data-slot="name"]'));
+  const photoSlots = Array.from(document.querySelectorAll('[data-slot="photo"]'));
+  const addrSlots  = Array.from(document.querySelectorAll('[data-slot="addr"]'));
 
-// ── 모바일 카드에 커스텀 서점 추가 ──
-function appendCustomMobileCards() {
-  const container = document.getElementById('mobile-cards');
-  getCustomStores().forEach(function(store) {
-    const card = document.createElement('div');
-    card.className = 'store-card';
-    card.dataset.storeId = store.id;
-    card.dataset.name = store.name;
-    card.dataset.addr = store.address || '';
-    const nd = document.createElement('div');
-    nd.className = 'card-name'; nd.textContent = store.name;
-    card.appendChild(nd);
+  // 슬롯 초기화
+  nameSlots.forEach(function(td) { td.textContent = ''; td.id = ''; });
+  photoSlots.forEach(function(td) { td.innerHTML = ''; });
+  addrSlots.forEach(function(td) { td.textContent = ''; });
+
+  stores.forEach(function(store, i) {
+    if (i >= nameSlots.length) return;
+    nameSlots[i].textContent = store.name;
+    nameSlots[i].id = store.id;
     if (store.images && store.images[0]) {
       const img = document.createElement('img');
-      img.className = 'card-img';
+      img.className = 'switchable';
       img.src = store.images[0];
       img.dataset.images = JSON.stringify(store.images);
       img.dataset.index = '0';
-      img.addEventListener('click', function() { this.classList.toggle('color'); });
-      card.appendChild(img);
+      img.addEventListener('click', function() { switchImage(this); });
+      photoSlots[i].appendChild(img);
     }
-    const ad = document.createElement('div');
-    ad.className = 'card-addr'; ad.textContent = store.address || '';
-    card.appendChild(ad);
-    container.appendChild(card);
+    addrSlots[i].textContent = store.address || '';
   });
 }
 
@@ -335,9 +293,8 @@ function submitStore() {
   stores.push(store);
   saveCustomStores(stores);
   closeStoreModal();
-  buildCustomSection();
+  fillTableSlots();
   buildMobileCards();
-  appendCustomMobileCards();
   shuffleCards();
 }
 
@@ -362,9 +319,8 @@ document.addEventListener('mousemove', function(e) {
 
 
 // ── 초기 실행 ──
-buildCustomSection();
+fillTableSlots();
 buildMobileCards();
-appendCustomMobileCards();
 shuffleCards();
 </script>
 
@@ -401,22 +357,6 @@ shuffleCards();
   });
 })();
 
-// 커스텀 서점 해시 처리 (지도에서 진입 시)
-(function() {
-  if (!window.location.hash) return;
-  const targetId = window.location.hash.slice(1);
-  if (!targetId.startsWith('custom_')) return;
-  // 데스크탑: 해당 카드만 표시
-  document.querySelectorAll('.custom-card-d').forEach(function(card) {
-    card.classList.toggle('c-hidden', card.id !== targetId);
-  });
-  // 테이블 숨기기
-  document.querySelectorAll('tbody tr').forEach(function(r) { r.style.display = 'none'; });
-  // 모바일: 해당 카드만 표시
-  document.querySelectorAll('.store-card').forEach(function(card) {
-    card.classList.toggle('card-hidden', card.dataset.storeId !== targetId);
-  });
-})();
 </script>
 
 	<!-- 책방 등록 모달 -->

@@ -237,6 +237,9 @@ function makeStoreCell(store, type) {
   if (type === 'name') {
     td.textContent = store.name;
     td.id = store.id;
+    td.style.cursor = 'pointer';
+    td.title = '클릭해서 수정';
+    td.addEventListener('click', (function(id) { return function() { openEditModal(id); }; })(store.id));
   } else if (type === 'photo') {
     if (store.images && store.images[0]) {
       const img = document.createElement('img');
@@ -272,6 +275,9 @@ function fillTableSlots() {
   stores.slice(0, staticCount).forEach(function(store, i) {
     nameSlots[i].textContent = store.name;
     nameSlots[i].id = store.id;
+    nameSlots[i].style.cursor = 'pointer';
+    nameSlots[i].title = '클릭해서 수정';
+    nameSlots[i].onclick = (function(id) { return function() { openEditModal(id); }; })(store.id);
     if (store.images && store.images[0]) {
       const img = document.createElement('img');
       img.className = 'switchable';
@@ -307,7 +313,43 @@ function openStoreModal() {
   document.getElementById('f-name').value = '';
   document.getElementById('f-loc').value = '';
   document.getElementById('f-images').innerHTML = '<input type="text" class="f-img-url" placeholder="사진 URL" />';
+  delete document.getElementById('store-modal').dataset.editingId;
+  document.getElementById('modal-title').textContent = '책방 등록';
+  document.querySelector('.f-submit').textContent = '등록';
+  document.getElementById('f-delete').style.display = 'none';
   document.getElementById('store-modal').classList.remove('hidden');
+}
+
+function openEditModal(storeId) {
+  const store = getCustomStores().find(function(s) { return s.id === storeId; });
+  if (!store) return;
+  document.getElementById('f-name').value = store.name;
+  document.getElementById('f-loc').value = store.address || '';
+  const imgContainer = document.getElementById('f-images');
+  imgContainer.innerHTML = '';
+  const urls = (store.images && store.images.length) ? store.images : [''];
+  urls.forEach(function(url) {
+    const inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'f-img-url'; inp.placeholder = '사진 URL';
+    inp.value = url;
+    imgContainer.appendChild(inp);
+  });
+  document.getElementById('store-modal').dataset.editingId = storeId;
+  document.getElementById('modal-title').textContent = '수정';
+  document.querySelector('.f-submit').textContent = '저장';
+  document.getElementById('f-delete').style.display = 'block';
+  document.getElementById('store-modal').classList.remove('hidden');
+}
+
+function deleteStore() {
+  const storeId = document.getElementById('store-modal').dataset.editingId;
+  if (!storeId) return;
+  const stores = getCustomStores().filter(function(s) { return s.id !== storeId; });
+  saveCustomStores(stores);
+  closeStoreModal();
+  fillTableSlots();
+  buildMobileCards();
+  shuffleCards();
 }
 function closeStoreModal() {
   document.getElementById('store-modal').classList.add('hidden');
@@ -324,23 +366,25 @@ function addImgField() {
   container.appendChild(inp);
 }
 
-// ── 등록 제출 ──
+// ── 등록/수정 제출 ──
 function submitStore() {
   const name = document.getElementById('f-name').value.trim();
   const loc  = document.getElementById('f-loc').value.trim();
   if (!name) { alert('책방 이름을 입력해주세요.'); return; }
-  if (getCustomStores().length >= MAX_STORES) { alert('최대 ' + MAX_STORES + '개까지 등록할 수 있어요.'); return; }
   const images = Array.from(document.querySelectorAll('.f-img-url'))
     .map(function(i) { return i.value.trim(); }).filter(Boolean);
-  const store = {
-    id: 'custom_' + Date.now(),
-    name: name,
-    address: loc,
-    images: images,
-    addedAt: new Date().toISOString().slice(0, 10)
-  };
-  const stores = getCustomStores();
-  stores.push(store);
+  const editingId = document.getElementById('store-modal').dataset.editingId;
+  let stores = getCustomStores();
+  if (editingId) {
+    stores = stores.map(function(s) {
+      return s.id === editingId
+        ? { id: s.id, name: name, address: loc, images: images, addedAt: s.addedAt }
+        : s;
+    });
+  } else {
+    if (stores.length >= MAX_STORES) { alert('최대 ' + MAX_STORES + '개까지 등록할 수 있어요.'); return; }
+    stores.push({ id: 'custom_' + Date.now(), name: name, address: loc, images: images, addedAt: new Date().toISOString().slice(0, 10) });
+  }
   saveCustomStores(stores);
   closeStoreModal();
   fillTableSlots();
@@ -413,7 +457,7 @@ shuffleCards();
 	<div id="store-modal" class="store-modal hidden">
 		<div class="store-modal-box">
 			<div class="store-modal-head">
-				<span>책방 등록</span>
+				<span id="modal-title">책방 등록</span>
 				<span class="store-modal-close" onclick="closeStoreModal()">×</span>
 			</div>
 			<div class="store-form">
@@ -423,6 +467,7 @@ shuffleCards();
 					<input type="text" class="f-img-url" placeholder="사진 URL" />
 				</div>
 				<button class="f-small-btn" onclick="addImgField()" style="align-self:flex-start;">+ 사진 추가</button>
+				<button id="f-delete" class="f-small-btn" onclick="deleteStore()" style="display:none;color:#999;border-color:#ddd;">삭제</button>
 				<button class="f-submit" onclick="submitStore()">등록</button>
 			</div>
 		</div>

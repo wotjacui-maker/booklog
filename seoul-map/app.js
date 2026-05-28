@@ -72,14 +72,9 @@ fetch(GEOJSON_URL)
 
 function renderMap(dongData) {
   const container = document.getElementById('map-container');
-  const W = container.clientWidth;
-  const H = container.clientHeight;
+  const W = container.clientWidth  || window.innerWidth  || 1280;
+  const H = container.clientHeight || window.innerHeight || 720;
   const PAD = 40;
-
-  // 화면 너비에 비례해 폰트 크기 조정 (모바일에서 지도가 작아도 글자가 비례하도록)
-  const fontScale = Math.min(1, W / 800);
-  const GU_BASE   = Math.max(5, 11 * fontScale);
-  const DONG_BASE = Math.max(4,  9 * fontScale);
 
   const svg = d3.select('#map')
     .attr('width', W)
@@ -110,86 +105,50 @@ function renderMap(dongData) {
     .on('mouseout',  onDongOut)
     .on('click',     onDongClick);
 
-  // ── Gu boundary: draw each gu as a group with a thick outer stroke ──
-  // Group features by gu_cd
+  // ── Gu boundary: 공유 내부 에지 제거, 외곽선만 렌더링 ──
+  // 같은 구 내 두 동이 공유하는 에지는 2회 등장 → 제거
+  // 외곽 에지는 1회만 등장 → 남김
   const guMap = d3.group(dongData.features, d => d.properties.gu_cd);
-
-  // For each gu, create a synthetic MultiPolygon GeoJSON feature and draw it
   const guLayer = g.append('g').attr('class', 'gu-layer');
 
-  guMap.forEach((features, guCd) => {
-    // Collect all coordinate rings from all features in this gu
-    const coords = [];
+  guMap.forEach((features) => {
+    const edgeCnt = new Map();
+
     features.forEach(f => {
       const geom = f.geometry;
       if (!geom) return;
-      if (geom.type === 'Polygon') {
-        coords.push(geom.coordinates);
-      } else if (geom.type === 'MultiPolygon') {
-        geom.coordinates.forEach(c => coords.push(c));
-      }
+      const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+      polys.forEach(poly =>
+        poly.forEach(ring => {
+          for (let i = 0; i < ring.length - 1; i++) {
+            const [ax, ay] = ring[i], [bx, by] = ring[i + 1];
+            const key = (ax < bx || (ax === bx && ay <= by))
+              ? `${ax},${ay}|${bx},${by}`
+              : `${bx},${by}|${ax},${ay}`;
+            edgeCnt.set(key, (edgeCnt.get(key) || 0) + 1);
+          }
+        })
+      );
     });
 
-    const multiPoly = {
-      type: 'Feature',
-      geometry: { type: 'MultiPolygon', coordinates: coords },
-      properties: {}
-    };
+    let d = '';
+    edgeCnt.forEach((cnt, key) => {
+      if (cnt !== 1) return;
+      const [a, b] = key.split('|').map(s => s.split(',').map(Number));
+      const [px1, py1] = projection(a);
+      const [px2, py2] = projection(b);
+      d += `M${px1},${py1}L${px2},${py2}`;
+    });
 
-    guLayer.append('path')
-      .attr('class', 'gu')
-      .attr('d', path(multiPoly));
+    if (d) guLayer.append('path').attr('class', 'gu').attr('d', d);
   });
-
-  // ── Gu name labels (centroid of projected bounding box per gu) ──
-  const guLabels = g.append('g').attr('class', 'gu-labels');
-
-  guMap.forEach((features, guCd) => {
-    // Build a synthetic FeatureCollection to fit
-    const fc = { type: 'FeatureCollection', features };
-    const [[x0, y0], [x1, y1]] = path.bounds(fc);
-    const cx = (x0 + x1) / 2;
-    const cy = (y0 + y1) / 2;
-    const guNm = features[0]?.properties.gu_nm || '';
-
-    guLabels.append('text')
-      .attr('class', 'gu-label')
-      .attr('x', cx)
-      .attr('y', cy)
-      .attr('font-size', `${GU_BASE}px`)
-      .text(getGuEn(guNm));
-  });
-
-  // ── Dong name labels (shown when zoomed in) ──
-  const dongLabels = g.append('g').attr('class', 'dong-labels');
-
-  dongLabels.selectAll('.dong-label')
-    .data(dongData.features)
-    .join('text')
-    .attr('class', 'dong-label')
-    .attr('x', d => path.centroid(d)[0])
-    .attr('y', d => path.centroid(d)[1])
-    .attr('font-size', `${DONG_BASE}px`)
-    .text(d => d.properties.dong_nm)
-    .style('opacity', 0);
 
   function onZoom(event) {
     const t = event.transform;
     g.attr('transform', t);
-
-    // 줌 아웃 시 베이스 이상으로 커지지 않도록 캡 적용
-    const guFontSize   = Math.min(GU_BASE,   Math.max(4, GU_BASE   / t.k));
-    const dongFontSize = Math.min(DONG_BASE, Math.max(3, DONG_BASE / t.k));
-
-    guLabels.selectAll('.gu-label')
-      .attr('font-size', `${guFontSize}px`)
-      .style('opacity', t.k > 12 ? 0 : 1);
-
-    dongLabels.selectAll('.dong-label')
-      .attr('font-size', `${dongFontSize}px`)
-      .style('opacity', t.k > 4 ? Math.min(1, (t.k - 4) / 3) : 0);
-
-    if (dots) dots.attr('r', BASE_R / t.k);
+    // t.k^0.75 감쇠: 줌인할수록 마커가 조금씩 커지되 압도적으로 크지 않음
+    // 1x→11px, 4x→15px, 8x→18px, 16x→22px 시각 크기
+    if (dots) dots.attr('font-size', `${Math.max(0.5, BASE_SIZE / Math.pow(t.k, 0.75))}px`);
   }
 
   // Deselect on SVG background click
@@ -231,20 +190,24 @@ function renderMap(dongData) {
     infoPanelEl.classList.add('hidden');
   }
 
-  // ── Bookstore dots ──
-  const BASE_R = 4;
+  // ── Bookstore symbols ──
+  const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
+  const BASE_SIZE = isMobile ? 14 : 11;
   const dotLayer = g.append('g').attr('class', 'bookstore-layer');
 
   const dots = dotLayer.selectAll('.bookstore-dot')
     .data(BOOKSTORES)
-    .join('circle')
+    .join('text')
     .attr('class', 'bookstore-dot')
     .classed('has-archive', d => !!d.archiveId)
-    .attr('cx', d => projection([d.lng, d.lat])[0])
-    .attr('cy', d => projection([d.lng, d.lat])[1])
-    .attr('r', BASE_R)
+    .attr('x', d => projection([d.lng, d.lat])[0])
+    .attr('y', d => projection([d.lng, d.lat])[1])
+    .attr('font-size', `${BASE_SIZE}px`)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
+    .text(d => d.archiveId ? '✶' : '⊹')
     .on('mouseover', function(event, d) {
-      tooltipEl.textContent = d.archiveId ? `${d.name}  →` : d.name;
+      tooltipEl.textContent = d.name;
       tooltipEl.classList.remove('hidden');
     })
     .on('mousemove', function(event) {
@@ -254,6 +217,12 @@ function renderMap(dongData) {
     .on('mouseout', function() {
       tooltipEl.classList.add('hidden');
     })
+    .on('touchstart', function(event, d) {
+      event.stopPropagation();
+      infoNameEl.textContent = d.name;
+      infoGuEl.textContent   = d.archiveId ? '탭하면 아카이브로 이동 →' : '';
+      infoPanelEl.classList.remove('hidden');
+    }, { passive: true })
     .on('click', function(event, d) {
       if (d.archiveId) {
         event.stopPropagation();

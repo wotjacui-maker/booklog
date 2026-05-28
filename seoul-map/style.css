@@ -16,6 +16,7 @@ body {
   font-family: 'Pretendard Variable', 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
   background: #fff;
   color: var(--text);
+  height: 100vh;
   height: 100dvh;
   overflow: hidden;
 }
@@ -65,13 +66,11 @@ body {
 /* ── Dong paths ── */
 .dong {
   fill: #fff;
-  stroke: #666;
-  stroke-width: 0.08px;
+  stroke: none;
   cursor: pointer;
   transition: fill var(--trans);
-  vector-effect: non-scaling-stroke;
 }
-.dong.dong-hover    { fill: #f5f0e8; }
+.dong.dong-hover    { fill: #c6ff00; }
 .dong.dong-selected { fill: var(--accent-lt); }
 
 /* ── Gu boundary paths (rendered on top) ── */
@@ -109,13 +108,13 @@ body {
 .tooltip {
   position: fixed;
   background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border: 1px solid #111;
+  border-radius: 0;
   padding: 6px 12px;
-  font-size: .82rem;
-  font-weight: 600;
-  color: var(--text);
-  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  font-size: 8pt;
+  font-weight: 400;
+  color: #111;
+  box-shadow: none;
   pointer-events: none;
   z-index: 200;
   white-space: nowrap;
@@ -138,13 +137,13 @@ body {
 }
 
 .info-name {
-  font-size: 1.1rem;
-  font-weight: 800;
+  font-size: 8pt;
+  font-weight: 700;
   color: var(--accent);
 }
 
 .info-gu {
-  font-size: .78rem;
+  font-size: 8pt;
   color: var(--muted);
   margin-top: 4px;
 }
@@ -162,40 +161,48 @@ body {
   gap: 10px;
 }
 
-.overlay-text { font-size: .95rem; color: var(--muted); }
-.overlay-sub  { font-size: .8rem; color: #bbb; }
+.overlay-text { font-size: 8pt; color: #111; font-weight: 400; }
+.overlay-sub  { font-size: 8pt; color: #111; }
 
 /* ── Hint ── */
 .hint {
   position: absolute;
   bottom: 28px;
   right: 28px;
-  font-size: .75rem;
-  color: var(--muted);
-  background: rgba(255,255,255,0.9);
+  font-size: 8pt;
+  color: #111;
+  background: #fff;
   padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
+  border-radius: 0;
+  border: 1px solid #111;
   z-index: 10;
   pointer-events: none;
 }
 
-/* ── Bookstore dots ── */
+/* ── Bookstore symbols ── */
 .bookstore-dot {
   fill: #e03131;
-  stroke: #fff;
-  stroke-width: 0.8px;
   cursor: pointer;
-  vector-effect: non-scaling-stroke;
+  user-select: none;
+  pointer-events: all;
 }
 
 .bookstore-dot.has-archive {
   fill: #e07b00;
-  stroke-width: 1.2px;
 }
 
 .hidden { display: none !important; }
 
 @media (max-width: 600px) {
   .hint { display: none; }
+
+  .info-panel {
+    bottom: 16px;
+    padding: 10px 20px;
+    min-width: 130px;
+  }
+
+  .info-name { font-size: 8pt; }
+
+  .tooltip { display: none; }
 }

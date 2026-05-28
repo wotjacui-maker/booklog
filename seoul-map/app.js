@@ -114,6 +114,7 @@ function renderMap(dongData) {
   guMap.forEach((features) => {
     const edgeCnt = new Map();
 
+    const r6 = v => Math.round(v * 1e6) / 1e6;
     features.forEach(f => {
       const geom = f.geometry;
       if (!geom) return;
@@ -121,7 +122,8 @@ function renderMap(dongData) {
       polys.forEach(poly =>
         poly.forEach(ring => {
           for (let i = 0; i < ring.length - 1; i++) {
-            const [ax, ay] = ring[i], [bx, by] = ring[i + 1];
+            const ax = r6(ring[i][0]),  ay = r6(ring[i][1]);
+            const bx = r6(ring[i+1][0]), by = r6(ring[i+1][1]);
             const key = (ax < bx || (ax === bx && ay <= by))
               ? `${ax},${ay}|${bx},${by}`
               : `${bx},${by}|${ax},${ay}`;
@@ -148,7 +150,9 @@ function renderMap(dongData) {
     g.attr('transform', t);
     // t.k^0.75 감쇠: 줌인할수록 마커가 조금씩 커지되 압도적으로 크지 않음
     // 1x→11px, 4x→15px, 8x→18px, 16x→22px 시각 크기
-    if (dots) dots.attr('font-size', `${Math.max(0.5, BASE_SIZE / Math.pow(t.k, 0.75))}px`);
+    const sz = Math.max(0.5, BASE_SIZE / Math.pow(t.k, 0.75));
+    if (dots) dots.attr('font-size', `${sz}px`);
+    if (hits) hits.attr('r', sz * 1.1);
   }
 
   // Deselect on SVG background click
@@ -195,6 +199,7 @@ function renderMap(dongData) {
   const BASE_SIZE = isMobile ? 14 : 11;
   const dotLayer = g.append('g').attr('class', 'bookstore-layer');
 
+  // 심볼 텍스트 (pointer-events 없음 — 이벤트는 hit 원이 처리)
   const dots = dotLayer.selectAll('.bookstore-dot')
     .data(BOOKSTORES)
     .join('text')
@@ -205,7 +210,19 @@ function renderMap(dongData) {
     .attr('font-size', `${BASE_SIZE}px`)
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'central')
-    .text(d => d.archiveId ? '✶' : '⊹')
+    .attr('pointer-events', 'none')
+    .text(d => d.archiveId ? '✶' : '⊹');
+
+  // 투명 hit 원 — 탭/클릭 영역을 심볼보다 넓게
+  const hits = dotLayer.selectAll('.bookstore-hit')
+    .data(BOOKSTORES)
+    .join('circle')
+    .attr('class', 'bookstore-hit')
+    .attr('cx', d => projection([d.lng, d.lat])[0])
+    .attr('cy', d => projection([d.lng, d.lat])[1])
+    .attr('r', BASE_SIZE * 1.1)
+    .attr('fill', 'transparent')
+    .style('cursor', 'pointer')
     .on('mouseover', function(event, d) {
       tooltipEl.textContent = d.name;
       tooltipEl.classList.remove('hidden');
@@ -224,8 +241,8 @@ function renderMap(dongData) {
       infoPanelEl.classList.remove('hidden');
     }, { passive: true })
     .on('click', function(event, d) {
+      event.stopPropagation(); // 항상 막아서 deselectAll 방지
       if (d.archiveId) {
-        event.stopPropagation();
         window.location.href = `../archive/index.html#${d.archiveId}`;
       }
     });

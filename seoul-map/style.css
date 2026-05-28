@@ -195,14 +195,5 @@ body {
 
 @media (max-width: 600px) {
   .hint { display: none; }
-
-  .info-panel {
-    bottom: 16px;
-    padding: 10px 20px;
-    min-width: 130px;
-  }
-
-  .info-name { font-size: 8pt; }
-
   .tooltip { display: none; }
 }

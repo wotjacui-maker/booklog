@@ -152,7 +152,7 @@ function renderMap(dongData) {
     // 1x→11px, 4x→15px, 8x→18px, 16x→22px 시각 크기
     const sz = Math.max(0.5, BASE_SIZE / Math.pow(t.k, 0.75));
     if (dots) dots.attr('font-size', `${sz}px`);
-    if (hits) hits.attr('r', sz * 1.1);
+    if (hits) hits.attr('r', sz * 0.85);
   }
 
   // Deselect on SVG background click
@@ -220,7 +220,7 @@ function renderMap(dongData) {
     .attr('class', 'bookstore-hit')
     .attr('cx', d => projection([d.lng, d.lat])[0])
     .attr('cy', d => projection([d.lng, d.lat])[1])
-    .attr('r', BASE_SIZE * 1.1)
+    .attr('r', BASE_SIZE * 0.85)
     .attr('fill', 'transparent')
     .style('cursor', 'pointer')
     .on('mouseover', function(event, d) {

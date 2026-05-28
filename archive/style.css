@@ -96,7 +96,6 @@ img {
 .search-wrap {
   display: flex;
   align-items: center;
-  align-self: stretch;
   gap: 10px;
   margin-bottom: 10px;
 }
@@ -241,7 +240,6 @@ img {
   opacity: 0.45;
   line-height: 1;
   transition: opacity 0.15s;
-  margin-left: auto;
   margin-top: 3px;
 }
 .add-store-btn:hover { opacity: 1; }

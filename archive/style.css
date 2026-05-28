@@ -19,7 +19,7 @@ h1 {
 }
 
 h1 .reset-link {
-  cursor: pointer;
+  cursor: none;
 }
 
 h1 .reset-link:hover {
@@ -74,7 +74,7 @@ td {
 
 img {
   width: 200px;
-  cursor: pointer;
+  cursor: none;
   display: block;
 }
 
@@ -108,7 +108,7 @@ img {
   color: #111;
   opacity: 0.45;
   transition: opacity 0.15s ease, transform 0.15s ease;
-  cursor: pointer !important;
+  cursor: none;
   flex-shrink: 0;
   margin-top: 3px;
 }
@@ -235,7 +235,7 @@ img {
   font-size: 18pt;
   font-weight: 200;
   color: #111;
-  cursor: pointer !important;
+  cursor: none;
   padding: 0;
   opacity: 0.3;
   line-height: 1;
@@ -274,7 +274,7 @@ img {
   font-weight: 400;
 }
 .store-modal-close {
-  cursor: pointer !important;
+  cursor: none;
   font-size: 16pt;
   font-weight: 200;
   line-height: 1;
@@ -306,7 +306,7 @@ img {
   font-family: 'Noto Sans KR', sans-serif;
   font-size: 7.5pt;
   padding: 4px 8px;
-  cursor: pointer !important;
+  cursor: none;
   white-space: nowrap;
   color: #111;
   flex-shrink: 0;
@@ -322,7 +322,7 @@ img {
   font-size: 9pt;
   font-weight: 400;
   padding: 10px;
-  cursor: pointer !important;
+  cursor: none;
   letter-spacing: 1px;
   margin-top: 2px;
 }

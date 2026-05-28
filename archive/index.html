@@ -237,7 +237,6 @@ function makeStoreCell(store, type) {
   if (type === 'name') {
     td.textContent = store.name;
     td.id = store.id;
-    td.style.cursor = 'pointer';
     td.title = '클릭해서 수정';
     td.addEventListener('click', (function(id) { return function() { openEditModal(id); }; })(store.id));
   } else if (type === 'photo') {
@@ -275,7 +274,6 @@ function fillTableSlots() {
   stores.slice(0, staticCount).forEach(function(store, i) {
     nameSlots[i].textContent = store.name;
     nameSlots[i].id = store.id;
-    nameSlots[i].style.cursor = 'pointer';
     nameSlots[i].title = '클릭해서 수정';
     nameSlots[i].onclick = (function(id) { return function() { openEditModal(id); }; })(store.id);
     if (store.images && store.images[0]) {
@@ -360,7 +358,7 @@ function closeStoreModal() {
 // ── 사진 URL 필드 추가 ──
 function addImgField() {
   const container = document.getElementById('f-images');
-  if (container.querySelectorAll('input').length >= 4) return;
+  if (container.querySelectorAll('input').length >= 5) return;
   const inp = document.createElement('input');
   inp.type = 'text'; inp.className = 'f-img-url'; inp.placeholder = '사진 URL';
   container.appendChild(inp);
@@ -409,6 +407,10 @@ document.addEventListener('mousemove', function(e) {
   dot.style.top  = e.clientY + 'px';
   document.body.appendChild(dot);
   setTimeout(() => dot.remove(), 600);
+});
+document.addEventListener('mouseover', function(e) {
+  const isClickable = !!e.target.closest('a, button, img, td[id], .reset-link, .add-store-btn, .store-modal-close, .card-img');
+  cursor.textContent = isClickable ? '✶' : '⊹';
 });
 
 

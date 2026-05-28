@@ -87,9 +87,10 @@ img {
 }
 
 .table-wrap {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 .search-wrap {
@@ -135,7 +136,7 @@ img {
 .layout {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   padding: 0 20px 40px 20px;
 }
 

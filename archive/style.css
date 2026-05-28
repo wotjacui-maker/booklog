@@ -6,7 +6,7 @@
 
 body {
   background: #fff;
-  font-family: WantedSansVariable, sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   color: #111;
 }
 
@@ -63,7 +63,7 @@ table {
 tr, td {
   border: 1px solid #111;
   font-size: 10pt;
-  font-family: WantedSansVariable, sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-weight: 400;
 }
 
@@ -118,7 +118,7 @@ img {
   background: none;
   border: none;
   color: #111;
-  font-family: WantedSansVariable, sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 9pt;
   font-weight: 300;
   outline: none;
@@ -231,7 +231,7 @@ img {
 .add-store-btn {
   background: none;
   border: none;
-  font-family: WantedSansVariable, sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 18pt;
   font-weight: 200;
   color: #111;
@@ -244,45 +244,6 @@ img {
   margin-top: 3px;
 }
 .add-store-btn:hover { opacity: 1; }
-
-/* ── 커스텀 서점 데스크탑 그리드 ── */
-.custom-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 200px);
-  border-top: 1px solid #111;
-  border-left: 1px solid #111;
-}
-.custom-card-d {
-  border-right: 1px solid #111;
-  border-bottom: 1px solid #111;
-  display: flex;
-  flex-direction: column;
-}
-.custom-card-d .c-name {
-  font-size: 10pt;
-  font-weight: 400;
-  padding: 6px 8px;
-  border-bottom: 1px solid #111;
-}
-.custom-card-d .c-img {
-  width: 200px;
-  display: block;
-  filter: grayscale(100%);
-  cursor: pointer !important;
-}
-.custom-card-d .c-img:hover { filter: grayscale(0%); }
-.custom-card-d .c-addr {
-  font-size: 8pt;
-  font-weight: 300;
-  padding: 6px 8px;
-  color: #555;
-  flex: 1;
-}
-.custom-card-d.c-hidden { display: none; }
-
-@media (max-width: 600px) {
-  #custom-section { display: none; }
-}
 
 /* ── 등록 모달 ── */
 .store-modal {
@@ -323,7 +284,7 @@ img {
 .store-form { display: flex; flex-direction: column; gap: 9px; }
 .store-form input[type="text"] {
   width: 100%;
-  font-family: WantedSansVariable, sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 9pt;
   font-weight: 300;
   border: none;
@@ -342,7 +303,7 @@ img {
 .f-small-btn {
   background: none;
   border: 1px solid #111;
-  font-family: WantedSansVariable, sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 7.5pt;
   padding: 4px 8px;
   cursor: pointer !important;
@@ -357,7 +318,7 @@ img {
   background: #111;
   color: #fff;
   border: none;
-  font-family: WantedSansVariable, sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 9pt;
   font-weight: 400;
   padding: 10px;

@@ -233,13 +233,11 @@ img {
 .add-store-btn {
   background: none;
   border: none;
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 18pt;
-  font-weight: 200;
+  font-size: 8pt;
   color: #111;
   cursor: none;
   padding: 0;
-  opacity: 0.3;
+  opacity: 0.45;
   line-height: 1;
   transition: opacity 0.15s;
   margin-left: auto;

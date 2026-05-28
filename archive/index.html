@@ -224,20 +224,49 @@ function saveCustomStores(arr) {
   localStorage.setItem('bookroom_stores', JSON.stringify(arr));
 }
 
-// ── 커스텀 서점 → 표 빈 슬롯에 채우기 ──
+// ── 커스텀 서점 → 표 빈 슬롯 + 동적 행 추가 (최대 50개) ──
+const MAX_STORES = 50;
+const COLS = 6;
+
+function makeStoreCell(store, type) {
+  const td = document.createElement('td');
+  if (!store) return td;
+  if (type === 'name') {
+    td.textContent = store.name;
+    td.id = store.id;
+  } else if (type === 'photo') {
+    if (store.images && store.images[0]) {
+      const img = document.createElement('img');
+      img.className = 'switchable';
+      img.src = store.images[0];
+      img.dataset.images = JSON.stringify(store.images);
+      img.dataset.index = '0';
+      img.addEventListener('click', function() { switchImage(this); });
+      td.appendChild(img);
+    }
+  } else if (type === 'addr') {
+    td.textContent = store.address || '';
+  }
+  return td;
+}
+
 function fillTableSlots() {
-  const stores = getCustomStores();
+  const stores = getCustomStores().slice(0, MAX_STORES);
+  const tbody = document.querySelector('tbody');
+
+  // 이전 동적 행 제거
+  document.querySelectorAll('tr.dyn-row').forEach(function(r) { r.remove(); });
+
+  // 정적 슬롯 초기화 & 채우기
   const nameSlots  = Array.from(document.querySelectorAll('[data-slot="name"]'));
   const photoSlots = Array.from(document.querySelectorAll('[data-slot="photo"]'));
   const addrSlots  = Array.from(document.querySelectorAll('[data-slot="addr"]'));
-
-  // 슬롯 초기화
   nameSlots.forEach(function(td) { td.textContent = ''; td.id = ''; });
   photoSlots.forEach(function(td) { td.innerHTML = ''; });
   addrSlots.forEach(function(td) { td.textContent = ''; });
 
-  stores.forEach(function(store, i) {
-    if (i >= nameSlots.length) return;
+  const staticCount = nameSlots.length; // 8
+  stores.slice(0, staticCount).forEach(function(store, i) {
     nameSlots[i].textContent = store.name;
     nameSlots[i].id = store.id;
     if (store.images && store.images[0]) {
@@ -251,6 +280,23 @@ function fillTableSlots() {
     }
     addrSlots[i].textContent = store.address || '';
   });
+
+  // 8개 초과분은 tbody에 동적으로 행 추가 (6개씩 묶음)
+  const extras = stores.slice(staticCount);
+  for (let i = 0; i < extras.length; i += COLS) {
+    const batch = extras.slice(i, i + COLS);
+    const nRow = document.createElement('tr'); nRow.className = 'dyn-row';
+    const pRow = document.createElement('tr'); pRow.className = 'dyn-row';
+    const aRow = document.createElement('tr'); aRow.className = 'dyn-row address-row';
+    for (let j = 0; j < COLS; j++) {
+      nRow.appendChild(makeStoreCell(batch[j] || null, 'name'));
+      pRow.appendChild(makeStoreCell(batch[j] || null, 'photo'));
+      aRow.appendChild(makeStoreCell(batch[j] || null, 'addr'));
+    }
+    tbody.appendChild(nRow);
+    tbody.appendChild(pRow);
+    tbody.appendChild(aRow);
+  }
 }
 
 // ── 모달 ──
@@ -280,6 +326,7 @@ function submitStore() {
   const name = document.getElementById('f-name').value.trim();
   const loc  = document.getElementById('f-loc').value.trim();
   if (!name) { alert('책방 이름을 입력해주세요.'); return; }
+  if (getCustomStores().length >= MAX_STORES) { alert('최대 ' + MAX_STORES + '개까지 등록할 수 있어요.'); return; }
   const images = Array.from(document.querySelectorAll('.f-img-url'))
     .map(function(i) { return i.value.trim(); }).filter(Boolean);
   const store = {

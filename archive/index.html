@@ -34,61 +34,29 @@
 		<table>
           <tbody>
             <tr>
-              <td id="6699press">6699프레스</td>
-			  <td id="thanks-books">thanks--books</td>
-			  <td id="pisache">pisache</td>
-			  <td id="cheonggyecheon">청계천서점</td>
-			  <td data-slot="name">책방이름5</td>
-			  <td data-slot="name">책방이름6</td>
-			</tr>
-			<tr>
-				<td>
-					<img
-						class="switchable"
-						src="https://d2w9rnfcy7mm78.cloudfront.net/45031006/original_1a1b44d44e1ace40e416733a1dfa708f.jpg?1775385009?bc=0"
-						data-images='["https://d2w9rnfcy7mm78.cloudfront.net/45031006/original_1a1b44d44e1ace40e416733a1dfa708f.jpg?1775385009?bc=0", "https://d2w9rnfcy7mm78.cloudfront.net/45031007/original_b0e0161c446e7b3121d0af57f3dda318.jpg?1775385014?bc=0", "https://d2w9rnfcy7mm78.cloudfront.net/45031011/original_d678778840c279c6559a4f7e232b7b2e.jpg?1775385040?bc=0", "https://d2w9rnfcy7mm78.cloudfront.net/45031012/original_a98b2152e086cd0a64e0014713caf469.jpg?1775385053?bc=0"]'
-						data-index="0"
-						onclick="switchImage(this)"
-					>
-				</td>
-				<td>
-					<img
-						class="switchable"
-						src="https://d2w9rnfcy7mm78.cloudfront.net/45030846/original_8f7ee96b00385f48416d1abc88a693c4.jpg?1775384319?bc=0"
-						data-images='["https://d2w9rnfcy7mm78.cloudfront.net/45030846/original_8f7ee96b00385f48416d1abc88a693c4.jpg?1775384319?bc=0"]'
-						data-index="0"
-						onclick="switchImage(this)"
-					>
-				</td>
-				<td>
-					<img
-						class="switchable"
-						src="https://d2w9rnfcy7mm78.cloudfront.net/45380017/original_f454f5c360edc6fe76646b4b5fe7d35f.jpg?1776425440?bc=0"
-						data-images='["https://d2w9rnfcy7mm78.cloudfront.net/45380017/original_f454f5c360edc6fe76646b4b5fe7d35f.jpg?1776425440?bc=0"]'
-						data-index="0"
-						onclick="switchImage(this)"
-					>
-				</td>
-				<td>
-					<img
-						class="switchable"
-						src="https://d2w9rnfcy7mm78.cloudfront.net/45380018/original_76723a9a11a78e23e58e0d46d606783b.jpg?1776425440?bc=0"
-						data-images='["https://d2w9rnfcy7mm78.cloudfront.net/45380018/original_76723a9a11a78e23e58e0d46d606783b.jpg?1776425440?bc=0", "https://d2w9rnfcy7mm78.cloudfront.net/45380019/original_5aea0d8592e6b3e633a3dc2977787b39.jpg?1776425441?bc=0", "https://d2w9rnfcy7mm78.cloudfront.net/45380020/original_362120834a5279fe06591492c7b18f7b.jpg?1776425441?bc=0"]'
-						data-index="0"
-						onclick="switchImage(this)"
-					>
-				</td>
-				<td data-slot="photo">책방사진5</td>
-				<td data-slot="photo">책방사진6</td>
-			</tr>
-			<tr class="address-row">
-				<td>연남 Yeonnam</td>
-				<td>합정과 상수 중간 Hapjeong, Sangsu</td>
-				<td>동묘앞 역과 가까운 청계천 인근</td>
-				<td>동묘시장 그 자체, 청계천</td>
-				<td data-slot="addr">주소5</td>
-				<td data-slot="addr">주소6</td>
-			</tr>
+              <td data-slot="name">책방이름1</td>
+              <td data-slot="name">책방이름2</td>
+              <td data-slot="name">책방이름3</td>
+              <td data-slot="name">책방이름4</td>
+              <td data-slot="name">책방이름5</td>
+              <td data-slot="name">책방이름6</td>
+            </tr>
+            <tr>
+              <td data-slot="photo">책방사진1</td>
+              <td data-slot="photo">책방사진2</td>
+              <td data-slot="photo">책방사진3</td>
+              <td data-slot="photo">책방사진4</td>
+              <td data-slot="photo">책방사진5</td>
+              <td data-slot="photo">책방사진6</td>
+            </tr>
+            <tr class="address-row">
+              <td data-slot="addr">주소1</td>
+              <td data-slot="addr">주소2</td>
+              <td data-slot="addr">주소3</td>
+              <td data-slot="addr">주소4</td>
+              <td data-slot="addr">주소5</td>
+              <td data-slot="addr">주소6</td>
+            </tr>
 			<tr>
 				<td data-slot="name">책방이름7</td>
 				<td data-slot="name">책방이름8</td>
@@ -221,6 +189,28 @@ function resetFilter() {
   history.replaceState(null, '', window.location.pathname);
 }
 
+// ── 기본 내장 서점 ──
+const BUILTIN_STORE_IDS = ['6699press','thanks-books','pisache','cheonggyecheon'];
+const BUILTIN_STORES = [
+  { id: '6699press', name: '6699프레스', address: '연남 Yeonnam', memo: '', images: [
+    'https://d2w9rnfcy7mm78.cloudfront.net/45031006/original_1a1b44d44e1ace40e416733a1dfa708f.jpg?1775385009?bc=0',
+    'https://d2w9rnfcy7mm78.cloudfront.net/45031007/original_b0e0161c446e7b3121d0af57f3dda318.jpg?1775385014?bc=0',
+    'https://d2w9rnfcy7mm78.cloudfront.net/45031011/original_d678778840c279c6559a4f7e232b7b2e.jpg?1775385040?bc=0',
+    'https://d2w9rnfcy7mm78.cloudfront.net/45031012/original_a98b2152e086cd0a64e0014713caf469.jpg?1775385053?bc=0'
+  ], addedAt: '2026-04-01' },
+  { id: 'thanks-books', name: 'thanks--books', address: '합정과 상수 중간 Hapjeong, Sangsu', memo: '', images: [
+    'https://d2w9rnfcy7mm78.cloudfront.net/45030846/original_8f7ee96b00385f48416d1abc88a693c4.jpg?1775384319?bc=0'
+  ], addedAt: '2026-04-01' },
+  { id: 'pisache', name: 'pisache', address: '동묘앞 역과 가까운 청계천 인근', memo: '', images: [
+    'https://d2w9rnfcy7mm78.cloudfront.net/45380017/original_f454f5c360edc6fe76646b4b5fe7d35f.jpg?1776425440?bc=0'
+  ], addedAt: '2026-04-01' },
+  { id: 'cheonggyecheon', name: '청계천서점', address: '동묘시장 그 자체, 청계천', memo: '', images: [
+    'https://d2w9rnfcy7mm78.cloudfront.net/45380018/original_76723a9a11a78e23e58e0d46d606783b.jpg?1776425440?bc=0',
+    'https://d2w9rnfcy7mm78.cloudfront.net/45380019/original_5aea0d8592e6b3e633a3dc2977787b39.jpg?1776425441?bc=0',
+    'https://d2w9rnfcy7mm78.cloudfront.net/45380020/original_362120834a5279fe06591492c7b18f7b.jpg?1776425441?bc=0'
+  ], addedAt: '2026-04-01' },
+];
+
 // ── 커스텀 서점 저장/로드 ──
 function getCustomStores() {
   try { return JSON.parse(localStorage.getItem('bookroom_stores') || '[]'); }
@@ -228,6 +218,26 @@ function getCustomStores() {
 }
 function saveCustomStores(arr) {
   localStorage.setItem('bookroom_stores', JSON.stringify(arr));
+}
+
+// ── 내장 서점 수정 내용 저장/로드 ──
+function getBuiltinOverrides() {
+  try { return JSON.parse(localStorage.getItem('bookroom_builtins') || '{}'); }
+  catch(e) { return {}; }
+}
+function saveBuiltinOverride(id, data) {
+  var overrides = getBuiltinOverrides();
+  overrides[id] = data;
+  localStorage.setItem('bookroom_builtins', JSON.stringify(overrides));
+}
+
+// ── 전체 서점 = 내장 + 커스텀 ──
+function getAllStores() {
+  var overrides = getBuiltinOverrides();
+  var builtins = BUILTIN_STORES.map(function(b) {
+    return overrides[b.id] ? Object.assign({}, b, overrides[b.id]) : b;
+  });
+  return builtins.concat(getCustomStores());
 }
 
 // ── 커스텀 서점 → 표 빈 슬롯 + 동적 행 추가 (최대 50개) ──
@@ -259,7 +269,7 @@ function makeStoreCell(store, type) {
 }
 
 function fillTableSlots() {
-  const stores = getCustomStores().slice(0, MAX_STORES);
+  const stores = getAllStores().slice(0, MAX_STORES);
   const tbody = document.querySelector('tbody');
 
   // 이전 동적 행 제거
@@ -323,7 +333,7 @@ function openStoreModal() {
 }
 
 function openEditModal(storeId) {
-  const store = getCustomStores().find(function(s) { return s.id === storeId; });
+  const store = getAllStores().find(function(s) { return s.id === storeId; });
   if (!store) return;
   document.getElementById('f-name').value = store.name;
   document.getElementById('f-loc').value = store.address || '';
@@ -340,7 +350,8 @@ function openEditModal(storeId) {
   document.getElementById('store-modal').dataset.editingId = storeId;
   document.getElementById('modal-title').textContent = '수정';
   document.querySelector('.f-submit').textContent = '저장';
-  document.getElementById('f-delete').style.display = 'block';
+  const isBuiltin = BUILTIN_STORE_IDS.indexOf(storeId) !== -1;
+  document.getElementById('f-delete').style.display = isBuiltin ? 'none' : 'block';
   document.getElementById('store-modal').classList.remove('hidden');
 }
 
@@ -378,18 +389,24 @@ function submitStore() {
   const images = Array.from(document.querySelectorAll('.f-img-url'))
     .map(function(i) { return i.value.trim(); }).filter(Boolean);
   const editingId = document.getElementById('store-modal').dataset.editingId;
-  let stores = getCustomStores();
   if (editingId) {
-    stores = stores.map(function(s) {
-      return s.id === editingId
-        ? { id: s.id, name: name, address: loc, memo: memo, images: images, addedAt: s.addedAt }
-        : s;
-    });
+    if (BUILTIN_STORE_IDS.indexOf(editingId) !== -1) {
+      saveBuiltinOverride(editingId, { name: name, address: loc, memo: memo, images: images });
+    } else {
+      let stores = getCustomStores();
+      stores = stores.map(function(s) {
+        return s.id === editingId
+          ? { id: s.id, name: name, address: loc, memo: memo, images: images, addedAt: s.addedAt }
+          : s;
+      });
+      saveCustomStores(stores);
+    }
   } else {
-    if (stores.length >= MAX_STORES) { alert('최대 ' + MAX_STORES + '개까지 등록할 수 있어요.'); return; }
+    if (getAllStores().length >= MAX_STORES) { alert('최대 ' + MAX_STORES + '개까지 등록할 수 있어요.'); return; }
+    let stores = getCustomStores();
     stores.push({ id: 'custom_' + Date.now(), name: name, address: loc, memo: memo, images: images, addedAt: new Date().toISOString().slice(0, 10) });
+    saveCustomStores(stores);
   }
-  saveCustomStores(stores);
   closeStoreModal();
   fillTableSlots();
   buildMobileCards();

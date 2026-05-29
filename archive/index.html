@@ -313,6 +313,7 @@ function fillTableSlots() {
 function openStoreModal() {
   document.getElementById('f-name').value = '';
   document.getElementById('f-loc').value = '';
+  document.getElementById('f-memo').value = '';
   document.getElementById('f-images').innerHTML = '<input type="text" class="f-img-url" placeholder="사진 URL" />';
   delete document.getElementById('store-modal').dataset.editingId;
   document.getElementById('modal-title').textContent = '책방 등록';
@@ -326,6 +327,7 @@ function openEditModal(storeId) {
   if (!store) return;
   document.getElementById('f-name').value = store.name;
   document.getElementById('f-loc').value = store.address || '';
+  document.getElementById('f-memo').value = store.memo || '';
   const imgContainer = document.getElementById('f-images');
   imgContainer.innerHTML = '';
   const urls = (store.images && store.images.length) ? store.images : [''];
@@ -371,6 +373,7 @@ function addImgField() {
 function submitStore() {
   const name = document.getElementById('f-name').value.trim();
   const loc  = document.getElementById('f-loc').value.trim();
+  const memo = document.getElementById('f-memo').value.trim();
   if (!name) { alert('책방 이름을 입력해주세요.'); return; }
   const images = Array.from(document.querySelectorAll('.f-img-url'))
     .map(function(i) { return i.value.trim(); }).filter(Boolean);
@@ -379,12 +382,12 @@ function submitStore() {
   if (editingId) {
     stores = stores.map(function(s) {
       return s.id === editingId
-        ? { id: s.id, name: name, address: loc, images: images, addedAt: s.addedAt }
+        ? { id: s.id, name: name, address: loc, memo: memo, images: images, addedAt: s.addedAt }
         : s;
     });
   } else {
     if (stores.length >= MAX_STORES) { alert('최대 ' + MAX_STORES + '개까지 등록할 수 있어요.'); return; }
-    stores.push({ id: 'custom_' + Date.now(), name: name, address: loc, images: images, addedAt: new Date().toISOString().slice(0, 10) });
+    stores.push({ id: 'custom_' + Date.now(), name: name, address: loc, memo: memo, images: images, addedAt: new Date().toISOString().slice(0, 10) });
   }
   saveCustomStores(stores);
   closeStoreModal();
@@ -468,6 +471,7 @@ shuffleCards();
 			<div class="store-form">
 				<input type="text" id="f-name" placeholder="책방 이름" />
 				<input type="text" id="f-loc" placeholder="위치 (예: 연남동, 합정역 근처)" />
+				<input type="text" id="f-memo" placeholder="메모 (선택)" />
 				<div id="f-images">
 					<input type="text" class="f-img-url" placeholder="사진 URL" />
 				</div>

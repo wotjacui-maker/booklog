@@ -192,7 +192,8 @@ function resetFilter() {
 // ── 기본 내장 서점 ──
 const BUILTIN_STORE_IDS = [
   '6699press','thanks-books','pisache','cheonggyecheon',
-  'custom_1779890239124','custom_1779949290649','custom_1779952798355','custom_1779948962330'
+  'custom_1779890239124','custom_1779949290649','custom_1779952798355','custom_1779948962330',
+  'custom_1780478289616','custom_1780478435492'
 ];
 const BUILTIN_STORES = [
   { id: '6699press', name: '6699프레스', address: '연남 Yeonnam', memo: '', images: [
@@ -214,8 +215,19 @@ const BUILTIN_STORES = [
   ], addedAt: '2026-04-01' },
   { id: 'custom_1779890239124', name: '어쩌다책방',      address: '연남, 연트럴파크', memo: '', images: [], addedAt: '2026-04-01' },
   { id: 'custom_1779949290649', name: '보스토크라이브러리', address: '연남동 240-63 2층', memo: '', images: [], addedAt: '2026-04-01' },
-  { id: 'custom_1779952798355', name: '리스본서점',       address: '연남동 375-117 1층', memo: '', images: [], addedAt: '2026-04-01' },
+  { id: 'custom_1779952798355', name: '서점리스본',        address: '연남동 375-117 1층', memo: '', images: [], addedAt: '2026-04-01' },
   { id: 'custom_1779948962330', name: '뉴보헤미안북스',   address: '연남, 의의선숲길', memo: '', images: [], addedAt: '2026-04-01' },
+  { id: 'custom_1780478289616', name: '세퍼럿 스페이시즈', address: '명동, 충무로, 카메라 거리', memo: '공간이 나뉘어져 있고, 천천히 봐도 간섭을 안 한다. 큐레이팅이 마음에 든다. 예술을 잘 몰라서 그런가...', images: [
+    'https://d2w9rnfcy7mm78.cloudfront.net/46711580/original_0326f48930a1d9c4f5d99502ca0bb8ac.jpeg?1780478062?bc=0',
+    'https://d2w9rnfcy7mm78.cloudfront.net/46711581/original_b35a64adef5e71f7e47215df932f6793.jpeg?1780478062?bc=0',
+    'https://d2w9rnfcy7mm78.cloudfront.net/46711582/original_71779253308e11cd73f55970b777cf4a.jpeg?1780478062?bc=0',
+    'https://d2w9rnfcy7mm78.cloudfront.net/46711585/original_f83709797bd7cde1828e3cb306230e41.jpeg?1780478063?bc=0'
+  ], addedAt: '2026-06-03' },
+  { id: 'custom_1780478435492', name: '소요서가',           address: '세운상가 3층, 을지로', memo: '철학이라는 분야에 집중해서 주제에 딥다이브할 수 있다. 책모임 운영 능력을 배워야할 듯', images: [
+    'https://d2w9rnfcy7mm78.cloudfront.net/46711583/original_b43decda9fab87a48cac2380a328fa62.jpeg?1780478063?bc=0',
+    'https://d2w9rnfcy7mm78.cloudfront.net/46711584/original_97c873ab6824c07df11876eb4e2436bb.jpeg?1780478063?bc=0',
+    'https://d2w9rnfcy7mm78.cloudfront.net/46711579/original_1f099bcad7582dda2facab4c39c230a9.jpeg?1780478062?bc=0'
+  ], addedAt: '2026-06-03' },
 ];
 
 // ── 커스텀 서점 저장/로드 ──

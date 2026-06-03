@@ -127,25 +127,26 @@ body {
   left: 50%;
   transform: translateX(-50%);
   background: #fff;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 28px;
+  border: 1px solid #111;
+  border-radius: 0;
+  padding: 6px 14px;
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  box-shadow: none;
   z-index: 100;
-  min-width: 160px;
+  min-width: 120px;
+  white-space: nowrap;
 }
 
 .info-name {
   font-size: 8pt;
-  font-weight: 700;
-  color: var(--accent);
+  font-weight: 400;
+  color: #111;
 }
 
 .info-gu {
   font-size: 8pt;
-  color: var(--muted);
-  margin-top: 4px;
+  color: #111;
+  margin-top: 2px;
 }
 
 /* ── Loading / Error ── */

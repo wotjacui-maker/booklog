@@ -264,6 +264,13 @@ function makeStoreCell(store, type) {
     }
   } else if (type === 'addr') {
     td.textContent = store.address || '';
+    if (store.name) {
+      td.classList.add('addr-link');
+      td.title = '네이버 지도에서 보기';
+      td.addEventListener('click', (function(name) {
+        return function() { window.open('https://map.naver.com/v5/search/' + encodeURIComponent(name), '_blank'); };
+      })(store.name));
+    }
   }
   return td;
 }
@@ -279,9 +286,9 @@ function fillTableSlots() {
   const nameSlots  = Array.from(document.querySelectorAll('[data-slot="name"]'));
   const photoSlots = Array.from(document.querySelectorAll('[data-slot="photo"]'));
   const addrSlots  = Array.from(document.querySelectorAll('[data-slot="addr"]'));
-  nameSlots.forEach(function(td) { td.textContent = ''; td.id = ''; });
+  nameSlots.forEach(function(td) { td.textContent = ''; td.id = ''; td.onclick = null; td.title = ''; });
   photoSlots.forEach(function(td) { td.innerHTML = ''; });
-  addrSlots.forEach(function(td) { td.textContent = ''; });
+  addrSlots.forEach(function(td) { td.textContent = ''; td.classList.remove('addr-link'); td.onclick = null; td.title = ''; });
 
   const staticCount = nameSlots.length; // 8
   stores.slice(0, staticCount).forEach(function(store, i) {
@@ -299,6 +306,11 @@ function fillTableSlots() {
       photoSlots[i].appendChild(img);
     }
     addrSlots[i].textContent = store.address || '';
+    addrSlots[i].classList.add('addr-link');
+    addrSlots[i].title = '네이버 지도에서 보기';
+    addrSlots[i].onclick = (function(name) {
+      return function() { window.open('https://map.naver.com/v5/search/' + encodeURIComponent(name), '_blank'); };
+    })(store.name);
   });
 
   // 8개 초과분은 tbody에 동적으로 행 추가 (6개씩 묶음)
@@ -432,7 +444,7 @@ document.addEventListener('mousemove', function(e) {
   setTimeout(() => dot.remove(), 600);
 });
 document.addEventListener('mouseover', function(e) {
-  const isClickable = !!e.target.closest('a, button, img, td[id], .reset-link, .add-store-btn, .store-modal-close, .card-img');
+  const isClickable = !!e.target.closest('a, button, img, td[id], .addr-link, .reset-link, .add-store-btn, .store-modal-close, .card-img');
   cursor.textContent = isClickable ? '✶' : '⊹';
 });
 

@@ -145,6 +145,11 @@ img {
   color: #555;
 }
 
+.addr-link:hover {
+  color: #111;
+  text-decoration: underline;
+}
+
 * {
   cursor: none;
 }

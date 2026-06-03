@@ -191,12 +191,14 @@ function renderMap(dongData) {
       d3.select(selectedEl).classed('dong-selected', false);
       selectedEl = null;
     }
+    activeTapId = null;
     infoPanelEl.classList.add('hidden');
   }
 
   // ── Bookstore symbols ──
   const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
   const BASE_SIZE = isMobile ? 14 : 11;
+  let activeTapId = null; // 모바일 두 번 탭 이동용
   const dotLayer = g.append('g').attr('class', 'bookstore-layer');
 
   // 심볼 텍스트 (pointer-events 없음 — 이벤트는 hit 원이 처리)
@@ -236,13 +238,20 @@ function renderMap(dongData) {
     })
     .on('touchstart', function(event, d) {
       event.stopPropagation();
+      if (isMobile && d.archiveId && activeTapId === d.archiveId) {
+        // 두 번째 탭 → archive 이동
+        window.location.href = `../archive/index.html#${d.archiveId}`;
+        return;
+      }
+      // 첫 번째 탭 → 패널 표시
+      activeTapId = d.archiveId || null;
       infoNameEl.textContent = d.name;
-      infoGuEl.textContent   = d.archiveId ? '탭하면 아카이브로 이동 →' : '';
+      infoGuEl.textContent   = (isMobile && d.archiveId) ? '한 번 더 탭하면 아카이브로 →' : '';
       infoPanelEl.classList.remove('hidden');
     }, { passive: true })
     .on('click', function(event, d) {
       event.stopPropagation(); // 항상 막아서 deselectAll 방지
-      if (d.archiveId) {
+      if (!isMobile && d.archiveId) {
         window.location.href = `../archive/index.html#${d.archiveId}`;
       }
     });

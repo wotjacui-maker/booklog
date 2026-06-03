@@ -190,7 +190,10 @@ function resetFilter() {
 }
 
 // ── 기본 내장 서점 ──
-const BUILTIN_STORE_IDS = ['6699press','thanks-books','pisache','cheonggyecheon'];
+const BUILTIN_STORE_IDS = [
+  '6699press','thanks-books','pisache','cheonggyecheon',
+  'custom_1779890239124','custom_1779949290649','custom_1779952798355','custom_1779948962330'
+];
 const BUILTIN_STORES = [
   { id: '6699press', name: '6699프레스', address: '연남 Yeonnam', memo: '', images: [
     'https://d2w9rnfcy7mm78.cloudfront.net/45031006/original_1a1b44d44e1ace40e416733a1dfa708f.jpg?1775385009?bc=0',
@@ -209,6 +212,10 @@ const BUILTIN_STORES = [
     'https://d2w9rnfcy7mm78.cloudfront.net/45380019/original_5aea0d8592e6b3e633a3dc2977787b39.jpg?1776425441?bc=0',
     'https://d2w9rnfcy7mm78.cloudfront.net/45380020/original_362120834a5279fe06591492c7b18f7b.jpg?1776425441?bc=0'
   ], addedAt: '2026-04-01' },
+  { id: 'custom_1779890239124', name: '어쩌다책방',      address: '연남, 연트럴파크', memo: '', images: [], addedAt: '2026-04-01' },
+  { id: 'custom_1779949290649', name: '보스토크라이브러리', address: '연남동 240-63 2층', memo: '', images: [], addedAt: '2026-04-01' },
+  { id: 'custom_1779952798355', name: '리스본서점',       address: '연남동 375-117 1층', memo: '', images: [], addedAt: '2026-04-01' },
+  { id: 'custom_1779948962330', name: '뉴보헤미안북스',   address: '연남, 의의선숲길', memo: '', images: [], addedAt: '2026-04-01' },
 ];
 
 // ── 커스텀 서점 저장/로드 ──
@@ -234,10 +241,31 @@ function saveBuiltinOverride(id, data) {
 // ── 전체 서점 = 내장 + 커스텀 ──
 function getAllStores() {
   var overrides = getBuiltinOverrides();
+  var customStores = getCustomStores();
+
+  // 마이그레이션: custom_*이 이제 builtin으로 승격된 경우, 사용자 데이터 보존
+  var changed = false;
+  BUILTIN_STORE_IDS.forEach(function(id) {
+    if (!overrides[id]) {
+      var legacy = customStores.find(function(s) { return s.id === id; });
+      if (legacy) {
+        overrides[id] = { name: legacy.name, address: legacy.address, memo: legacy.memo || '', images: legacy.images || [] };
+        changed = true;
+      }
+    }
+  });
+  if (changed) localStorage.setItem('bookroom_builtins', JSON.stringify(overrides));
+
   var builtins = BUILTIN_STORES.map(function(b) {
     return overrides[b.id] ? Object.assign({}, b, overrides[b.id]) : b;
   });
-  return builtins.concat(getCustomStores());
+
+  // builtin으로 승격된 ID는 custom 목록에서 제외 (중복 방지)
+  var filteredCustom = customStores.filter(function(s) {
+    return BUILTIN_STORE_IDS.indexOf(s.id) === -1;
+  });
+
+  return builtins.concat(filteredCustom);
 }
 
 // ── 커스텀 서점 → 표 빈 슬롯 + 동적 행 추가 (최대 50개) ──

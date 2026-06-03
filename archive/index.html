@@ -128,12 +128,30 @@ function buildMobileCards() {
         img.src = srcImg.src;
         img.dataset.images = srcImg.dataset.images || JSON.stringify([srcImg.src]);
         img.dataset.index  = '0';
-        img.addEventListener('click', function() { this.classList.toggle('color'); });
+        img.addEventListener('click', function() {
+          if (!this.classList.contains('color')) {
+            // 첫 탭: 컬러로 전환
+            this.classList.add('color');
+          } else {
+            // 이미 컬러: 다음 사진으로
+            const images = JSON.parse(this.dataset.images || '[]');
+            if (images.length > 1) {
+              const next = (parseInt(this.dataset.index || '0') + 1) % images.length;
+              this.src = images[next];
+              this.dataset.index = String(next);
+            }
+          }
+        });
         card.appendChild(img);
       }
       const addrDiv = document.createElement('div');
       addrDiv.className = 'card-addr';
       addrDiv.textContent = card.dataset.addr;
+      if (name) {
+        addrDiv.addEventListener('click', (function(n) {
+          return function() { window.open('https://map.naver.com/v5/search/' + encodeURIComponent(n), '_blank'); };
+        })(name));
+      }
       card.appendChild(addrDiv);
       container.appendChild(card);
     });

@@ -232,6 +232,7 @@ img {
     color: #555;
     flex: 1;
   }
+  .card-addr:active { text-decoration: underline; }
 }
 
 /* ── 서점 등록 버튼 ── */

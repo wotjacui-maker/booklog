@@ -176,7 +176,7 @@ body {
   color: #111;
   z-index: 200;
   pointer-events: none;
-  line-height: 1.6;
+  line-height: 1.35;
   max-width: 260px;
 }
 

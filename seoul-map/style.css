@@ -180,6 +180,11 @@ body {
   max-width: 260px;
 }
 
+.legend-en {
+  font-size: 6pt;
+  margin-top: 3px;
+}
+
 /* ── Hint ── */
 .hint {
   position: absolute;

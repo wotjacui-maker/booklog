@@ -87,7 +87,7 @@ function renderMap(dongData) {
 
   // ── Zoom & Pan ──
   const zoomBehavior = d3.zoom()
-    .scaleExtent([0.5, 40])
+    .scaleExtent([0.5, 120])
     .on('zoom', onZoom);
 
   svg.call(zoomBehavior);

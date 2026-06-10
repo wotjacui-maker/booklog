@@ -250,6 +250,20 @@ img {
 }
 .add-store-btn:hover { opacity: 1; }
 
+.settings-btn {
+  background: none;
+  border: none;
+  font-size: 8pt;
+  color: #111;
+  cursor: none;
+  padding: 0;
+  opacity: 0.3;
+  line-height: 1;
+  transition: opacity 0.15s;
+  margin-top: 3px;
+}
+.settings-btn:hover { opacity: 1; }
+
 /* ── 등록 모달 ── */
 .store-modal {
   position: fixed;

@@ -30,6 +30,7 @@
 			<a href="../seoul-map/index.html" class="leaf-nav" title="지도로">⊹</a>
 			<input type="text" id="search" placeholder="서점 이름 또는 동네로 검색하세요" oninput="filterByAddress(this.value)">
 			<button class="add-store-btn" onclick="openStoreModal()" title="책방 등록">✶</button>
+			<button class="settings-btn" onclick="openSettingsModal()" title="GitHub 연동 설정">⚙</button>
 		</div>
 		<table>
           <tbody>
@@ -285,34 +286,10 @@ function saveBuiltinOverride(id, data) {
   localStorage.setItem('bookroom_builtins', JSON.stringify(overrides));
 }
 
-// ── 전체 서점 = 내장 + 커스텀 ──
+// ── 전체 서점 목록 ──
 function getAllStores() {
-  var overrides = getBuiltinOverrides();
-  var customStores = getCustomStores();
-
-  // 마이그레이션: custom_*이 이제 builtin으로 승격된 경우, 사용자 데이터 보존
-  var changed = false;
-  BUILTIN_STORE_IDS.forEach(function(id) {
-    if (!overrides[id]) {
-      var legacy = customStores.find(function(s) { return s.id === id; });
-      if (legacy) {
-        overrides[id] = { name: legacy.name, address: legacy.address, memo: legacy.memo || '', images: legacy.images || [] };
-        changed = true;
-      }
-    }
-  });
-  if (changed) localStorage.setItem('bookroom_builtins', JSON.stringify(overrides));
-
-  var builtins = BUILTIN_STORES.map(function(b) {
-    return overrides[b.id] ? Object.assign({}, b, overrides[b.id]) : b;
-  });
-
-  // builtin으로 승격된 ID는 custom 목록에서 제외 (중복 방지)
-  var filteredCustom = customStores.filter(function(s) {
-    return BUILTIN_STORE_IDS.indexOf(s.id) === -1;
-  });
-
-  return builtins.concat(filteredCustom);
+  // stores.json 로드 성공 시 그걸 사용, 아니면 BUILTIN_STORES 폴백
+  return ALL_STORES || BUILTIN_STORES;
 }
 
 // ── 커스텀 서점 → 표 빈 슬롯 + 동적 행 추가 (최대 50개) ──
@@ -411,6 +388,9 @@ function openStoreModal() {
   document.getElementById('f-name').value = '';
   document.getElementById('f-loc').value = '';
   document.getElementById('f-memo').value = '';
+  document.getElementById('f-lat').value = '';
+  document.getElementById('f-lng').value = '';
+  document.getElementById('f-status').textContent = '';
   document.getElementById('f-images').innerHTML = '<input type="text" class="f-img-url" placeholder="사진 URL" />';
   delete document.getElementById('store-modal').dataset.editingId;
   document.getElementById('modal-title').textContent = '책방 등록';
@@ -425,6 +405,9 @@ function openEditModal(storeId) {
   document.getElementById('f-name').value = store.name;
   document.getElementById('f-loc').value = store.address || '';
   document.getElementById('f-memo').value = store.memo || '';
+  document.getElementById('f-lat').value = store.lat || '';
+  document.getElementById('f-lng').value = store.lng || '';
+  document.getElementById('f-status').textContent = '';
   const imgContainer = document.getElementById('f-images');
   imgContainer.innerHTML = '';
   const urls = (store.images && store.images.length) ? store.images : [''];
@@ -442,15 +425,20 @@ function openEditModal(storeId) {
   document.getElementById('store-modal').classList.remove('hidden');
 }
 
-function deleteStore() {
+async function deleteStore() {
   const storeId = document.getElementById('store-modal').dataset.editingId;
   if (!storeId) return;
-  const stores = getCustomStores().filter(function(s) { return s.id !== storeId; });
-  saveCustomStores(stores);
-  closeStoreModal();
-  fillTableSlots();
-  buildMobileCards();
-  shuffleCards();
+  const stores = (ALL_STORES || []).filter(function(s) { return s.id !== storeId; });
+  const statusEl = document.getElementById('f-status');
+  statusEl.textContent = '삭제 중...';
+  try {
+    await syncStoresJson(stores);
+    ALL_STORES = stores;
+    closeStoreModal();
+    fillTableSlots(); buildMobileCards(); shuffleCards();
+  } catch(e) {
+    statusEl.textContent = '오류: ' + e.message;
+  }
 }
 function closeStoreModal() {
   document.getElementById('store-modal').classList.add('hidden');
@@ -467,37 +455,134 @@ function addImgField() {
   container.appendChild(inp);
 }
 
+// ── GitHub API ──
+const GH_REPO = 'wotjacui-maker/booklog';
+const GH_STORES_PATH = 'data/stores.json';
+const GH_MAP_PATH = 'seoul-map/bookstores.js';
+
+async function ghGetFile(path) {
+  const token = localStorage.getItem('bookroom_gh_token');
+  const headers = token ? { 'Authorization': 'token ' + token } : {};
+  const res = await fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + path, { headers: headers });
+  if (!res.ok) throw new Error('API 오류 ' + res.status);
+  return res.json();
+}
+
+async function ghPutFile(path, content, sha, message) {
+  const token = localStorage.getItem('bookroom_gh_token');
+  if (!token) throw new Error('GitHub 토큰이 없습니다. ⚙ 버튼에서 설정해주세요.');
+  const encoded = btoa(unescape(encodeURIComponent(content)));
+  const res = await fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + path, {
+    method: 'PUT',
+    headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: message, content: encoded, sha: sha })
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || '업데이트 실패'); }
+}
+
+async function syncStoresJson(stores) {
+  const file = await ghGetFile(GH_STORES_PATH);
+  await ghPutFile(GH_STORES_PATH, JSON.stringify(stores, null, 2), file.sha,
+    'Update stores (' + new Date().toISOString().slice(0,10) + ')');
+}
+
+async function addToMap(store) {
+  if (!store.lat || !store.lng) return;
+  const file = await ghGetFile(GH_MAP_PATH);
+  let js = decodeURIComponent(escape(atob(file.content.replace(/\n/g, ''))));
+  if (js.includes("archiveId: '" + store.id + "'")) return; // 이미 있음
+  const entry = "  { name: '" + store.name + "', lat: " + store.lat + ", lng: " + store.lng +
+    ", archiveId: '" + store.id + "' }, // " + store.address;
+  js = js.replace(/
+\];/, '
+' + entry + '
+];');
+  await ghPutFile(GH_MAP_PATH, js, file.sha, 'Add ' + store.name + ' to map');
+}
+
+// ── stores.json 로드 ──
+let ALL_STORES = null;
+
+function loadStores() {
+  return fetch('../data/stores.json?t=' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(stores) { ALL_STORES = stores; })
+    .catch(function() { ALL_STORES = null; });
+}
+
 // ── 등록/수정 제출 ──
-function submitStore() {
+async function submitStore() {
   const name = document.getElementById('f-name').value.trim();
   const loc  = document.getElementById('f-loc').value.trim();
   const memo = document.getElementById('f-memo').value.trim();
+  const lat  = parseFloat(document.getElementById('f-lat').value) || null;
+  const lng  = parseFloat(document.getElementById('f-lng').value) || null;
   if (!name) { alert('책방 이름을 입력해주세요.'); return; }
   const images = Array.from(document.querySelectorAll('.f-img-url'))
     .map(function(i) { return i.value.trim(); }).filter(Boolean);
   const editingId = document.getElementById('store-modal').dataset.editingId;
+  const statusEl = document.getElementById('f-status');
+
+  let stores = (ALL_STORES || []).slice();
+  let newStore = null;
+
   if (editingId) {
-    if (BUILTIN_STORE_IDS.indexOf(editingId) !== -1) {
-      saveBuiltinOverride(editingId, { name: name, address: loc, memo: memo, images: images });
-    } else {
-      let stores = getCustomStores();
-      stores = stores.map(function(s) {
-        return s.id === editingId
-          ? { id: s.id, name: name, address: loc, memo: memo, images: images, addedAt: s.addedAt }
-          : s;
-      });
-      saveCustomStores(stores);
-    }
+    stores = stores.map(function(s) {
+      if (s.id !== editingId) return s;
+      return Object.assign({}, s, { name: name, address: loc, memo: memo, images: images,
+        lat: lat || s.lat, lng: lng || s.lng });
+    });
   } else {
-    if (getAllStores().length >= MAX_STORES) { alert('최대 ' + MAX_STORES + '개까지 등록할 수 있어요.'); return; }
-    let stores = getCustomStores();
-    stores.push({ id: 'custom_' + Date.now(), name: name, address: loc, memo: memo, images: images, addedAt: new Date().toISOString().slice(0, 10) });
-    saveCustomStores(stores);
+    if (stores.length >= MAX_STORES) { alert('최대 ' + MAX_STORES + '개까지 등록할 수 있어요.'); return; }
+    newStore = { id: 'custom_' + Date.now(), name: name, address: loc, memo: memo,
+      images: images, lat: lat, lng: lng, addedAt: new Date().toISOString().slice(0,10) };
+    stores.push(newStore);
   }
-  closeStoreModal();
+
+  statusEl.textContent = '저장 중...';
+  document.querySelector('.f-submit').disabled = true;
+  try {
+    await syncStoresJson(stores);
+    if (newStore) await addToMap(newStore);
+    ALL_STORES = stores;
+    statusEl.textContent = '✓ 저장됨 (지도 반영까지 1~2분)';
+    setTimeout(function() { closeStoreModal(); }, 800);
+  } catch(e) {
+    statusEl.textContent = '오류: ' + e.message;
+  } finally {
+    document.querySelector('.f-submit').disabled = false;
+  }
   fillTableSlots();
   buildMobileCards();
   shuffleCards();
+}
+
+// ── GitHub 설정 모달 ──
+function openSettingsModal() {
+  const existing = localStorage.getItem('bookroom_gh_token') || '';
+  document.getElementById('f-gh-token').value = existing ? '••••••••' : '';
+  const status = document.getElementById('gh-token-status');
+  status.textContent = existing ? '✓ 토큰 저장됨' : '토큰 없음';
+  document.getElementById('settings-modal').classList.remove('hidden');
+}
+function closeSettingsModal() {
+  document.getElementById('settings-modal').classList.add('hidden');
+}
+async function saveGhToken() {
+  const val = document.getElementById('f-gh-token').value.trim();
+  const statusEl = document.getElementById('gh-token-status');
+  if (!val || val === '••••••••') { closeSettingsModal(); return; }
+  statusEl.textContent = '확인 중...';
+  try {
+    const res = await fetch('https://api.github.com/repos/' + GH_REPO + '/contents/' + GH_STORES_PATH,
+      { headers: { 'Authorization': 'token ' + val } });
+    if (!res.ok) throw new Error('토큰 오류 ' + res.status);
+    localStorage.setItem('bookroom_gh_token', val);
+    statusEl.textContent = '✓ 연결 성공!';
+    setTimeout(closeSettingsModal, 1000);
+  } catch(e) {
+    statusEl.textContent = '실패: ' + e.message;
+  }
 }
 
 // ── 커스텀 커서 ──
@@ -525,9 +610,12 @@ document.addEventListener('mouseover', function(e) {
 
 
 // ── 초기 실행 ──
-fillTableSlots();
-buildMobileCards();
-shuffleCards();
+loadStores().then(function() {
+  fillTableSlots();
+  buildMobileCards();
+  shuffleCards();
+  // hash 진입 처리는 두 번째 script 블록에서 DOM 완성 후 실행
+});
 </script>
 
 <script>
@@ -565,6 +653,25 @@ shuffleCards();
 
 </script>
 
+	<!-- GitHub 설정 모달 -->
+	<div id="settings-modal" class="store-modal hidden">
+		<div class="store-modal-box">
+			<div class="store-modal-head">
+				<span>GitHub 연동</span>
+				<span class="store-modal-close" onclick="closeSettingsModal()">×</span>
+			</div>
+			<div class="store-form">
+				<input type="password" id="f-gh-token" placeholder="GitHub Personal Access Token" />
+				<div style="font-size:7.5pt;color:#999;line-height:1.5;">
+					github.com → Settings → Developer settings → Fine-grained tokens<br>
+					권한: Contents (Read and write), booklog 레포만
+				</div>
+				<div id="gh-token-status" style="font-size:8pt;color:#999;min-height:14px;"></div>
+				<button class="f-submit" onclick="saveGhToken()">저장</button>
+			</div>
+		</div>
+	</div>
+
 	<!-- 책방 등록 모달 -->
 	<div id="store-modal" class="store-modal hidden">
 		<div class="store-modal-box">
@@ -580,6 +687,11 @@ shuffleCards();
 					<input type="text" class="f-img-url" placeholder="사진 URL" />
 				</div>
 				<button class="f-small-btn" onclick="addImgField()" style="align-self:flex-start;">+ 사진 추가</button>
+				<div class="f-row">
+					<input type="text" id="f-lat" placeholder="위도 (예: 37.5607)" />
+					<input type="text" id="f-lng" placeholder="경도 (예: 126.9237)" />
+				</div>
+				<div id="f-status" style="font-size:8pt;color:#999;min-height:14px;"></div>
 				<button id="f-delete" class="f-small-btn" onclick="deleteStore()" style="display:none;color:#999;border-color:#ddd;">삭제</button>
 				<button class="f-submit" onclick="submitStore()">등록</button>
 			</div>

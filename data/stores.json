@@ -1,0 +1,121 @@
+[
+  {
+    "id": "6699press",
+    "name": "6699프레스",
+    "address": "연남 Yeonnam",
+    "memo": "",
+    "images": [
+      "https://d2w9rnfcy7mm78.cloudfront.net/45031006/original_1a1b44d44e1ace40e416733a1dfa708f.jpg?1775385009?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/45031007/original_b0e0161c446e7b3121d0af57f3dda318.jpg?1775385014?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/45031011/original_d678778840c279c6559a4f7e232b7b2e.jpg?1775385040?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/45031012/original_a98b2152e086cd0a64e0014713caf469.jpg?1775385053?bc=0"
+    ],
+    "lat": 37.5607, "lng": 126.9237, "addedAt": "2026-04-01"
+  },
+  {
+    "id": "thanks-books",
+    "name": "thanks--books",
+    "address": "합정과 상수 중간 Hapjeong, Sangsu",
+    "memo": "",
+    "images": [
+      "https://d2w9rnfcy7mm78.cloudfront.net/45030846/original_8f7ee96b00385f48416d1abc88a693c4.jpg?1775384319?bc=0"
+    ],
+    "lat": 37.5481, "lng": 126.9161, "addedAt": "2026-04-01"
+  },
+  {
+    "id": "pisache",
+    "name": "pisache",
+    "address": "동묘앞 역과 가까운 청계천 인근",
+    "memo": "",
+    "images": [
+      "https://d2w9rnfcy7mm78.cloudfront.net/45380017/original_f454f5c360edc6fe76646b4b5fe7d35f.jpg?1776425440?bc=0"
+    ],
+    "lat": 37.5744, "lng": 127.0134, "addedAt": "2026-04-01"
+  },
+  {
+    "id": "cheonggyecheon",
+    "name": "청계천서점",
+    "address": "동묘시장 그 자체, 청계천",
+    "memo": "",
+    "images": [
+      "https://d2w9rnfcy7mm78.cloudfront.net/45380018/original_76723a9a11a78e23e58e0d46d606783b.jpg?1776425440?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/45380019/original_5aea0d8592e6b3e633a3dc2977787b39.jpg?1776425441?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/45380020/original_362120834a5279fe06591492c7b18f7b.jpg?1776425441?bc=0"
+    ],
+    "lat": 37.5728, "lng": 127.0189, "addedAt": "2026-04-01"
+  },
+  {
+    "id": "custom_1779890239124",
+    "name": "어쩌다책방",
+    "address": "연남, 연트럴파크",
+    "memo": "안쪽에 다른 공간이 있고 확실히 분리되어 있는 형태. 라이브러리의 방식도 참고할 것이 많다.",
+    "images": [
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531322/original_1face0fe0caa6ad7db6d838d33a4ffea.jpeg?1779890179?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531329/original_8dacd702718111a506d9cf539f502f8d.jpeg?1779890185?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531325/original_b16b387d00e94d708f9ea8adb92d552e.jpeg?1779890181?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531320/original_fb149024eab419c00b8979e995ffad6f.jpeg?1779890177?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531336/original_e05c5b9fbb6f5d889f5746f11ab40628.jpeg?1779890189?bc=0"
+    ],
+    "lat": 37.5614, "lng": 126.9228, "addedAt": "2026-04-01"
+  },
+  {
+    "id": "custom_1779949290649",
+    "name": "보스토크라이브러리",
+    "address": "연남",
+    "memo": "제한 시간을 두고 사진을 보니까 그게 코로 들어가는지 입으로 들어가는지 잘 모르겠긴 하다.",
+    "images": [
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531323/original_775e1739df6d837aaf2f3277de715836.jpeg?1779890180?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531327/original_031348f482775dfc6301665277b63e81.jpeg?1779890183?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531331/original_72239557dc04abf7bccb9fdb00e949b0.jpeg?1779890186?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531339/original_c26952efcccd232b269354bffd0dde0f.jpeg?1779890190?bc=0"
+    ],
+    "lat": 37.5618, "lng": 126.9232, "addedAt": "2026-04-01"
+  },
+  {
+    "id": "custom_1779952798355",
+    "name": "서점리스본",
+    "address": "연남",
+    "memo": "",
+    "images": [
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531326/original_daa14c298c9f3fb4fd710d82dfad760f.jpeg?1779890182?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531333/original_538a93b6c2e2997662b7affe80d7eb1e.jpeg?1779890187?bc=0"
+    ],
+    "lat": 37.5622, "lng": 126.9178, "addedAt": "2026-04-01"
+  },
+  {
+    "id": "custom_1779948962330",
+    "name": "뉴보헤미안북스",
+    "address": "연남, 경의선숲길",
+    "memo": "",
+    "images": [
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531324/original_7ecc54928ebe7c42c0abc0851a3e2634.jpeg?1779890180?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46531332/original_789b865a4efb5ffc2a2a4f3043e0afbf.jpeg?1779890186?bc=0"
+    ],
+    "lat": 37.5596, "lng": 126.9213, "addedAt": "2026-04-01"
+  },
+  {
+    "id": "custom_1780478289616",
+    "name": "세퍼럿 스페이시즈",
+    "address": "명동, 충무로, 카메라 거리",
+    "memo": "공간이 나뉘어져 있고, 천천히 봐도 간섭을 안 한다. 큐레이팅이 마음에 든다. 예술을 잘 몰라서 그런가...",
+    "images": [
+      "https://d2w9rnfcy7mm78.cloudfront.net/46711580/original_0326f48930a1d9c4f5d99502ca0bb8ac.jpeg?1780478062?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46711581/original_b35a64adef5e71f7e47215df932f6793.jpeg?1780478062?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46711582/original_71779253308e11cd73f55970b777cf4a.jpeg?1780478062?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46711585/original_f83709797bd7cde1828e3cb306230e41.jpeg?1780478063?bc=0"
+    ],
+    "lat": 37.5610, "lng": 126.9942, "addedAt": "2026-06-03"
+  },
+  {
+    "id": "custom_1780478435492",
+    "name": "소요서가",
+    "address": "세운상가 3층, 을지로",
+    "memo": "철학이라는 분야에 집중해서 주제에 딥다이브할 수 있다. 책모임 운영 능력을 배워야할 듯",
+    "images": [
+      "https://d2w9rnfcy7mm78.cloudfront.net/46711583/original_b43decda9fab87a48cac2380a328fa62.jpeg?1780478063?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46711584/original_97c873ab6824c07df11876eb4e2436bb.jpeg?1780478063?bc=0",
+      "https://d2w9rnfcy7mm78.cloudfront.net/46711579/original_1f099bcad7582dda2facab4c39c230a9.jpeg?1780478062?bc=0"
+    ],
+    "lat": 37.5674, "lng": 126.9958, "addedAt": "2026-06-03"
+  }
+]

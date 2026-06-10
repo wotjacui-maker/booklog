@@ -168,5 +168,20 @@
     "lat": null,
     "lng": null,
     "addedAt": "2026-06-10"
+  },
+  {
+    "id": "custom_1781064385636",
+    "name": "더레퍼런스",
+    "address": "",
+    "memo": "전시 카탈로그 모양의 아트북이 많다. 큰 사진이 걸려 있어도 괜찮네.",
+    "images": [
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064364695_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064371899_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064377535_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064381559_1.jpg"
+    ],
+    "lat": null,
+    "lng": null,
+    "addedAt": "2026-06-10"
   }
 ]

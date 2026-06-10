@@ -212,6 +212,12 @@ body {
   fill: #e05b8a;
 }
 
+.bird-dot {
+  fill: #e05b8a;
+  cursor: pointer;
+  user-select: none;
+}
+
 .hidden { display: none !important; }
 
 @media (max-width: 600px) {

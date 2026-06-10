@@ -153,10 +153,7 @@ function renderMap(dongData) {
     const sz = Math.max(0.5, BASE_SIZE / Math.pow(t.k, 0.75));
     if (dots)  dots.attr('font-size', `${sz}px`);
     if (hits)  hits.attr('r', sz * 0.85);
-    if (birds) birds.attr('transform', d => {
-      const [px, py] = projection([d.lng, d.lat]);
-      return `translate(${px},${py}) scale(${sz})`;
-    });
+    if (birds) birds.attr('font-size', `${sz}px`);
   }
 
   // Deselect on SVG background click
@@ -260,24 +257,19 @@ function renderMap(dongData) {
       }
     });
 
-  // ── Special places (새 모양) ──
-  // M-shape seagull: 두 날개가 중심에서 만나는 단순 비행 새 실루엣
-  const BIRD_D = 'M -0.5,0.1 Q -0.2,-0.5 0,-0.1 Q 0.2,-0.5 0.5,0.1';
-
+  // ── Special places (𓅼 마커) ──
   const birds = g.append('g').attr('class', 'bird-layer')
     .selectAll('.bird-dot')
     .data(SPECIAL_PLACES)
-    .join('path')
+    .join('text')
     .attr('class', 'bird-dot')
-    .attr('d', BIRD_D)
-    .attr('transform', d => {
-      const [px, py] = projection([d.lng, d.lat]);
-      return `translate(${px},${py}) scale(${BASE_SIZE})`;
-    })
-    .attr('fill', 'transparent')
-    .attr('stroke', '#111')
-    .attr('stroke-width', '0.09')
+    .attr('x', d => projection([d.lng, d.lat])[0])
+    .attr('y', d => projection([d.lng, d.lat])[1])
+    .attr('font-size', `${BASE_SIZE}px`)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
     .style('cursor', 'pointer')
+    .text('𓅼')
     .on('mouseover', function(event, d) {
       tooltipEl.textContent = d.name;
       tooltipEl.classList.remove('hidden');

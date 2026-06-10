@@ -151,8 +151,12 @@ function renderMap(dongData) {
     // t.k^0.75 감쇠: 줌인할수록 마커가 조금씩 커지되 압도적으로 크지 않음
     // 1x→11px, 4x→15px, 8x→18px, 16x→22px 시각 크기
     const sz = Math.max(0.5, BASE_SIZE / Math.pow(t.k, 0.75));
-    if (dots) dots.attr('font-size', `${sz}px`);
-    if (hits) hits.attr('r', sz * 0.85);
+    if (dots)  dots.attr('font-size', `${sz}px`);
+    if (hits)  hits.attr('r', sz * 0.85);
+    if (birds) birds.attr('transform', d => {
+      const [px, py] = projection([d.lng, d.lat]);
+      return `translate(${px},${py}) scale(${sz})`;
+    });
   }
 
   // Deselect on SVG background click
@@ -254,6 +258,45 @@ function renderMap(dongData) {
       if (!isMobile && d.archiveId) {
         window.location.href = `../archive/index.html#${d.archiveId}`;
       }
+    });
+
+  // ── Special places (새 모양) ──
+  // M-shape seagull: 두 날개가 중심에서 만나는 단순 비행 새 실루엣
+  const BIRD_D = 'M -0.5,0.1 Q -0.2,-0.5 0,-0.1 Q 0.2,-0.5 0.5,0.1';
+
+  const birds = g.append('g').attr('class', 'bird-layer')
+    .selectAll('.bird-dot')
+    .data(SPECIAL_PLACES)
+    .join('path')
+    .attr('class', 'bird-dot')
+    .attr('d', BIRD_D)
+    .attr('transform', d => {
+      const [px, py] = projection([d.lng, d.lat]);
+      return `translate(${px},${py}) scale(${BASE_SIZE})`;
+    })
+    .attr('fill', 'transparent')
+    .attr('stroke', '#111')
+    .attr('stroke-width', '0.09')
+    .style('cursor', 'pointer')
+    .on('mouseover', function(event, d) {
+      tooltipEl.textContent = d.name;
+      tooltipEl.classList.remove('hidden');
+    })
+    .on('mousemove', function(event) {
+      tooltipEl.style.left = `${event.clientX + 14}px`;
+      tooltipEl.style.top  = `${event.clientY - 38}px`;
+    })
+    .on('mouseout', function() {
+      tooltipEl.classList.add('hidden');
+    })
+    .on('touchstart', function(event, d) {
+      event.stopPropagation();
+      infoNameEl.textContent = d.name;
+      infoGuEl.textContent = '';
+      infoPanelEl.classList.remove('hidden');
+    }, { passive: true })
+    .on('click', function(event) {
+      event.stopPropagation();
     });
 
   // ── Resize ──

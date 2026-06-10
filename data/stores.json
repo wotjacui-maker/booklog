@@ -143,7 +143,9 @@
     "name": "보안책방",
     "address": "종로구 통의동, 경복궁 옆 보안여관 2층",
     "memo": "",
-    "images": [],
+    "images": [
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781063694240_1.jpg"
+    ],
     "lat": 37.577,
     "lng": 126.9724,
     "addedAt": "2026-06-06"

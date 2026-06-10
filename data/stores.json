@@ -199,5 +199,19 @@
     "lat": null,
     "lng": null,
     "addedAt": "2026-06-10"
+  },
+  {
+    "id": "custom_1781064817611",
+    "name": "북살롱 텍스트북",
+    "address": "서촌",
+    "memo": "동떨어져 있긴 해도 굉장히 넓다. 곳곳에 책 읽을 수 있는 자리를 잘 마련. 창턱에 커피를 두고 책 읽는 모습이 마음에 듬",
+    "images": [
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064808209_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064811857_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064814878_1.jpg"
+    ],
+    "lat": null,
+    "lng": null,
+    "addedAt": "2026-06-10"
   }
 ]

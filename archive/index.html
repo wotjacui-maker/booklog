@@ -88,6 +88,29 @@
 		<div id="mobile-cards"></div>
 	</div>
 
+<div class="memo-tooltip" id="memo-tooltip"></div>
+
+<script>
+// ── 메모 호버 모달 ──
+(function() {
+  var tip = document.getElementById('memo-tooltip');
+  document.addEventListener('mouseover', function(e) {
+    var img = e.target.closest('img.switchable');
+    if (img && img.dataset.memo && img.dataset.memo.trim()) {
+      tip.textContent = img.dataset.memo;
+      tip.style.display = 'block';
+    }
+  });
+  document.addEventListener('mousemove', function(e) {
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top  = (e.clientY - 44) + 'px';
+  });
+  document.addEventListener('mouseout', function(e) {
+    if (e.target.closest('img.switchable')) tip.style.display = 'none';
+  });
+})();
+</script>
+
 <script>
 // ── 이미지 전환 ──
 function switchImage(img) {
@@ -278,9 +301,9 @@ const BUILTIN_STORES = [
     'https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064377535_1.jpg',
     'https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064381559_1.jpg'
   ], lat: 37.5818, lng: 126.9709, addedAt: '2026-06-10' },
-  { id: 'custom_1781064552456', name: '책방 79-1', address: '반지하', memo: '아직 못 가봤다', images: [
+  { id: 'custom_1781064552456', name: '책방 79-1', address: '서촌, 자하문로11길 21-3 지하1층', memo: '아직 못 가봤다', images: [
     'https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064571489_1.jpg'
-  ], lat: null, lng: null, addedAt: '2026-06-10' },
+  ], lat: 37.5800, lng: 126.9710, addedAt: '2026-06-10' },
 ];
 
 // ── 커스텀 서점 저장/로드 ──
@@ -328,6 +351,7 @@ function makeStoreCell(store, type) {
       img.src = store.images[0];
       img.dataset.images = JSON.stringify(store.images);
       img.dataset.index = '0';
+      img.dataset.memo = store.memo || '';
       img.addEventListener('click', function() { switchImage(this); });
       td.appendChild(img);
     }
@@ -371,6 +395,7 @@ function fillTableSlots() {
       img.src = store.images[0];
       img.dataset.images = JSON.stringify(store.images);
       img.dataset.index = '0';
+      img.dataset.memo = store.memo || '';
       img.addEventListener('click', function() { switchImage(this); });
       photoSlots[i].appendChild(img);
     }

@@ -556,10 +556,7 @@ async function addToMap(store) {
   if (js.includes("archiveId: '" + store.id + "'")) return; // 이미 있음
   const entry = "  { name: '" + store.name + "', lat: " + store.lat + ", lng: " + store.lng +
     ", archiveId: '" + store.id + "' }, // " + store.address;
-  js = js.replace(/
-\];/, '
-' + entry + '
-];');
+  js = js.replace('\n];', '\n' + entry + '\n];');
   await ghPutFile(GH_MAP_PATH, js, file.sha, 'Add ' + store.name + ' to map');
 }
 

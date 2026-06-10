@@ -185,12 +185,16 @@
     "addedAt": "2026-06-10"
   },
   {
-    "id": "custom_1781064552456",
-    "name": "책방 79-1",
-    "address": "반지하",
-    "memo": "아직 못 가봤다",
+    "id": "custom_1781064707903",
+    "name": "이라선",
+    "address": "정원이 나오고 그 다음 2층에",
+    "memo": "큐레이션 전문성이 높아서 범접 불가. 창가에 푹신한 벤치가 놓여 아늑하고 층고가 높고 조용하다. 사진집을 찍어도 뭐라고 안한다는 점도 장점",
     "images": [
-      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064571489_1.jpg"
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064688470_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064690994_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064695811_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064700572_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064704073_1.jpg"
     ],
     "lat": null,
     "lng": null,

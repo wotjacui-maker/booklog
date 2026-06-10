@@ -217,13 +217,13 @@
   {
     "id": "custom_1781065439196",
     "name": "책방 79-1",
-    "address": "",
+    "address": "서촌, 자하문로11길 21-3 지하1층",
     "memo": "아직 못 가봤다",
     "images": [
       "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781065436644_1.jpg"
     ],
-    "lat": null,
-    "lng": null,
+    "lat": 37.58,
+    "lng": 126.971,
     "addedAt": "2026-06-10"
   }
 ]

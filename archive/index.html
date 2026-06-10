@@ -42,14 +42,6 @@
               <td data-slot="name">책방이름5</td>
               <td data-slot="name">책방이름6</td>
             </tr>
-            <tr>
-              <td data-slot="photo">책방사진1</td>
-              <td data-slot="photo">책방사진2</td>
-              <td data-slot="photo">책방사진3</td>
-              <td data-slot="photo">책방사진4</td>
-              <td data-slot="photo">책방사진5</td>
-              <td data-slot="photo">책방사진6</td>
-            </tr>
             <tr class="address-row">
               <td data-slot="addr">주소1</td>
               <td data-slot="addr">주소2</td>
@@ -57,6 +49,14 @@
               <td data-slot="addr">주소4</td>
               <td data-slot="addr">주소5</td>
               <td data-slot="addr">주소6</td>
+            </tr>
+            <tr>
+              <td data-slot="photo">책방사진1</td>
+              <td data-slot="photo">책방사진2</td>
+              <td data-slot="photo">책방사진3</td>
+              <td data-slot="photo">책방사진4</td>
+              <td data-slot="photo">책방사진5</td>
+              <td data-slot="photo">책방사진6</td>
             </tr>
 			<tr>
 				<td data-slot="name">책방이름7</td>
@@ -66,14 +66,6 @@
 				<td data-slot="name">책방이름11</td>
 				<td data-slot="name">책방이름12</td>
 			</tr>
-			<tr>
-				<td data-slot="photo">책방사진7</td>
-				<td data-slot="photo">책방사진8</td>
-				<td data-slot="photo">책방사진9</td>
-				<td data-slot="photo">책방사진10</td>
-				<td data-slot="photo">책방사진11</td>
-				<td data-slot="photo">책방사진12</td>
-			</tr>
 			<tr class="address-row">
 				<td data-slot="addr">주소7</td>
 				<td data-slot="addr">주소8</td>
@@ -81,6 +73,14 @@
 				<td data-slot="addr">주소10</td>
 				<td data-slot="addr">주소11</td>
 				<td data-slot="addr">주소12</td>
+			</tr>
+			<tr>
+				<td data-slot="photo">책방사진7</td>
+				<td data-slot="photo">책방사진8</td>
+				<td data-slot="photo">책방사진9</td>
+				<td data-slot="photo">책방사진10</td>
+				<td data-slot="photo">책방사진11</td>
+				<td data-slot="photo">책방사진12</td>
 			</tr>
 		  </tbody>
 		</table>
@@ -104,9 +104,9 @@ function buildMobileCards() {
   const rows = Array.from(document.querySelectorAll('tbody tr'));
   for (let i = 0; i < rows.length; i += 3) {
     const nameRow = rows[i];
-    const photoRow = rows[i + 1];
-    const addrRow = rows[i + 2];
-    if (!addrRow) continue;
+    const addrRow = rows[i + 1];
+    const photoRow = rows[i + 2];
+    if (!photoRow) continue;
     const nameCells = Array.from(nameRow.querySelectorAll('td'));
     nameCells.forEach(function(nameTd, idx) {
       const name = nameTd.textContent.trim();
@@ -176,9 +176,9 @@ function filterByAddress(keyword) {
   const rows = document.querySelectorAll('tbody tr');
   for (let i = 0; i < rows.length; i += 3) {
     const nameRow  = rows[i];
-    const photoRow = rows[i + 1];
-    const addrRow  = rows[i + 2];
-    if (!addrRow) continue;
+    const addrRow  = rows[i + 1];
+    const photoRow = rows[i + 2];
+    if (!photoRow) continue;
     const nameCells = nameRow.querySelectorAll('td');
     const addrCells = addrRow.querySelectorAll('td');
     addrCells.forEach(function(addrTd, colIndex) {
@@ -371,16 +371,16 @@ function fillTableSlots() {
   for (let i = 0; i < extras.length; i += COLS) {
     const batch = extras.slice(i, i + COLS);
     const nRow = document.createElement('tr'); nRow.className = 'dyn-row';
-    const pRow = document.createElement('tr'); pRow.className = 'dyn-row';
     const aRow = document.createElement('tr'); aRow.className = 'dyn-row address-row';
+    const pRow = document.createElement('tr'); pRow.className = 'dyn-row';
     for (let j = 0; j < COLS; j++) {
       nRow.appendChild(makeStoreCell(batch[j] || null, 'name'));
-      pRow.appendChild(makeStoreCell(batch[j] || null, 'photo'));
       aRow.appendChild(makeStoreCell(batch[j] || null, 'addr'));
+      pRow.appendChild(makeStoreCell(batch[j] || null, 'photo'));
     }
     tbody.appendChild(nRow);
-    tbody.appendChild(pRow);
     tbody.appendChild(aRow);
+    tbody.appendChild(pRow);
   }
 }
 
@@ -695,9 +695,9 @@ loadStores().then(function() {
   const rows = document.querySelectorAll('tbody tr');
   for (let i = 0; i < rows.length; i += 3) {
     const nRow = rows[i];
-    const pRow = rows[i + 1];
-    const aRow = rows[i + 2];
-    if (!aRow) continue;
+    const aRow = rows[i + 1];
+    const pRow = rows[i + 2];
+    if (!pRow) continue;
     const isTargetGroup = (nRow === nameRow);
     [nRow, pRow, aRow].forEach(function(row) {
       Array.from(row.querySelectorAll('td')).forEach(function(cell, idx) {

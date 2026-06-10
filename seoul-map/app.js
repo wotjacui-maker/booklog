@@ -198,7 +198,7 @@ function renderMap(dongData) {
 
   // ── Bookstore symbols ──
   const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
-  const BASE_SIZE = isMobile ? 14 : 11;
+  const BASE_SIZE = isMobile ? 12 : 9;
   let activeTapId = null; // 모바일 두 번 탭 이동용
   const dotLayer = g.append('g').attr('class', 'bookstore-layer');
 
@@ -227,6 +227,7 @@ function renderMap(dongData) {
     .attr('fill', 'transparent')
     .style('cursor', 'pointer')
     .on('mouseover', function(event, d) {
+      dots.filter(dd => dd === d).classed('dot-hover', true);
       tooltipEl.textContent = d.name;
       tooltipEl.classList.remove('hidden');
     })
@@ -234,7 +235,8 @@ function renderMap(dongData) {
       tooltipEl.style.left = `${event.clientX + 14}px`;
       tooltipEl.style.top  = `${event.clientY - 38}px`;
     })
-    .on('mouseout', function() {
+    .on('mouseout', function(event, d) {
+      dots.filter(dd => dd === d).classed('dot-hover', false);
       tooltipEl.classList.add('hidden');
     })
     .on('touchstart', function(event, d) {
@@ -271,6 +273,7 @@ function renderMap(dongData) {
     .style('cursor', 'pointer')
     .text('𓅼')
     .on('mouseover', function(event, d) {
+      d3.select(this).classed('dot-hover', true);
       tooltipEl.textContent = d.name;
       tooltipEl.classList.remove('hidden');
     })
@@ -279,6 +282,7 @@ function renderMap(dongData) {
       tooltipEl.style.top  = `${event.clientY - 38}px`;
     })
     .on('mouseout', function() {
+      d3.select(this).classed('dot-hover', false);
       tooltipEl.classList.add('hidden');
     })
     .on('touchstart', function(event, d) {

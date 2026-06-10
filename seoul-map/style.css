@@ -206,16 +206,30 @@ body {
   cursor: pointer;
   user-select: none;
   pointer-events: all;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform .12s ease;
 }
 
 .bookstore-dot.has-archive {
   fill: #e05b8a;
 }
 
+.bookstore-dot.dot-hover {
+  transform: scale(1.5);
+}
+
 .bird-dot {
   fill: #e05b8a;
   cursor: pointer;
   user-select: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform .12s ease;
+}
+
+.bird-dot.dot-hover {
+  transform: scale(1.5);
 }
 
 .hidden { display: none !important; }

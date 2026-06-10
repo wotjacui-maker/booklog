@@ -196,8 +196,8 @@
       "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064700572_1.jpg",
       "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064704073_1.jpg"
     ],
-    "lat": null,
-    "lng": null,
+    "lat": 37.5788,
+    "lng": 126.9848,
     "addedAt": "2026-06-10"
   },
   {
@@ -210,8 +210,8 @@
       "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064811857_1.jpg",
       "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064814878_1.jpg"
     ],
-    "lat": null,
-    "lng": null,
+    "lat": 37.5789,
+    "lng": 126.9727,
     "addedAt": "2026-06-10"
   }
 ]

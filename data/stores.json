@@ -10,7 +10,9 @@
       "https://d2w9rnfcy7mm78.cloudfront.net/45031011/original_d678778840c279c6559a4f7e232b7b2e.jpg?1775385040?bc=0",
       "https://d2w9rnfcy7mm78.cloudfront.net/45031012/original_a98b2152e086cd0a64e0014713caf469.jpg?1775385053?bc=0"
     ],
-    "lat": 37.5607, "lng": 126.9237, "addedAt": "2026-04-01"
+    "lat": 37.5607,
+    "lng": 126.9237,
+    "addedAt": "2026-04-01"
   },
   {
     "id": "thanks-books",
@@ -20,7 +22,9 @@
     "images": [
       "https://d2w9rnfcy7mm78.cloudfront.net/45030846/original_8f7ee96b00385f48416d1abc88a693c4.jpg?1775384319?bc=0"
     ],
-    "lat": 37.5481, "lng": 126.9161, "addedAt": "2026-04-01"
+    "lat": 37.5481,
+    "lng": 126.9161,
+    "addedAt": "2026-04-01"
   },
   {
     "id": "pisache",
@@ -30,7 +34,9 @@
     "images": [
       "https://d2w9rnfcy7mm78.cloudfront.net/45380017/original_f454f5c360edc6fe76646b4b5fe7d35f.jpg?1776425440?bc=0"
     ],
-    "lat": 37.5744, "lng": 127.0134, "addedAt": "2026-04-01"
+    "lat": 37.5744,
+    "lng": 127.0134,
+    "addedAt": "2026-04-01"
   },
   {
     "id": "cheonggyecheon",
@@ -42,7 +48,9 @@
       "https://d2w9rnfcy7mm78.cloudfront.net/45380019/original_5aea0d8592e6b3e633a3dc2977787b39.jpg?1776425441?bc=0",
       "https://d2w9rnfcy7mm78.cloudfront.net/45380020/original_362120834a5279fe06591492c7b18f7b.jpg?1776425441?bc=0"
     ],
-    "lat": 37.5728, "lng": 127.0189, "addedAt": "2026-04-01"
+    "lat": 37.5728,
+    "lng": 127.0189,
+    "addedAt": "2026-04-01"
   },
   {
     "id": "custom_1779890239124",
@@ -56,7 +64,9 @@
       "https://d2w9rnfcy7mm78.cloudfront.net/46531320/original_fb149024eab419c00b8979e995ffad6f.jpeg?1779890177?bc=0",
       "https://d2w9rnfcy7mm78.cloudfront.net/46531336/original_e05c5b9fbb6f5d889f5746f11ab40628.jpeg?1779890189?bc=0"
     ],
-    "lat": 37.5614, "lng": 126.9228, "addedAt": "2026-04-01"
+    "lat": 37.5614,
+    "lng": 126.9228,
+    "addedAt": "2026-04-01"
   },
   {
     "id": "custom_1779949290649",
@@ -69,7 +79,9 @@
       "https://d2w9rnfcy7mm78.cloudfront.net/46531331/original_72239557dc04abf7bccb9fdb00e949b0.jpeg?1779890186?bc=0",
       "https://d2w9rnfcy7mm78.cloudfront.net/46531339/original_c26952efcccd232b269354bffd0dde0f.jpeg?1779890190?bc=0"
     ],
-    "lat": 37.5618, "lng": 126.9232, "addedAt": "2026-04-01"
+    "lat": 37.5618,
+    "lng": 126.9232,
+    "addedAt": "2026-04-01"
   },
   {
     "id": "custom_1779952798355",
@@ -80,7 +92,9 @@
       "https://d2w9rnfcy7mm78.cloudfront.net/46531326/original_daa14c298c9f3fb4fd710d82dfad760f.jpeg?1779890182?bc=0",
       "https://d2w9rnfcy7mm78.cloudfront.net/46531333/original_538a93b6c2e2997662b7affe80d7eb1e.jpeg?1779890187?bc=0"
     ],
-    "lat": 37.5622, "lng": 126.9178, "addedAt": "2026-04-01"
+    "lat": 37.5622,
+    "lng": 126.9178,
+    "addedAt": "2026-04-01"
   },
   {
     "id": "custom_1779948962330",
@@ -91,7 +105,9 @@
       "https://d2w9rnfcy7mm78.cloudfront.net/46531324/original_7ecc54928ebe7c42c0abc0851a3e2634.jpeg?1779890180?bc=0",
       "https://d2w9rnfcy7mm78.cloudfront.net/46531332/original_789b865a4efb5ffc2a2a4f3043e0afbf.jpeg?1779890186?bc=0"
     ],
-    "lat": 37.5596, "lng": 126.9213, "addedAt": "2026-04-01"
+    "lat": 37.5596,
+    "lng": 126.9213,
+    "addedAt": "2026-04-01"
   },
   {
     "id": "custom_1780478289616",
@@ -104,7 +120,9 @@
       "https://d2w9rnfcy7mm78.cloudfront.net/46711582/original_71779253308e11cd73f55970b777cf4a.jpeg?1780478062?bc=0",
       "https://d2w9rnfcy7mm78.cloudfront.net/46711585/original_f83709797bd7cde1828e3cb306230e41.jpeg?1780478063?bc=0"
     ],
-    "lat": 37.5610, "lng": 126.9942, "addedAt": "2026-06-03"
+    "lat": 37.561,
+    "lng": 126.9942,
+    "addedAt": "2026-06-03"
   },
   {
     "id": "custom_1780478435492",
@@ -116,6 +134,18 @@
       "https://d2w9rnfcy7mm78.cloudfront.net/46711584/original_97c873ab6824c07df11876eb4e2436bb.jpeg?1780478063?bc=0",
       "https://d2w9rnfcy7mm78.cloudfront.net/46711579/original_1f099bcad7582dda2facab4c39c230a9.jpeg?1780478062?bc=0"
     ],
-    "lat": 37.5674, "lng": 126.9958, "addedAt": "2026-06-03"
+    "lat": 37.5674,
+    "lng": 126.9958,
+    "addedAt": "2026-06-03"
+  },
+  {
+    "id": "boan-books",
+    "name": "보안책방",
+    "address": "종로구 통의동, 경복궁 옆 보안여관 2층",
+    "memo": "",
+    "images": [],
+    "lat": 37.577,
+    "lng": 126.9724,
+    "addedAt": "2026-06-06"
   }
 ]

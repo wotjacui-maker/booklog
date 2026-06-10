@@ -189,7 +189,9 @@
     "name": "책방 79-1",
     "address": "반지하",
     "memo": "아직 못 가봤다",
-    "images": [],
+    "images": [
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064571489_1.jpg"
+    ],
     "lat": null,
     "lng": null,
     "addedAt": "2026-06-10"

@@ -196,8 +196,8 @@
       "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064700572_1.jpg",
       "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064704073_1.jpg"
     ],
-    "lat": 37.5788,
-    "lng": 126.9848,
+    "lat": null,
+    "lng": null,
     "addedAt": "2026-06-10"
   },
   {
@@ -210,8 +210,20 @@
       "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064811857_1.jpg",
       "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781064814878_1.jpg"
     ],
-    "lat": 37.5789,
-    "lng": 126.9727,
+    "lat": null,
+    "lng": null,
+    "addedAt": "2026-06-10"
+  },
+  {
+    "id": "custom_1781065439196",
+    "name": "책방 79-1",
+    "address": "",
+    "memo": "아직 못 가봤다",
+    "images": [
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781065436644_1.jpg"
+    ],
+    "lat": null,
+    "lng": null,
     "addedAt": "2026-06-10"
   }
 ]

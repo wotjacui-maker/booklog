@@ -157,7 +157,7 @@ img {
 #cursor {
   position: fixed;
   pointer-events: none;
-  color: #e07b00;
+  color: #e05b8a;
   font-size: 14px;
   transform: translate(-50%, -50%);
   z-index: 9999;
@@ -166,7 +166,7 @@ img {
 .cursor-trail {
   position: fixed;
   pointer-events: none;
-  color: #e07b00;
+  color: #e05b8a;
   font-size: 11px;
   transform: translate(-50%, -50%);
   z-index: 9998;

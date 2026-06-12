@@ -253,10 +253,24 @@ function renderMap(dongData) {
       infoPanelEl.classList.remove('hidden');
     }, { passive: true })
     .on('click', function(event, d) {
-      event.stopPropagation(); // 항상 막아서 deselectAll 방지
-      if (!isMobile && d.archiveId) {
+      event.stopPropagation();
+      // 패널 표시
+      infoNameEl.textContent = d.name;
+      infoGuEl.textContent   = d.archiveId ? '클릭하면 아카이브로 →' : '';
+      infoPanelEl.classList.remove('hidden');
+      // 줌인
+      const [px, py] = projection([d.lng, d.lat]);
+      const k = 10;
+      svg.transition().duration(400).call(
+        zoomBehavior.transform,
+        d3.zoomIdentity.translate(W / 2 - px * k, H / 2 - py * k).scale(k)
+      );
+      // 아카이브 이동 (두 번째 클릭)
+      if (!isMobile && d.archiveId && activeTapId === d.archiveId) {
         window.location.href = `../archive/index.html#${d.archiveId}`;
+        return;
       }
+      activeTapId = d.archiveId || null;
     });
 
   // ── Special places (𓅼 마커) ──

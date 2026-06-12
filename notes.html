@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>seojae — 메모</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #fff;
+      color: #111;
+      font-family: 'Noto Sans KR', monospace;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 18px 24px 14px;
+    }
+
+    .turtle-home {
+      display: inline-block;
+      text-decoration: none;
+      opacity: 0.5;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .turtle-home:hover { opacity: 1; transform: translateY(-1px); }
+
+    #notesWrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .note-card {
+      position: absolute;
+      width: 170px;
+      background: #fff;
+      border: 1px solid #111;
+      padding: 12px;
+      cursor: default;
+    }
+    .note-card:hover { z-index: 50 !important; background: #ffe0ec; }
+
+    .note-title {
+      font-size: 7pt;
+      font-weight: 700;
+      color: #111;
+      line-height: 1.5;
+      margin-bottom: 2px;
+      word-break: keep-all;
+    }
+    .note-author {
+      font-size: 6pt;
+      color: #555;
+      margin-bottom: 1px;
+    }
+    .note-publisher {
+      font-size: 6pt;
+      color: #999;
+    }
+    .note-memo-wrap { margin-top: 10px; }
+    .note-memo {
+      font-size: 6pt;
+      color: #333;
+      line-height: 1.7;
+      word-break: keep-all;
+      white-space: pre-wrap;
+      cursor: text;
+    }
+    .note-memo:hover { text-decoration: underline dotted #bbb; }
+    .note-memo-edit {
+      font-family: 'Noto Sans KR', monospace;
+      font-size: 6pt;
+      color: #333;
+      line-height: 1.7;
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid #111;
+      outline: none;
+      background: transparent;
+      resize: none;
+      padding: 0;
+    }
+    .note-date {
+      font-size: 5.5pt;
+      color: #bbb;
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+    .note-no-memo {
+      font-size: 6pt;
+      color: #ccc;
+      cursor: text;
+    }
+    .note-no-memo:hover { text-decoration: underline dotted #bbb; }
+
+    .empty-state {
+      padding: 80px 24px;
+      text-align: center;
+      font-size: 8pt;
+      color: #999;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="books.html" class="turtle-home" title="books로" id="homeIcon"></a>
+  </header>
+
+  <div id="notesWrap"></div>
+  <div class="empty-state" id="emptyState" style="display:none">
+    완독한 책이 없어요.
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyAEqBSiNTrNLFbwYU8ASN8m88S1Ho-RlwU",
+      authDomain: "booklog-2b5d0.firebaseapp.com",
+      projectId: "booklog-2b5d0",
+      storageBucket: "booklog-2b5d0.firebasestorage.app",
+      messagingSenderId: "188307139074",
+      appId: "1:188307139074:web:9c52728d1232db35f9551b",
+      databaseURL: "https://booklog-2b5d0-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const booksRef = firebase.database().ref('bookshelf_v1');
+
+    const CARD_W = 170;
+    const CARD_SLOT_W = 230;
+    const CARD_SLOT_H = 290;
+    const WRAP_PADDING = 40;
+
+    let allBooks = [];
+
+    function saveBooks() {
+      localStorage.setItem('bookshelf_v1', JSON.stringify(allBooks));
+      booksRef.set(JSON.stringify(allBooks));
+    }
+
+    function hashStr(str) {
+      let h = 5381;
+      for (let i = 0; i < str.length; i++) {
+        h = ((h << 5) + h) + str.charCodeAt(i);
+        h = h & h;
+      }
+      return Math.abs(h);
+    }
+
+    function seededRng(seed) {
+      let s = seed >>> 0;
+      return function() {
+        s = (Math.imul(1664525, s) + 1013904223) >>> 0;
+        return s / 0xffffffff;
+      };
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function startEdit(book, memoWrap) {
+      const current = book.note || '';
+      memoWrap.innerHTML = '';
+
+      const ta = document.createElement('textarea');
+      ta.className = 'note-memo-edit';
+      ta.value = current;
+      ta.rows = Math.max(3, current.split('\n').length);
+      memoWrap.appendChild(ta);
+      ta.focus();
+
+      let done = false;
+      function commit() {
+        if (done) return;
+        done = true;
+        const val = ta.value.trim();
+        book.note = val;
+        saveBooks();
+        memoWrap.innerHTML = '';
+        if (val) {
+          const memoEl = document.createElement('div');
+          memoEl.className = 'note-memo';
+          memoEl.textContent = val;
+          memoEl.addEventListener('click', () => startEdit(book, memoWrap));
+          memoWrap.appendChild(memoEl);
+        } else {
+          const noMemo = document.createElement('div');
+          noMemo.className = 'note-no-memo';
+          noMemo.textContent = '메모 없음';
+          noMemo.addEventListener('click', () => startEdit(book, memoWrap));
+          memoWrap.appendChild(noMemo);
+        }
+      }
+
+      ta.addEventListener('blur', commit);
+      ta.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); ta.blur(); }
+        if (e.key === 'Escape') { done = true; ta.value = current; ta.blur(); book.note = current; }
+      });
+    }
+
+    function renderNotes(books) {
+      const doneBooks = books.filter(b => b.status === 'done');
+      const wrap = document.getElementById('notesWrap');
+      wrap.innerHTML = '';
+
+      if (!doneBooks.length) {
+        document.getElementById('emptyState').style.display = 'block';
+        return;
+      }
+      document.getElementById('emptyState').style.display = 'none';
+
+      const vw = Math.max(document.documentElement.clientWidth, 320);
+      const innerW = vw - WRAP_PADDING * 2;
+      const numCols = Math.max(1, Math.floor(innerW / CARD_SLOT_W));
+      const actualSlotW = Math.floor(innerW / numCols);
+
+      let maxBottom = 0;
+
+      doneBooks.forEach((book, idx) => {
+        const col = idx % numCols;
+        const row = Math.floor(idx / numCols);
+
+        const baseX = WRAP_PADDING + col * actualSlotW + (actualSlotW - CARD_W) / 2;
+        const baseY = WRAP_PADDING + row * CARD_SLOT_H + 20;
+
+        const offX = (Math.random() - 0.5) * 36;
+        const offY = (Math.random() - 0.5) * 28;
+        const rot  = (Math.random() - 0.5) * 14;
+
+        const card = document.createElement('div');
+        card.className = 'note-card';
+        card.style.left      = Math.round(baseX + offX) + 'px';
+        card.style.top       = Math.round(baseY + offY) + 'px';
+        card.style.transform = `rotate(${rot.toFixed(2)}deg)`;
+        card.style.zIndex    = idx + 1;
+
+        // 제목·저자·출판사
+        const titleEl = document.createElement('div');
+        titleEl.className = 'note-title';
+        titleEl.textContent = book.title || '—';
+        card.appendChild(titleEl);
+
+        if (book.author) {
+          const authorEl = document.createElement('div');
+          authorEl.className = 'note-author';
+          authorEl.textContent = book.author;
+          card.appendChild(authorEl);
+        }
+
+        if (book.publisher) {
+          const pubEl = document.createElement('div');
+          pubEl.className = 'note-publisher';
+          pubEl.textContent = book.publisher;
+          card.appendChild(pubEl);
+        }
+
+        // 메모 영역
+        const memoWrap = document.createElement('div');
+        memoWrap.className = 'note-memo-wrap';
+
+        if (book.note && book.note.trim()) {
+          const memoEl = document.createElement('div');
+          memoEl.className = 'note-memo';
+          memoEl.textContent = book.note.trim();
+          memoEl.addEventListener('click', () => startEdit(book, memoWrap));
+          memoWrap.appendChild(memoEl);
+        } else {
+          const noMemo = document.createElement('div');
+          noMemo.className = 'note-no-memo';
+          noMemo.textContent = '메모 없음';
+          noMemo.addEventListener('click', () => startEdit(book, memoWrap));
+          memoWrap.appendChild(noMemo);
+        }
+        card.appendChild(memoWrap);
+
+        if (book.completedAt) {
+          const dateEl = document.createElement('div');
+          dateEl.className = 'note-date';
+          dateEl.textContent = fmtDate(book.completedAt);
+          card.appendChild(dateEl);
+        }
+
+        wrap.appendChild(card);
+
+        const estimatedH = 24 + (book.author ? 14 : 0) + (book.publisher ? 14 : 0) + 10 + (book.note ? Math.ceil(book.note.length / 20) * 12 : 12) + 20;
+        const bottom = Math.round(baseY + offY) + estimatedH + 60;
+        if (bottom > maxBottom) maxBottom = bottom;
+      });
+
+      wrap.style.height = maxBottom + 'px';
+    }
+
+    const HOUSE_PIXELS = [
+      ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+      ['_','_','_','_','_','_','_','K','K','_','_','_','_','_','_','_'],
+      ['_','_','_','_','_','_','K','_','_','K','_','_','_','_','_','_'],
+      ['_','_','_','_','_','K','_','_','_','_','K','_','_','_','_','_'],
+      ['_','_','_','_','K','_','_','_','_','_','_','K','_','_','_','_'],
+      ['_','_','_','K','_','_','_','K','K','_','_','_','K','_','_','_'],
+      ['_','_','_','_','K','_','_','_','_','_','_','K','_','_','_','_'],
+      ['_','_','_','_','K','_','_','K','K','_','_','K','_','_','_','_'],
+      ['_','_','_','_','K','_','K','_','_','K','_','K','_','_','_','_'],
+      ['_','_','_','_','K','_','K','_','_','K','_','K','_','_','_','_'],
+      ['_','_','_','_','K','K','K','K','K','K','K','K','_','_','_','_'],
+      ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+      ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+      ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+    ];
+
+    (function() {
+      const el = document.getElementById('homeIcon');
+      const grid = document.createElement('div');
+      grid.style.display = 'grid';
+      grid.style.gridTemplateColumns = 'repeat(16, 5px)';
+      grid.style.gridTemplateRows = 'repeat(14, 5px)';
+      grid.style.zoom = '0.3';
+      grid.style.imageRendering = 'pixelated';
+      HOUSE_PIXELS.forEach(row => row.forEach(c => {
+        const px = document.createElement('div');
+        px.style.width = '5px';
+        px.style.height = '5px';
+        if (c === 'K') px.style.background = '#111';
+        grid.appendChild(px);
+      }));
+      el.appendChild(grid);
+    })();
+
+    booksRef.on('value', snapshot => {
+      const raw = snapshot.val();
+      if (raw) {
+        try {
+          allBooks = JSON.parse(raw);
+        } catch { allBooks = []; }
+      } else {
+        allBooks = [];
+      }
+      renderNotes(allBooks);
+    });
+  </script>
+</body>
+</html>

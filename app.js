@@ -516,7 +516,6 @@ function resetAddModal() {
   bookSearchInput.value = '';
   bookSearchResults.classList.add('hidden');
   bookSearchResults.innerHTML = '';
-  refreshKeyUI();
 }
 document.getElementById('closeAddModal').addEventListener('click',  () => { closeModal(addModal); resetAddModal(); });
 document.getElementById('closeAddModal2').addEventListener('click', () => { closeModal(addModal); resetAddModal(); });
@@ -589,8 +588,10 @@ const NOTEPAD_PIXELS = [
 ];
 
 // ── 시작 ──
-document.getElementById('turtleFace').appendChild(makePxGrid(TURTLE_FACE_PIXELS, 0.2));
-document.getElementById('notepadIcon').appendChild(makePxGrid(NOTEPAD_PIXELS, 0.2));
+const _turtleFaceEl = document.getElementById('turtleFace');
+if (_turtleFaceEl) _turtleFaceEl.appendChild(makePxGrid(TURTLE_FACE_PIXELS, 0.2));
+const _notepadIconEl = document.getElementById('notepadIcon');
+if (_notepadIconEl) _notepadIconEl.appendChild(makePxGrid(NOTEPAD_PIXELS, 0.2));
 
 // Firebase 동기화
 booksRef.on('value', snapshot => {

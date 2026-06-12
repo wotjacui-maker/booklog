@@ -1,8 +1,9 @@
-const CACHE = 'booklog-v1';
+const CACHE = 'booklog-v3';
 const ASSETS = [
   '/booklog/',
   '/booklog/index.html',
   '/booklog/books.html',
+  '/booklog/notes.html',
   '/booklog/app.js',
 ];
 

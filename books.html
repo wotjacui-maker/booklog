@@ -19,8 +19,8 @@
     :root {
       --bg:      #fff;
       --text:    #111;
-      --muted:   #999;
-      --border:  #ddd;
+      --muted:   #111;
+      --border:  #111;
       --surface: #fff;
     }
 
@@ -37,7 +37,6 @@
       align-items: center;
       justify-content: space-between;
       padding: 18px 24px 14px;
-      border-bottom: 1px solid var(--border);
     }
 
     .back-link {
@@ -79,7 +78,7 @@
       letter-spacing: 2px;
       padding: 6px 0;
       border: none;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 0.5px solid #999;
       background: transparent;
       color: var(--text);
       outline: none;
@@ -183,7 +182,7 @@
 
     .modal-title {
       font-size: 9pt;
-      font-weight: bold;
+      font-weight: 400;
       margin-bottom: 18px;
       letter-spacing: 1px;
     }
@@ -246,7 +245,7 @@
     /* ── 상세 모달 ── */
     .detail-title {
       font-size: 10pt;
-      font-weight: bold;
+      font-weight: 400;
       margin-bottom: 4px;
     }
     .detail-author {
@@ -471,8 +470,11 @@
 <body>
 
   <header>
-    <a href="index.html" class="turtle-home" title="메인으로"><div id="turtleFace"></div></a>
-    <button class="add-btn" id="openAddModal">new</button>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <a href="index.html" class="turtle-home" title="메인으로"><div id="turtleFace"></div></a>
+      <a href="notes.html" class="turtle-home" title="메모 보기"><div id="notepadIcon"></div></a>
+    </div>
+    <button class="add-btn" id="openAddModal">✶</button>
   </header>
 
   <div class="search-wrap">
@@ -516,6 +518,9 @@
         </label>
         <label>저자
           <input type="text" id="inputAuthor" placeholder="저자명" />
+        </label>
+        <label>출판사
+          <input type="text" id="inputPublisher" placeholder="출판사명" />
         </label>
         <label>총 페이지 수
           <input type="number" id="inputPages" min="1" placeholder="예: 320" />
@@ -593,6 +598,9 @@
         <label>저자
           <input type="text" id="editAuthor" />
         </label>
+        <label>출판사
+          <input type="text" id="editPublisher" />
+        </label>
         <label>총 페이지 수
           <input type="number" id="editPages" min="1" />
         </label>
@@ -621,6 +629,6 @@
   </script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

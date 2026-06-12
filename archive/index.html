@@ -726,19 +726,13 @@ loadStores().then(function() {
   fillTableSlots();
   buildMobileCards();
   shuffleCards();
-  // hash 진입 처리는 두 번째 script 블록에서 DOM 완성 후 실행
-});
-</script>
 
-<script>
-// 지도에서 링크로 진입했을 때 해당 책방만 표시
-(function() {
+  // 지도에서 링크로 진입했을 때 해당 책방만 표시 (fillTableSlots 이후 실행)
   if (!window.location.hash) return;
   const targetId = window.location.hash.slice(1);
   const targetEl = document.getElementById(targetId);
   if (!targetEl || targetEl.tagName !== 'TD') return;
 
-  // 테이블 필터
   const nameRow = targetEl.parentElement;
   const allCells = Array.from(nameRow.querySelectorAll('td'));
   const colIndex = allCells.indexOf(targetEl);
@@ -756,13 +750,14 @@ loadStores().then(function() {
       });
     });
   }
-
-  // 모바일 카드 필터
   document.querySelectorAll('.store-card').forEach(function(card) {
     card.classList.toggle('card-hidden', card.dataset.storeId !== targetId);
   });
-})();
+});
+</script>
 
+<script>
+// (hash filter moved into loadStores().then above)
 </script>
 
 	<!-- GitHub 설정 모달 -->

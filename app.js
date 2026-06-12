@@ -81,6 +81,7 @@ document.getElementById('addBookForm').addEventListener('submit', e => {
     id:          generateId(),
     title:       document.getElementById('inputTitle').value.trim(),
     author:      document.getElementById('inputAuthor').value.trim(),
+    publisher:   document.getElementById('inputPublisher').value.trim(),
     totalPages:  parseInt(document.getElementById('inputPages').value) || 0,
     currentPage: parseInt(document.getElementById('inputCurrentPage').value) || 0,
     status:      document.getElementById('inputStatus').value,
@@ -164,7 +165,7 @@ function createRow(book) {
     fillEl.style.height           = '6px';
     fillEl.style.backgroundImage  = `url(${getFootprintBg()})`;
     fillEl.style.backgroundRepeat = 'repeat-x';
-    fillEl.style.backgroundSize   = '22px 6px';
+    fillEl.style.backgroundSize   = '36px 6px';
     fillEl.style.backgroundPosition = 'left bottom';
     fillEl.style.imageRendering   = 'pixelated';
     trackWrap.appendChild(fillEl);
@@ -265,10 +266,11 @@ document.getElementById('deleteBookBtn').addEventListener('click', () => {
 document.getElementById('editBookBtn').addEventListener('click', () => {
   const book = books.find(b => b.id === activeBookId);
   if (!book) return;
-  document.getElementById('editId').value     = book.id;
-  document.getElementById('editTitle').value  = book.title;
-  document.getElementById('editAuthor').value = book.author;
-  document.getElementById('editPages').value  = book.totalPages || '';
+  document.getElementById('editId').value        = book.id;
+  document.getElementById('editTitle').value     = book.title;
+  document.getElementById('editAuthor').value    = book.author;
+  document.getElementById('editPublisher').value = book.publisher || '';
+  document.getElementById('editPages').value     = book.totalPages || '';
   document.getElementById('editStatus').value = book.status;
   document.getElementById('editNote').value   = book.note;
   closeModal(detailModal);
@@ -282,6 +284,7 @@ document.getElementById('editBookForm').addEventListener('submit', e => {
   if (!book) return;
   book.title      = document.getElementById('editTitle').value.trim();
   book.author     = document.getElementById('editAuthor').value.trim();
+  book.publisher  = document.getElementById('editPublisher').value.trim();
   book.totalPages = parseInt(document.getElementById('editPages').value) || 0;
   book.status     = document.getElementById('editStatus').value;
   book.note       = document.getElementById('editNote').value.trim();
@@ -335,20 +338,20 @@ const TURTLE_PIXELS_FLIPPED = [
 ];
 
 const TURTLE_PIXELS = [
-  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
-  ['_','_','_','_','_','_','_','_','_','_','_','K','K','K','_','_'],
-  ['_','_','_','_','_','K','K','K','K','_','K','_','_','_','K','_'],
-  ['_','_','_','_','K','_','K','_','K','K','K','_','K','_','K','_'],
-  ['_','_','_','K','_','K','_','_','_','K','_','_','_','_','K','_'],
-  ['_','_','K','_','K','_','K','_','K','_','K','_','_','K','K','_'],
-  ['_','_','K','K','_','_','_','K','_','K','_','K','K','K','_','_'],
-  ['_','_','K','_','K','_','K','_','_','_','K','K','_','_','_','_'],
-  ['_','_','K','K','_','K','_','K','_','K','_','K','K','_','_','_'],
-  ['_','K','K','K','K','K','K','K','K','K','K','K','K','K','_','_'],
-  ['_','K','_','_','_','_','K','_','K','_','_','_','_','K','_','_'],
-  ['_','K','K','K','K','K','K','_','K','K','K','K','K','K','_','_'],
-  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
-  ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', 'K', 'K', 'K', '_', '_'],
+  ['_', '_', '_', '_', '_', 'K', 'K', 'K', '_', '_', 'K', '_', '_', '_', 'K', '_'],
+  ['_', '_', '_', '_', 'K', '_', 'K', '_', 'K', '_', 'K', '_', 'K', '_', 'K', '_'],
+  ['_', '_', '_', 'K', '_', 'K', '_', '_', '_', 'K', '_', '_', '_', '_', 'K', '_'],
+  ['_', '_', 'K', '_', 'K', '_', 'K', '_', 'K', '_', 'K', '_', '_', 'K', 'K', '_'],
+  ['_', '_', 'K', 'K', '_', '_', '_', 'K', '_', 'K', '_', 'K', 'K', 'K', '_', '_'],
+  ['_', '_', 'K', '_', 'K', '_', 'K', '_', '_', '_', 'K', 'K', '_', '_', '_', '_'],
+  ['_', '_', 'K', 'K', '_', 'K', '_', 'K', '_', 'K', '_', 'K', 'K', '_', '_', '_'],
+  ['_', '_', 'K', '_', 'K', '_', 'K', 'K', 'K', '_', 'K', '_', 'K', '_', '_', '_'],
+  ['_', 'K', '_', '_', '_', '_', 'K', '_', 'K', '_', '_', '_', '_', 'K', '_', '_'],
+  ['_', '_', 'K', 'K', 'K', 'K', '_', '_', '_', 'K', 'K', 'K', 'K', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
 ];
 
 const FOOTPRINT_PIXELS = [
@@ -368,30 +371,16 @@ const FOOTPRINT_PIXELS = [
   ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
 ];
 
-// 발자국 canvas: 빈 앞·뒤 컬럼을 잘라서 타일이 이음새 없이 반복되게 함
-// 원본 K가 있는 영역: col 2-12 (11칸), row 7-8 (2줄)
-// 이 타일 끝(col 10)과 다음 타일 시작(col 0→원본col2) 사이 = 0칸 간격 → 완전 연속
+// ... 점 3개 타일 (간격 넓게)
 let _fpBg = null;
 function getFootprintBg() {
   if (_fpBg) return _fpBg;
-  const SCALE = 2;
-  const TRIM_START = 2;   // 원본 col 2부터
-  const TRIM_COLS  = 11;  // col 2-12 → 11칸
-  const MARK_ROWS  = [7, 8];
-  const W = TRIM_COLS * SCALE;              // 22
-  const H = (MARK_ROWS.length + 1) * SCALE; // 6
+  const W = 36, H = 6, D = 2; // 타일 너비 36px, 점 크기 2×2
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-  MARK_ROWS.forEach((origRow, ri) => {
-    const rowData = FOOTPRINT_PIXELS[origRow];
-    for (let c = TRIM_START; c < TRIM_START + TRIM_COLS; c++) {
-      if (rowData[c] === 'K') {
-        ctx.fillStyle = '#111111';
-        ctx.fillRect((c - TRIM_START) * SCALE, (ri + 1) * SCALE, SCALE, SCALE);
-      }
-    }
-  });
+  ctx.fillStyle = '#111111';
+  [6, 18, 30].forEach(x => ctx.fillRect(x, 2, D, D));
   _fpBg = canvas.toDataURL();
   return _fpBg;
 }
@@ -454,16 +443,18 @@ async function googleSearch(query, size = 5) {
   }
   if (!books) throw new Error('검색 서비스 연결 실패');
   return (books.item || []).map(item => ({
-    title:   item.title || '',
-    authors: [item.author || ''],
-    pages:   item.itemPage || 0,
+    title:     item.title || '',
+    authors:   [item.author || ''],
+    publisher: item.publisher || '',
+    pages:     item.itemPage || 0,
   }));
 }
 
 function fillForm(item) {
-  document.getElementById('inputTitle').value  = item.title || '';
-  document.getElementById('inputAuthor').value = (item.authors || []).join(', ');
-  document.getElementById('inputPages').value  = item.pages || '';
+  document.getElementById('inputTitle').value     = item.title || '';
+  document.getElementById('inputAuthor').value    = (item.authors || []).join(', ');
+  document.getElementById('inputPublisher').value = item.publisher || '';
+  document.getElementById('inputPages').value     = item.pages || '';
   document.getElementById('bookSearchResults').classList.add('hidden');
 }
 
@@ -580,8 +571,26 @@ document.getElementById('lookupBtn').addEventListener('click', async () => {
   }
 });
 
+const NOTEPAD_PIXELS = [
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', 'K', 'K', 'K', 'K', 'K', 'K', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', 'K', '_', '_', '_', '_', '_', '_', 'K', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', 'K', '_', 'K', 'K', 'K', 'K', '_', 'K', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', 'K', '_', '_', '_', '_', '_', '_', 'K', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', 'K', '_', 'K', 'K', 'K', 'K', '_', 'K', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', 'K', '_', '_', '_', '_', '_', '_', 'K', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', 'K', '_', 'K', 'K', 'K', 'K', '_', 'K', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', 'K', '_', '_', '_', '_', '_', '_', 'K', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', 'K', 'K', 'K', 'K', 'K', 'K', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+];
+
 // ── 시작 ──
 document.getElementById('turtleFace').appendChild(makePxGrid(TURTLE_FACE_PIXELS, 0.2));
+document.getElementById('notepadIcon').appendChild(makePxGrid(NOTEPAD_PIXELS, 0.2));
 
 // Firebase 동기화
 booksRef.on('value', snapshot => {

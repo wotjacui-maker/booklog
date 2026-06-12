@@ -80,7 +80,7 @@ img {
 }
 
 .switchable {
-  filter: grayscale(100%);
+  filter: grayscale(100%) sepia(45%) hue-rotate(290deg) saturate(160%) brightness(102%);
 }
 
 .switchable:hover {
@@ -221,7 +221,7 @@ img {
   .card-img {
     width: 100%;
     display: block;
-    filter: grayscale(100%);
+    filter: grayscale(100%) sepia(45%) hue-rotate(290deg) saturate(160%) brightness(102%);
     transition: filter 0.2s ease;
   }
   .card-img.color { filter: grayscale(0%); }

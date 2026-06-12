@@ -365,4 +365,11 @@ img {
   pointer-events: none;
   white-space: pre-wrap;
 }
+.memo-tooltip .mt-name {
+  color: #e05b8a;
+  margin-bottom: 2px;
+}
+
+/* 사진만 표시: 이름·주소 행 숨김 */
+.name-row, .address-row { display: none; }
 

@@ -34,7 +34,7 @@
 		</div>
 		<table>
           <tbody>
-            <tr>
+            <tr class="name-row">
               <td data-slot="name">책방이름1</td>
               <td data-slot="name">책방이름2</td>
               <td data-slot="name">책방이름3</td>
@@ -50,7 +50,7 @@
               <td data-slot="addr">주소5</td>
               <td data-slot="addr">주소6</td>
             </tr>
-            <tr>
+            <tr class="photo-row">
               <td data-slot="photo">책방사진1</td>
               <td data-slot="photo">책방사진2</td>
               <td data-slot="photo">책방사진3</td>
@@ -58,7 +58,7 @@
               <td data-slot="photo">책방사진5</td>
               <td data-slot="photo">책방사진6</td>
             </tr>
-			<tr>
+			<tr class="name-row">
 				<td data-slot="name">책방이름7</td>
 				<td data-slot="name">책방이름8</td>
 				<td data-slot="name">책방이름9</td>
@@ -74,7 +74,7 @@
 				<td data-slot="addr">주소11</td>
 				<td data-slot="addr">주소12</td>
 			</tr>
-			<tr>
+			<tr class="photo-row">
 				<td data-slot="photo">책방사진7</td>
 				<td data-slot="photo">책방사진8</td>
 				<td data-slot="photo">책방사진9</td>
@@ -91,15 +91,28 @@
 <div class="memo-tooltip" id="memo-tooltip"></div>
 
 <script>
-// ── 메모 호버 모달 ──
+// ── 이름 + 메모 호버 모달 ──
 (function() {
   var tip = document.getElementById('memo-tooltip');
   document.addEventListener('mouseover', function(e) {
     var img = e.target.closest('img.switchable');
-    if (img && img.dataset.memo && img.dataset.memo.trim()) {
-      tip.textContent = img.dataset.memo;
-      tip.style.display = 'block';
+    if (!img) return;
+    var name = (img.dataset.name || '').trim();
+    var memo = (img.dataset.memo || '').trim();
+    if (!name && !memo) return;
+    tip.innerHTML = '';
+    if (name) {
+      var nameEl = document.createElement('div');
+      nameEl.className = 'mt-name';
+      nameEl.textContent = name;
+      tip.appendChild(nameEl);
     }
+    if (memo) {
+      var memoEl = document.createElement('div');
+      memoEl.textContent = memo;
+      tip.appendChild(memoEl);
+    }
+    tip.style.display = 'block';
   });
   document.addEventListener('mousemove', function(e) {
     tip.style.left = (e.clientX + 14) + 'px';
@@ -112,10 +125,16 @@
 </script>
 
 <script>
-// ── 이미지 전환 ──
+// ── 이미지 전환 (마지막 사진에서 클릭 → 네이버 지도) ──
 function switchImage(img) {
   const images = JSON.parse(img.dataset.images);
-  const next = (parseInt(img.dataset.index) + 1) % images.length;
+  const idx = parseInt(img.dataset.index);
+  if (idx >= images.length - 1) {
+    const name = img.dataset.name || '';
+    if (name) window.open('https://map.naver.com/v5/search/' + encodeURIComponent(name), '_blank');
+    return;
+  }
+  const next = idx + 1;
   img.src = images[next];
   img.dataset.index = next;
 }
@@ -142,41 +161,30 @@ function buildMobileCards() {
       if (nameTd.id) card.dataset.storeId = nameTd.id;
       card.dataset.name = name;
       card.dataset.addr = addrTd ? addrTd.textContent.trim() : '';
-      const nameDiv = document.createElement('div');
-      nameDiv.className = 'card-name';
-      nameDiv.textContent = name;
-      card.appendChild(nameDiv);
       if (srcImg) {
         const img = document.createElement('img');
         img.className = 'card-img';
         img.src = srcImg.src;
         img.dataset.images = srcImg.dataset.images || JSON.stringify([srcImg.src]);
         img.dataset.index  = '0';
+        img.dataset.name   = name;
         img.addEventListener('click', function() {
-          if (!this.classList.contains('color')) {
-            // 첫 탭: 컬러로 전환
-            this.classList.add('color');
-          } else {
-            // 이미 컬러: 다음 사진으로
-            const images = JSON.parse(this.dataset.images || '[]');
-            if (images.length > 1) {
-              const next = (parseInt(this.dataset.index || '0') + 1) % images.length;
-              this.src = images[next];
-              this.dataset.index = String(next);
-            }
+          // 첫 탭: 컬러로 전환
+          if (!this.classList.contains('color')) { this.classList.add('color'); return; }
+          // 이미 컬러: 다음 사진, 마지막이면 네이버 지도
+          const images = JSON.parse(this.dataset.images || '[]');
+          const idx = parseInt(this.dataset.index || '0');
+          if (idx >= images.length - 1) {
+            const n = this.dataset.name || '';
+            if (n) window.open('https://map.naver.com/v5/search/' + encodeURIComponent(n), '_blank');
+            return;
           }
+          const next = idx + 1;
+          this.src = images[next];
+          this.dataset.index = String(next);
         });
         card.appendChild(img);
       }
-      const addrDiv = document.createElement('div');
-      addrDiv.className = 'card-addr';
-      addrDiv.textContent = card.dataset.addr;
-      if (name) {
-        addrDiv.addEventListener('click', (function(n) {
-          return function() { window.open('https://map.naver.com/v5/search/' + encodeURIComponent(n), '_blank'); };
-        })(name));
-      }
-      card.appendChild(addrDiv);
       container.appendChild(card);
     });
   }
@@ -362,6 +370,7 @@ function makeStoreCell(store, type) {
       img.dataset.images = JSON.stringify(store.images);
       img.dataset.index = '0';
       img.dataset.memo = store.memo || '';
+      img.dataset.name = store.name || '';
       img.addEventListener('click', function() { switchImage(this); });
       td.appendChild(img);
     }
@@ -406,6 +415,7 @@ function fillTableSlots() {
       img.dataset.images = JSON.stringify(store.images);
       img.dataset.index = '0';
       img.dataset.memo = store.memo || '';
+      img.dataset.name = store.name || '';
       img.addEventListener('click', function() { switchImage(this); });
       photoSlots[i].appendChild(img);
     }
@@ -421,9 +431,9 @@ function fillTableSlots() {
   const extras = stores.slice(staticCount);
   for (let i = 0; i < extras.length; i += COLS) {
     const batch = extras.slice(i, i + COLS);
-    const nRow = document.createElement('tr'); nRow.className = 'dyn-row';
+    const nRow = document.createElement('tr'); nRow.className = 'dyn-row name-row';
     const aRow = document.createElement('tr'); aRow.className = 'dyn-row address-row';
-    const pRow = document.createElement('tr'); pRow.className = 'dyn-row';
+    const pRow = document.createElement('tr'); pRow.className = 'dyn-row photo-row';
     for (let j = 0; j < COLS; j++) {
       nRow.appendChild(makeStoreCell(batch[j] || null, 'name'));
       aRow.appendChild(makeStoreCell(batch[j] || null, 'addr'));

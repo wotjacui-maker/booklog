@@ -15,7 +15,8 @@ h1 {
   font-weight: 400;
   color: #111;
   padding-top: 20px;
-  text-align: center;
+  padding-left: 20px;
+  text-align: left;
 }
 
 h1 .reset-link {

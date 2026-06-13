@@ -1,10 +1,11 @@
-const CACHE = 'booklog-v3';
+const CACHE = 'booklog-v4';
 const ASSETS = [
   '/booklog/',
   '/booklog/index.html',
   '/booklog/books.html',
   '/booklog/notes.html',
   '/booklog/app.js',
+  '/booklog/cursor.js',
 ];
 
 self.addEventListener('install', e => {

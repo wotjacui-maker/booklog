@@ -740,6 +740,8 @@ loadStores().then(function() {
   // 지도에서 링크로 진입했을 때 해당 책방만 표시 (fillTableSlots 이후 실행)
   if (!window.location.hash) return;
   const targetId = window.location.hash.slice(1);
+  // 해시 제거: 새로고침하면 전체 화면으로 복귀
+  history.replaceState(null, '', window.location.pathname + window.location.search);
   const targetEl = document.getElementById(targetId);
   if (!targetEl || targetEl.tagName !== 'TD') return;
 

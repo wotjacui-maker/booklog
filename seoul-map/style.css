@@ -71,7 +71,7 @@ body {
   transition: fill var(--trans);
 }
 .dong.dong-hover    { fill: #fff; stroke: #111; stroke-width: 0.5px; vector-effect: non-scaling-stroke; }
-.dong.dong-selected { fill: var(--accent-lt); }
+.dong.dong-selected { fill: #c4e870; }
 
 /* ── Gu boundary paths (rendered on top) ── */
 .gu {

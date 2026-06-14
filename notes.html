@@ -209,8 +209,15 @@
           else { h = MAX_H; w = Math.round(MAX_H * ratio); }
           const canvas = document.createElement('canvas');
           canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          cb(canvas.toDataURL('image/jpeg', 0.82));
+          const ctx = canvas.getContext('2d');
+          const isPng = file.type === 'image/png';
+          if (!isPng) {
+            // JPEG는 투명 없음 — 흰 배경 깔기
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, w, h);
+          }
+          ctx.drawImage(img, 0, 0, w, h);
+          cb(canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', 0.82));
         };
         img.src = e.target.result;
       };

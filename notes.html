@@ -37,20 +37,23 @@
     .turtle-home:hover { opacity: 1; transform: translateY(-1px); }
 
     .notes-list {
-      padding: 0 24px 80px;
+      padding: 24px 24px 80px;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      gap: 32px;
+      overflow-x: auto;
+      align-items: flex-start;
     }
+    /* 스크롤바 숨김 */
+    .notes-list::-webkit-scrollbar { display: none; }
 
     .book-entry {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 36px 0;
-      max-width: 320px;
-      margin: 0 auto;
-      width: 100%;
+      flex-shrink: 0;
+      width: 140px;
     }
 
     .book-content {
@@ -77,41 +80,16 @@
     .book-date {
       font-size: 6pt;
       color: #111;
-      margin-top: 4px;
+      margin-top: 2px;
       letter-spacing: 0.5px;
     }
 
-    /* 이미지 — 텍스트 바로 아래 */
-    .book-img-wrap {
-      margin-top: 14px;
-      cursor: pointer;
-      width: 110px;
-    }
-    .book-img-wrap img {
-      width: 110px;
-      height: 154px;
-      object-fit: cover;
-      display: block;
-    }
-    .book-img-placeholder {
-      width: 110px;
-      height: 154px;
-      background: #f3f3f3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #ccc;
-    }
-    .book-img-wrap:hover img,
-    .book-img-wrap:hover .book-img-placeholder { opacity: 0.6; }
-
-    .book-memo-wrap { margin-top: 14px; width: 100%; }
+    .book-memo-wrap { margin-top: 8px; width: 100%; }
 
     .book-memo {
-      font-size: 7pt;
-      color: #333;
-      line-height: 1.85;
+      font-size: 6.5pt;
+      color: #555;
+      line-height: 1.8;
       white-space: pre-wrap;
       word-break: keep-all;
       cursor: text;
@@ -120,7 +98,7 @@
     .book-memo:hover { color: #111; }
 
     .book-no-memo {
-      font-size: 6.5pt;
+      font-size: 6pt;
       color: #ccc;
       cursor: text;
       letter-spacing: 1px;
@@ -129,9 +107,9 @@
 
     .book-memo-edit {
       font-family: 'Noto Sans KR', monospace;
-      font-size: 7pt;
+      font-size: 6.5pt;
       color: #333;
-      line-height: 1.85;
+      line-height: 1.8;
       width: 100%;
       border: none;
       border-bottom: 1px solid #111;
@@ -141,6 +119,33 @@
       padding: 0;
       text-align: center;
     }
+
+    /* 이미지 — 텍스트 바로 아래 */
+    .book-img-wrap {
+      margin-top: 12px;
+      cursor: pointer;
+      width: 110px;
+    }
+    .book-img-wrap img {
+      width: 110px;
+      height: 110px;
+      object-fit: cover;
+      display: block;
+      border-radius: 50%;
+    }
+    .book-img-placeholder {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #ccc;
+    }
+    .book-img-wrap:hover img,
+    .book-img-wrap:hover .book-img-placeholder { opacity: 0.6; }
 
     .empty-state {
       padding: 80px 24px;

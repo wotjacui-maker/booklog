@@ -69,29 +69,6 @@
       word-break: keep-all;
     }
 
-    .book-title-en {
-      font-size: 7pt;
-      color: #ccc;
-      font-style: italic;
-      cursor: text;
-      line-height: 1.4;
-    }
-    .book-title-en:hover { color: #999; }
-    .book-title-en.has-value { color: #999; }
-
-    .book-title-en-input {
-      font-family: 'Noto Sans KR', monospace;
-      font-size: 7pt;
-      color: #999;
-      font-style: italic;
-      border: none;
-      border-bottom: 1px solid #ccc;
-      outline: none;
-      background: transparent;
-      text-align: center;
-      padding: 0;
-    }
-
     .book-author {
       font-size: 6.5pt;
       color: #999;
@@ -297,36 +274,6 @@
       }
     }
 
-    // 영어 제목 편집
-    function makeTitleEnEl(book) {
-      const el = document.createElement('div');
-      el.className = 'book-title-en' + (book.titleEn ? ' has-value' : '');
-      el.textContent = book.titleEn || '+ english title';
-      el.addEventListener('click', () => {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'book-title-en-input';
-        input.value = book.titleEn || '';
-        input.placeholder = 'english title';
-        el.replaceWith(input);
-        input.focus();
-        let done = false;
-        function commit() {
-          if (done) return;
-          done = true;
-          book.titleEn = input.value.trim();
-          saveBooks();
-          input.replaceWith(makeTitleEnEl(book));
-        }
-        input.addEventListener('blur', commit);
-        input.addEventListener('keydown', e => {
-          if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-          if (e.key === 'Escape') { done = true; input.replaceWith(makeTitleEnEl(book)); }
-        });
-      });
-      return el;
-    }
-
     function renderNotes(books) {
       const doneBooks = books.filter(b => b.status === 'done');
       const list = document.getElementById('notesList');
@@ -352,8 +299,6 @@
         titleEl.textContent = book.title || '—';
         content.appendChild(titleEl);
 
-        content.appendChild(makeTitleEnEl(book));
-
         if (book.author) {
           const authorEl = document.createElement('div');
           authorEl.className = 'book-author';
@@ -368,9 +313,14 @@
           content.appendChild(dateEl);
         }
 
+        const memoWrap = document.createElement('div');
+        memoWrap.className = 'book-memo-wrap';
+        renderMemo(book, memoWrap);
+        content.appendChild(memoWrap);
+
         entry.appendChild(content);
 
-        // 이미지 — 텍스트 바로 아래
+        // 이미지 — 메모 바로 아래
         const imgWrap = document.createElement('div');
         imgWrap.className = 'book-img-wrap';
         if (book.image) {
@@ -389,12 +339,6 @@
           imageInput.click();
         });
         entry.appendChild(imgWrap);
-
-        // 메모 — 이미지 아래
-        const memoWrap = document.createElement('div');
-        memoWrap.className = 'book-memo-wrap';
-        renderMemo(book, memoWrap);
-        entry.appendChild(memoWrap);
 
         list.appendChild(entry);
       });

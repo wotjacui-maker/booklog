@@ -109,9 +109,32 @@ td:has(> img.switchable)::after {
 .search-wrap {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
+  padding-right: 20px;
+  margin-top: 4px;
   margin-bottom: 10px;
 }
+
+/* ── 로딩 오버레이 ── */
+.archive-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  z-index: 5000;
+  gap: 10px;
+  transition: opacity 0.4s ease;
+}
+.archive-overlay.archive-hide {
+  opacity: 0;
+  pointer-events: none;
+}
+.archive-overlay .overlay-text { font-size: 8pt; color: #111; font-weight: 400; }
+.archive-overlay .overlay-sub  { font-size: 8pt; color: #111; }
 
 .leaf-nav {
   display: inline-flex;

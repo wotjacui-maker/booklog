@@ -10,21 +10,20 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="style.css?v=4">
+	<link rel="stylesheet" href="style.css?v=5">
 	<link rel="icon" type="image/png" href="">
 </head>
 <body>
+	<div id="archive-loading" class="archive-overlay">
+		<div class="overlay-text">책방 사진을 불러옵니다</div>
+		<div class="overlay-sub"><span style="color:#e03131">⊹</span>&nbsp;&nbsp;<span style="color:#e05b8a">✶</span></div>
+	</div>
 		<p>
 			ⓒ 202604 made by jaeseo
 			마음에 드는 책방을 짓기 위해 책방을 모으고 있습니다.
 			서울에서 책을 팔고, 전시하고, 만드는 공간들의 모음입니다.
 			책방을 추천하고 싶나요? 👉 wotjacui@gmail.com
 		</p>
-	<div class="layout">
-		
-
-		<div class="h2-wrap"><h2>사진을 클릭하면 더 많은 사진을 확인할 수 있습니다.</h2></div>
-		<div class="table-wrap">
 		<div class="search-wrap">
 			<a href="../index.html" class="leaf-nav" title="메인으로">✹</a>
 			<a href="../seoul-map/index.html" class="leaf-nav" title="지도로">⊹</a>
@@ -32,6 +31,11 @@
 			<button class="add-store-btn" onclick="openStoreModal()" title="책방 등록">✶</button>
 			<button class="settings-btn" onclick="openSettingsModal()" title="GitHub 연동 설정">⚙</button>
 		</div>
+	<div class="layout">
+		
+
+		<div class="h2-wrap"><h2>사진을 클릭하면 더 많은 사진을 확인할 수 있습니다.</h2></div>
+		<div class="table-wrap">
 		<table>
           <tbody>
             <tr class="name-row">
@@ -731,11 +735,33 @@ document.addEventListener('mouseover', function(e) {
 });
 
 
+// ── 로딩 오버레이 숨김 (사진 다 불러온 뒤) ──
+function hideArchiveLoading() {
+  const ov = document.getElementById('archive-loading');
+  if (!ov || ov.classList.contains('archive-hide')) return;
+  ov.classList.add('archive-hide');
+  setTimeout(function() { ov.style.display = 'none'; }, 450);
+}
+
+function waitForPhotos() {
+  const imgs = Array.from(document.querySelectorAll('img.switchable'));
+  if (imgs.length === 0) { hideArchiveLoading(); return; }
+  let remaining = imgs.length;
+  const done = function() { if (--remaining <= 0) hideArchiveLoading(); };
+  imgs.forEach(function(im) {
+    if (im.complete) { done(); }
+    else { im.addEventListener('load', done); im.addEventListener('error', done); }
+  });
+  // 안전장치: 7초 후 무조건 숨김
+  setTimeout(hideArchiveLoading, 7000);
+}
+
 // ── 초기 실행 ──
 loadStores().then(function() {
   fillTableSlots();
   buildMobileCards();
   shuffleCards();
+  waitForPhotos();
 
   // 지도에서 링크로 진입했을 때 해당 책방만 표시 (fillTableSlots 이후 실행)
   if (!window.location.hash) return;

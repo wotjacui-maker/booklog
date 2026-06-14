@@ -44,42 +44,21 @@
 
     .book-entry {
       display: flex;
-      gap: 22px;
-      padding: 28px 0;
-    }
-
-    /* 이미지 */
-    .book-img-wrap {
-      width: 80px;
-      flex-shrink: 0;
-      cursor: pointer;
-    }
-    .book-img-wrap img {
-      width: 80px;
-      height: 112px;
-      object-fit: cover;
-      display: block;
-    }
-    .book-img-placeholder {
-      width: 80px;
-      height: 112px;
-      background: #f3f3f3;
-      display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #ccc;
+      text-align: center;
+      padding: 36px 0;
+      max-width: 320px;
+      margin: 0 auto;
+      width: 100%;
     }
-    .book-img-wrap:hover img,
-    .book-img-wrap:hover .book-img-placeholder { opacity: 0.6; }
 
-    /* 텍스트 */
     .book-content {
-      flex: 1;
-      min-width: 0;
       display: flex;
       flex-direction: column;
+      align-items: center;
       gap: 3px;
+      width: 100%;
     }
 
     .book-title {
@@ -109,7 +88,7 @@
       border-bottom: 1px solid #ccc;
       outline: none;
       background: transparent;
-      width: 100%;
+      text-align: center;
       padding: 0;
     }
 
@@ -125,7 +104,32 @@
       letter-spacing: 0.5px;
     }
 
-    .book-memo-wrap { margin-top: 10px; }
+    /* 이미지 — 텍스트 바로 아래 */
+    .book-img-wrap {
+      margin-top: 14px;
+      cursor: pointer;
+      width: 110px;
+    }
+    .book-img-wrap img {
+      width: 110px;
+      height: 154px;
+      object-fit: cover;
+      display: block;
+    }
+    .book-img-placeholder {
+      width: 110px;
+      height: 154px;
+      background: #f3f3f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #ccc;
+    }
+    .book-img-wrap:hover img,
+    .book-img-wrap:hover .book-img-placeholder { opacity: 0.6; }
+
+    .book-memo-wrap { margin-top: 14px; width: 100%; }
 
     .book-memo {
       font-size: 7pt;
@@ -134,6 +138,7 @@
       white-space: pre-wrap;
       word-break: keep-all;
       cursor: text;
+      text-align: center;
     }
     .book-memo:hover { color: #111; }
 
@@ -157,6 +162,7 @@
       background: transparent;
       resize: none;
       padding: 0;
+      text-align: center;
     }
 
     .empty-state {
@@ -337,27 +343,7 @@
         entry.className = 'book-entry';
         entry.dataset.id = book.id;
 
-        // 이미지
-        const imgWrap = document.createElement('div');
-        imgWrap.className = 'book-img-wrap';
-        if (book.image) {
-          const img = document.createElement('img');
-          img.src = book.image;
-          img.alt = '';
-          imgWrap.appendChild(img);
-        } else {
-          const ph = document.createElement('div');
-          ph.className = 'book-img-placeholder';
-          ph.textContent = '+';
-          imgWrap.appendChild(ph);
-        }
-        imgWrap.addEventListener('click', () => {
-          pendingImageBookId = book.id;
-          imageInput.click();
-        });
-        entry.appendChild(imgWrap);
-
-        // 콘텐츠
+        // 콘텐츠 (텍스트 먼저)
         const content = document.createElement('div');
         content.className = 'book-content';
 
@@ -382,12 +368,34 @@
           content.appendChild(dateEl);
         }
 
+        entry.appendChild(content);
+
+        // 이미지 — 텍스트 바로 아래
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'book-img-wrap';
+        if (book.image) {
+          const img = document.createElement('img');
+          img.src = book.image;
+          img.alt = '';
+          imgWrap.appendChild(img);
+        } else {
+          const ph = document.createElement('div');
+          ph.className = 'book-img-placeholder';
+          ph.textContent = '+';
+          imgWrap.appendChild(ph);
+        }
+        imgWrap.addEventListener('click', () => {
+          pendingImageBookId = book.id;
+          imageInput.click();
+        });
+        entry.appendChild(imgWrap);
+
+        // 메모 — 이미지 아래
         const memoWrap = document.createElement('div');
         memoWrap.className = 'book-memo-wrap';
         renderMemo(book, memoWrap);
-        content.appendChild(memoWrap);
+        entry.appendChild(memoWrap);
 
-        entry.appendChild(content);
         list.appendChild(entry);
       });
     }

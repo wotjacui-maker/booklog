@@ -20,7 +20,31 @@
       color: #111;
       font-family: 'Noto Sans KR', monospace;
       min-height: 100vh;
-      cursor: default;
+      cursor: none;
+    }
+
+    #cursor {
+      position: fixed;
+      pointer-events: none;
+      color: #111;
+      font-size: 14px;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+    }
+
+    .cursor-trail {
+      position: fixed;
+      pointer-events: none;
+      color: #111;
+      font-size: 11px;
+      transform: translate(-50%, -50%);
+      z-index: 9998;
+      animation: trail-fade 0.6s ease forwards;
+    }
+
+    @keyframes trail-fade {
+      0%   { opacity: 0.5; }
+      100% { opacity: 0; }
     }
 
     header {
@@ -93,14 +117,14 @@
       line-height: 1.8;
       white-space: pre-wrap;
       word-break: keep-all;
-      cursor: pointer;
+      cursor: none;
       text-align: center;
     }
 
     .book-no-memo {
       font-size: 6pt;
       color: #111;
-      cursor: pointer;
+      cursor: none;
       letter-spacing: 1px;
     }
 
@@ -369,7 +393,7 @@
       grid.style.display = 'grid';
       grid.style.gridTemplateColumns = 'repeat(16, 5px)';
       grid.style.gridTemplateRows = 'repeat(14, 5px)';
-      grid.style.zoom = '0.3';
+      grid.style.zoom = '0.2';
       grid.style.imageRendering = 'pixelated';
       TURTLE_PIXELS.forEach(row => row.forEach(c => {
         const px = document.createElement('div');
@@ -380,6 +404,29 @@
       }));
       el.appendChild(grid);
     })();
+
+    // ── 커스텀 커서 ──
+    const cursorEl = document.createElement('div');
+    cursorEl.id = 'cursor';
+    cursorEl.textContent = '⊹';
+    document.body.appendChild(cursorEl);
+    const trail = ['⋆', '˚', '₊', '⊹', '˚', '⋆'];
+    let trailIndex = 0;
+    document.addEventListener('mousemove', function(e) {
+      cursorEl.style.left = e.clientX + 'px';
+      cursorEl.style.top  = e.clientY + 'px';
+      const dot = document.createElement('div');
+      dot.className = 'cursor-trail';
+      dot.textContent = trail[trailIndex++ % trail.length];
+      dot.style.left = e.clientX + 'px';
+      dot.style.top  = e.clientY + 'px';
+      document.body.appendChild(dot);
+      setTimeout(() => dot.remove(), 600);
+    });
+    document.addEventListener('mouseover', function(e) {
+      const isClickable = !!e.target.closest('a, button, .book-img-wrap, .book-memo, .book-no-memo');
+      cursorEl.textContent = isClickable ? '✶' : '⊹';
+    });
 
     booksRef.on('value', snapshot => {
       if (_skipNextRender) { _skipNextRender = false; return; }

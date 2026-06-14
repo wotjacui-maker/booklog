@@ -80,7 +80,7 @@ img {
 }
 
 .switchable {
-  filter: brightness(1.5) blur(1.2px);
+  filter: brightness(2.0) blur(1.2px);
 }
 
 .switchable:hover {
@@ -266,7 +266,7 @@ td:has(> img.switchable)::after {
   .card-img {
     width: 100%;
     display: block;
-    filter: brightness(1.5) blur(1.2px);
+    filter: brightness(2.0) blur(1.2px);
     transition: filter 0.2s ease;
   }
   .card-img.color { filter: none; }

@@ -172,7 +172,7 @@ function createRow(book) {
   }
 
   // 거북이
-  const turtleEl = makePxGrid(isStale(book) ? TURTLE_PIXELS_FLIPPED : TURTLE_PIXELS, 0.17);
+  const turtleEl = makePxGrid(isStale(book) ? TURTLE_PIXELS_FLIPPED : TURTLE_PIXELS, 0.2);
   turtleEl.style.position  = 'absolute';
   turtleEl.style.left      = pct + '%';
   turtleEl.style.bottom    = '0';

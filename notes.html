@@ -307,13 +307,6 @@
         titleEl.textContent = book.title || '—';
         content.appendChild(titleEl);
 
-        if (book.author) {
-          const authorEl = document.createElement('div');
-          authorEl.className = 'book-author';
-          authorEl.textContent = book.author;
-          content.appendChild(authorEl);
-        }
-
         if (book.completedAt) {
           const dateEl = document.createElement('div');
           dateEl.className = 'book-date';

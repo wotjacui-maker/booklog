@@ -319,9 +319,7 @@
         renderMemo(book, memoWrap);
         content.appendChild(memoWrap);
 
-        entry.appendChild(content);
-
-        // 이미지 — 메모 바로 아래
+        // 이미지 — 텍스트 위
         const imgWrap = document.createElement('div');
         imgWrap.className = 'book-img-wrap';
         if (book.image) {
@@ -340,6 +338,8 @@
           imageInput.click();
         });
         entry.appendChild(imgWrap);
+
+        entry.appendChild(content);
 
         list.appendChild(entry);
       });

@@ -27,7 +27,6 @@
 		<div class="search-wrap">
 			<a href="../index.html" class="leaf-nav" title="메인으로">✹</a>
 			<a href="../seoul-map/index.html" class="leaf-nav" title="지도로">⊹</a>
-			<input type="text" id="search" placeholder="서점 이름 또는 동네로 검색하세요" oninput="filterByAddress(this.value)">
 			<button class="add-store-btn" onclick="openStoreModal()" title="책방 등록">✶</button>
 			<button class="settings-btn" onclick="openSettingsModal()" title="GitHub 연동 설정">⚙</button>
 		</div>
@@ -237,7 +236,8 @@ function filterByAddress(keyword) {
 
 // ── 초기화 (셔플 포함) ──
 function resetFilter() {
-  document.getElementById('search').value = '';
+  const s = document.getElementById('search');
+  if (s) s.value = '';
   filterByAddress('');
   shuffleCards();
   history.replaceState(null, '', window.location.pathname);

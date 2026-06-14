@@ -32,57 +32,124 @@
       display: inline-block;
       text-decoration: none;
       opacity: 0.5;
-      transition: opacity 0.15s ease, transform 0.15s ease;
+      transition: opacity 0.15s, transform 0.15s;
     }
     .turtle-home:hover { opacity: 1; transform: translateY(-1px); }
 
-    #notesWrap {
-      position: relative;
-      width: 100%;
+    .notes-list {
+      padding: 0 24px 80px;
+      display: flex;
+      flex-direction: column;
     }
 
-    .note-card {
-      position: absolute;
-      width: 170px;
-      background: #fff;
-      border: 1px solid #111;
-      padding: 12px;
-      cursor: default;
+    .book-entry {
+      display: flex;
+      gap: 22px;
+      padding: 28px 0;
     }
-    .note-card:hover { z-index: 50 !important; background: #ffe0ec; }
 
-    .note-title {
-      font-size: 7pt;
-      font-weight: 700;
+    /* 이미지 */
+    .book-img-wrap {
+      width: 80px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .book-img-wrap img {
+      width: 80px;
+      height: 112px;
+      object-fit: cover;
+      display: block;
+    }
+    .book-img-placeholder {
+      width: 80px;
+      height: 112px;
+      background: #f3f3f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #ccc;
+    }
+    .book-img-wrap:hover img,
+    .book-img-wrap:hover .book-img-placeholder { opacity: 0.6; }
+
+    /* 텍스트 */
+    .book-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .book-title {
+      font-size: 8pt;
+      font-weight: 400;
       color: #111;
       line-height: 1.5;
-      margin-bottom: 2px;
       word-break: keep-all;
     }
-    .note-author {
-      font-size: 6pt;
-      color: #555;
-      margin-bottom: 1px;
+
+    .book-title-en {
+      font-size: 7pt;
+      color: #ccc;
+      font-style: italic;
+      cursor: text;
+      line-height: 1.4;
     }
-    .note-publisher {
-      font-size: 6pt;
+    .book-title-en:hover { color: #999; }
+    .book-title-en.has-value { color: #999; }
+
+    .book-title-en-input {
+      font-family: 'Noto Sans KR', monospace;
+      font-size: 7pt;
+      color: #999;
+      font-style: italic;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      padding: 0;
+    }
+
+    .book-author {
+      font-size: 6.5pt;
       color: #999;
     }
-    .note-memo-wrap { margin-top: 10px; }
-    .note-memo {
+
+    .book-date {
       font-size: 6pt;
+      color: #111;
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .book-memo-wrap { margin-top: 10px; }
+
+    .book-memo {
+      font-size: 7pt;
       color: #333;
-      line-height: 1.7;
-      word-break: keep-all;
+      line-height: 1.85;
       white-space: pre-wrap;
+      word-break: keep-all;
       cursor: text;
     }
-    .note-memo:hover { text-decoration: underline dotted #bbb; }
-    .note-memo-edit {
+    .book-memo:hover { color: #111; }
+
+    .book-no-memo {
+      font-size: 6.5pt;
+      color: #ccc;
+      cursor: text;
+      letter-spacing: 1px;
+    }
+    .book-no-memo:hover { color: #aaa; }
+
+    .book-memo-edit {
       font-family: 'Noto Sans KR', monospace;
-      font-size: 6pt;
+      font-size: 7pt;
       color: #333;
-      line-height: 1.7;
+      line-height: 1.85;
       width: 100%;
       border: none;
       border-bottom: 1px solid #111;
@@ -91,18 +158,6 @@
       resize: none;
       padding: 0;
     }
-    .note-date {
-      font-size: 5.5pt;
-      color: #bbb;
-      margin-top: 8px;
-      letter-spacing: 1px;
-    }
-    .note-no-memo {
-      font-size: 6pt;
-      color: #ccc;
-      cursor: text;
-    }
-    .note-no-memo:hover { text-decoration: underline dotted #bbb; }
 
     .empty-state {
       padding: 80px 24px;
@@ -119,10 +174,10 @@
     <a href="books.html" class="turtle-home" title="books로" id="homeIcon"></a>
   </header>
 
-  <div id="notesWrap"></div>
-  <div class="empty-state" id="emptyState" style="display:none">
-    완독한 책이 없어요.
-  </div>
+  <div id="notesList" class="notes-list"></div>
+  <div class="empty-state" id="emptyState" style="display:none">완독한 책이 없어요.</div>
+
+  <input type="file" accept="image/*" id="imageInput" style="display:none">
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -139,49 +194,67 @@
     firebase.initializeApp(FIREBASE_CONFIG);
     const booksRef = firebase.database().ref('bookshelf_v1');
 
-    const CARD_W = 170;
-    const CARD_SLOT_W = 230;
-    const CARD_SLOT_H = 290;
-    const WRAP_PADDING = 40;
-
     let allBooks = [];
+    let pendingImageBookId = null;
+    let _skipNextRender = false;
 
     function saveBooks() {
       localStorage.setItem('bookshelf_v1', JSON.stringify(allBooks));
+      _skipNextRender = true;
       booksRef.set(JSON.stringify(allBooks));
-    }
-
-    function hashStr(str) {
-      let h = 5381;
-      for (let i = 0; i < str.length; i++) {
-        h = ((h << 5) + h) + str.charCodeAt(i);
-        h = h & h;
-      }
-      return Math.abs(h);
-    }
-
-    function seededRng(seed) {
-      let s = seed >>> 0;
-      return function() {
-        s = (Math.imul(1664525, s) + 1013904223) >>> 0;
-        return s / 0xffffffff;
-      };
     }
 
     function fmtDate(iso) {
       if (!iso) return '';
       const d = new Date(iso);
-      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+      return `(${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')})`;
     }
 
-    function startEdit(book, memoWrap) {
+    // 이미지 압축
+    function compressImage(file, cb) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX_W = 200, MAX_H = 280;
+          let w = img.width, h = img.height;
+          const ratio = w / h;
+          if (ratio > MAX_W / MAX_H) { w = MAX_W; h = Math.round(MAX_W / ratio); }
+          else { h = MAX_H; w = Math.round(MAX_H * ratio); }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          cb(canvas.toDataURL('image/jpeg', 0.82));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    const imageInput = document.getElementById('imageInput');
+    imageInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file || !pendingImageBookId) return;
+      compressImage(file, dataUrl => {
+        const book = allBooks.find(b => b.id === pendingImageBookId);
+        if (!book) return;
+        book.image = dataUrl;
+        saveBooks();
+        const wrap = document.querySelector(`[data-id="${pendingImageBookId}"] .book-img-wrap`);
+        if (wrap) wrap.innerHTML = `<img src="${dataUrl}" alt="">`;
+        pendingImageBookId = null;
+      });
+      imageInput.value = '';
+    });
+
+    // 메모 편집
+    function startMemoEdit(book, memoWrap) {
       const current = book.note || '';
       memoWrap.innerHTML = '';
-
       const ta = document.createElement('textarea');
-      ta.className = 'note-memo-edit';
+      ta.className = 'book-memo-edit';
       ta.value = current;
-      ta.rows = Math.max(3, current.split('\n').length);
+      ta.rows = Math.max(3, current.split('\n').length + 1);
       memoWrap.appendChild(ta);
       ta.focus();
 
@@ -192,33 +265,66 @@
         const val = ta.value.trim();
         book.note = val;
         saveBooks();
-        memoWrap.innerHTML = '';
-        if (val) {
-          const memoEl = document.createElement('div');
-          memoEl.className = 'note-memo';
-          memoEl.textContent = val;
-          memoEl.addEventListener('click', () => startEdit(book, memoWrap));
-          memoWrap.appendChild(memoEl);
-        } else {
-          const noMemo = document.createElement('div');
-          noMemo.className = 'note-no-memo';
-          noMemo.textContent = '메모 없음';
-          noMemo.addEventListener('click', () => startEdit(book, memoWrap));
-          memoWrap.appendChild(noMemo);
-        }
+        renderMemo(book, memoWrap);
       }
-
       ta.addEventListener('blur', commit);
       ta.addEventListener('keydown', e => {
         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); ta.blur(); }
-        if (e.key === 'Escape') { done = true; ta.value = current; ta.blur(); book.note = current; }
+        if (e.key === 'Escape') { done = true; book.note = current; renderMemo(book, memoWrap); }
       });
+    }
+
+    function renderMemo(book, memoWrap) {
+      memoWrap.innerHTML = '';
+      if (book.note && book.note.trim()) {
+        const el = document.createElement('div');
+        el.className = 'book-memo';
+        el.textContent = book.note.trim();
+        el.addEventListener('click', () => startMemoEdit(book, memoWrap));
+        memoWrap.appendChild(el);
+      } else {
+        const el = document.createElement('div');
+        el.className = 'book-no-memo';
+        el.textContent = '메모';
+        el.addEventListener('click', () => startMemoEdit(book, memoWrap));
+        memoWrap.appendChild(el);
+      }
+    }
+
+    // 영어 제목 편집
+    function makeTitleEnEl(book) {
+      const el = document.createElement('div');
+      el.className = 'book-title-en' + (book.titleEn ? ' has-value' : '');
+      el.textContent = book.titleEn || '+ english title';
+      el.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'book-title-en-input';
+        input.value = book.titleEn || '';
+        input.placeholder = 'english title';
+        el.replaceWith(input);
+        input.focus();
+        let done = false;
+        function commit() {
+          if (done) return;
+          done = true;
+          book.titleEn = input.value.trim();
+          saveBooks();
+          input.replaceWith(makeTitleEnEl(book));
+        }
+        input.addEventListener('blur', commit);
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+          if (e.key === 'Escape') { done = true; input.replaceWith(makeTitleEnEl(book)); }
+        });
+      });
+      return el;
     }
 
     function renderNotes(books) {
       const doneBooks = books.filter(b => b.status === 'done');
-      const wrap = document.getElementById('notesWrap');
-      wrap.innerHTML = '';
+      const list = document.getElementById('notesList');
+      list.innerHTML = '';
 
       if (!doneBooks.length) {
         document.getElementById('emptyState').style.display = 'block';
@@ -226,87 +332,67 @@
       }
       document.getElementById('emptyState').style.display = 'none';
 
-      const vw = Math.max(document.documentElement.clientWidth, 320);
-      const innerW = vw - WRAP_PADDING * 2;
-      const numCols = Math.max(1, Math.floor(innerW / CARD_SLOT_W));
-      const actualSlotW = Math.floor(innerW / numCols);
+      doneBooks.forEach(book => {
+        const entry = document.createElement('div');
+        entry.className = 'book-entry';
+        entry.dataset.id = book.id;
 
-      let maxBottom = 0;
+        // 이미지
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'book-img-wrap';
+        if (book.image) {
+          const img = document.createElement('img');
+          img.src = book.image;
+          img.alt = '';
+          imgWrap.appendChild(img);
+        } else {
+          const ph = document.createElement('div');
+          ph.className = 'book-img-placeholder';
+          ph.textContent = '+';
+          imgWrap.appendChild(ph);
+        }
+        imgWrap.addEventListener('click', () => {
+          pendingImageBookId = book.id;
+          imageInput.click();
+        });
+        entry.appendChild(imgWrap);
 
-      doneBooks.forEach((book, idx) => {
-        const col = idx % numCols;
-        const row = Math.floor(idx / numCols);
+        // 콘텐츠
+        const content = document.createElement('div');
+        content.className = 'book-content';
 
-        const baseX = WRAP_PADDING + col * actualSlotW + (actualSlotW - CARD_W) / 2;
-        const baseY = WRAP_PADDING + row * CARD_SLOT_H + 20;
-
-        const offX = (Math.random() - 0.5) * 36;
-        const offY = (Math.random() - 0.5) * 28;
-        const rot  = (Math.random() - 0.5) * 14;
-
-        const card = document.createElement('div');
-        card.className = 'note-card';
-        card.style.left      = Math.round(baseX + offX) + 'px';
-        card.style.top       = Math.round(baseY + offY) + 'px';
-        card.style.transform = `rotate(${rot.toFixed(2)}deg)`;
-        card.style.zIndex    = idx + 1;
-
-        // 제목·저자·출판사
         const titleEl = document.createElement('div');
-        titleEl.className = 'note-title';
+        titleEl.className = 'book-title';
         titleEl.textContent = book.title || '—';
-        card.appendChild(titleEl);
+        content.appendChild(titleEl);
+
+        content.appendChild(makeTitleEnEl(book));
 
         if (book.author) {
           const authorEl = document.createElement('div');
-          authorEl.className = 'note-author';
+          authorEl.className = 'book-author';
           authorEl.textContent = book.author;
-          card.appendChild(authorEl);
+          content.appendChild(authorEl);
         }
-
-        if (book.publisher) {
-          const pubEl = document.createElement('div');
-          pubEl.className = 'note-publisher';
-          pubEl.textContent = book.publisher;
-          card.appendChild(pubEl);
-        }
-
-        // 메모 영역
-        const memoWrap = document.createElement('div');
-        memoWrap.className = 'note-memo-wrap';
-
-        if (book.note && book.note.trim()) {
-          const memoEl = document.createElement('div');
-          memoEl.className = 'note-memo';
-          memoEl.textContent = book.note.trim();
-          memoEl.addEventListener('click', () => startEdit(book, memoWrap));
-          memoWrap.appendChild(memoEl);
-        } else {
-          const noMemo = document.createElement('div');
-          noMemo.className = 'note-no-memo';
-          noMemo.textContent = '메모 없음';
-          noMemo.addEventListener('click', () => startEdit(book, memoWrap));
-          memoWrap.appendChild(noMemo);
-        }
-        card.appendChild(memoWrap);
 
         if (book.completedAt) {
           const dateEl = document.createElement('div');
-          dateEl.className = 'note-date';
+          dateEl.className = 'book-date';
           dateEl.textContent = fmtDate(book.completedAt);
-          card.appendChild(dateEl);
+          content.appendChild(dateEl);
         }
 
-        wrap.appendChild(card);
+        const memoWrap = document.createElement('div');
+        memoWrap.className = 'book-memo-wrap';
+        renderMemo(book, memoWrap);
+        content.appendChild(memoWrap);
 
-        const estimatedH = 24 + (book.author ? 14 : 0) + (book.publisher ? 14 : 0) + 10 + (book.note ? Math.ceil(book.note.length / 20) * 12 : 12) + 20;
-        const bottom = Math.round(baseY + offY) + estimatedH + 60;
-        if (bottom > maxBottom) maxBottom = bottom;
+        entry.appendChild(content);
+        list.appendChild(entry);
       });
-
-      wrap.style.height = maxBottom + 'px';
     }
 
+    // 집 픽셀 아이콘
     const HOUSE_PIXELS = [
       ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
       ['_','_','_','_','_','_','_','K','K','_','_','_','_','_','_','_'],
@@ -323,7 +409,6 @@
       ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
       ['_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_'],
     ];
-
     (function() {
       const el = document.getElementById('homeIcon');
       const grid = document.createElement('div');
@@ -343,17 +428,15 @@
     })();
 
     booksRef.on('value', snapshot => {
+      if (_skipNextRender) { _skipNextRender = false; return; }
       const raw = snapshot.val();
       if (raw) {
-        try {
-          allBooks = JSON.parse(raw);
-        } catch { allBooks = []; }
+        try { allBooks = JSON.parse(raw); } catch { allBooks = []; }
       } else {
         allBooks = [];
       }
       renderNotes(allBooks);
     });
   </script>
-<script src="cursor.js"></script>
 </body>
 </html>

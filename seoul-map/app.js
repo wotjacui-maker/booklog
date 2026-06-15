@@ -88,6 +88,15 @@ function renderMap(dongData) {
   // ── Zoom & Pan ──
   const zoomBehavior = d3.zoom()
     .scaleExtent([0.5, 120])
+    .filter(function(event) {
+      // 서점 마커 탭 시 zoom 차단
+      const t = event.target;
+      if (t && (t.classList.contains('bookstore-hit') ||
+                t.classList.contains('bird-dot'))) return false;
+      return !event.ctrlKey && event.button === 0 ||
+             event.type === 'wheel' || event.type === 'dblclick' ||
+             event.touches;
+    })
     .on('zoom', onZoom);
 
   svg.call(zoomBehavior);
@@ -241,6 +250,10 @@ function renderMap(dongData) {
     })
     .on('touchstart', function(event, d) {
       event.stopPropagation();
+      // 탭 피드백: 해당 dot 잠깐 흐리게
+      const dot = dots.filter(dd => dd === d);
+      dot.classed('dot-active', true);
+      setTimeout(function() { dot.classed('dot-active', false); }, 250);
       if (isMobile && d.archiveId && activeTapId === d.archiveId) {
         // 두 번째 탭 → archive 이동
         window.location.href = `../archive/index.html#${d.archiveId}`;

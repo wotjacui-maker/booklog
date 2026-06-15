@@ -215,9 +215,8 @@ body {
   fill: #e05b8a;
 }
 
-.bookstore-dot.dot-hover {
-  transform: scale(1.5);
-}
+.bookstore-dot.dot-hover  { transform: scale(1.5); }
+.bookstore-dot.dot-active { opacity: 0.45; }
 
 .bird-dot {
   fill: #e05b8a;

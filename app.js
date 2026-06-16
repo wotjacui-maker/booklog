@@ -143,49 +143,58 @@ function createRow(book) {
   const row = document.createElement('div');
   row.className = 'book-row';
 
-  // ── 거북이 트랙 ──
-  const barRow = document.createElement('div');
-  barRow.className = 'bar-row';
+  // ── 진도 트랙 (done은 생략) ──
+  if (book.status !== 'done') {
+    const barRow = document.createElement('div');
+    barRow.className = 'bar-row';
 
-  const trackWrap = document.createElement('div');
-  trackWrap.className = 'turtle-track-wrap';
+    const trackWrap = document.createElement('div');
+    trackWrap.className = 'turtle-track-wrap';
 
-  // 바닥 선
-  const trackLine = document.createElement('div');
-  trackLine.className = 'turtle-track-line';
-  trackWrap.appendChild(trackLine);
+    const trackLine = document.createElement('div');
+    trackLine.className = 'turtle-track-line';
+    trackWrap.appendChild(trackLine);
 
-  // 발자국: 22px 타일을 끊김 없이 반복, 거북이 직전까지
-  if (pct > 0) {
-    const fillEl = document.createElement('div');
-    fillEl.style.position         = 'absolute';
-    fillEl.style.left             = '0';
-    fillEl.style.bottom           = '0';
-    fillEl.style.width            = `calc(${pct}% - ${(pct * 0.16).toFixed(1)}px)`;
-    fillEl.style.height           = '6px';
-    fillEl.style.backgroundImage  = `url(${getFootprintBg()})`;
-    fillEl.style.backgroundRepeat = 'repeat-x';
-    fillEl.style.backgroundSize   = '36px 6px';
-    fillEl.style.backgroundPosition = 'left bottom';
-    fillEl.style.imageRendering   = 'pixelated';
-    trackWrap.appendChild(fillEl);
+    if (book.status === 'wish') {
+      // 알 픽셀
+      const eggEl = makePxGrid(EGG_PIXELS, 0.2);
+      eggEl.style.position  = 'absolute';
+      eggEl.style.left      = '0';
+      eggEl.style.bottom    = '0';
+      trackWrap.appendChild(eggEl);
+    } else {
+      // 발자국
+      if (pct > 0) {
+        const fillEl = document.createElement('div');
+        fillEl.style.position         = 'absolute';
+        fillEl.style.left             = '0';
+        fillEl.style.bottom           = '0';
+        fillEl.style.width            = `calc(${pct}% - ${(pct * 0.16).toFixed(1)}px)`;
+        fillEl.style.height           = '6px';
+        fillEl.style.backgroundImage  = `url(${getFootprintBg()})`;
+        fillEl.style.backgroundRepeat = 'repeat-x';
+        fillEl.style.backgroundSize   = '36px 6px';
+        fillEl.style.backgroundPosition = 'left bottom';
+        fillEl.style.imageRendering   = 'pixelated';
+        trackWrap.appendChild(fillEl);
+      }
+      // 거북이
+      const turtleEl = makePxGrid(isStale(book) ? TURTLE_PIXELS_FLIPPED : TURTLE_PIXELS, 0.2);
+      turtleEl.style.position  = 'absolute';
+      turtleEl.style.left      = pct + '%';
+      turtleEl.style.bottom    = '0';
+      turtleEl.style.transform = `translateX(-${pct}%)`;
+      trackWrap.appendChild(turtleEl);
+    }
+
+    const pctEl = document.createElement('span');
+    pctEl.className   = 'bar-pct';
+    pctEl.textContent = book.status === 'wish' ? '' : pct + '%';
+
+    barRow.appendChild(trackWrap);
+    barRow.appendChild(pctEl);
+    row.appendChild(barRow);
   }
-
-  // 거북이
-  const turtleEl = makePxGrid(isStale(book) ? TURTLE_PIXELS_FLIPPED : TURTLE_PIXELS, 0.2);
-  turtleEl.style.position  = 'absolute';
-  turtleEl.style.left      = pct + '%';
-  turtleEl.style.bottom    = '0';
-  turtleEl.style.transform = `translateX(-${pct}%)`;
-  trackWrap.appendChild(turtleEl);
-
-  const pctEl = document.createElement('span');
-  pctEl.className   = 'bar-pct';
-  pctEl.textContent = pct + '%';
-
-  barRow.appendChild(trackWrap);
-  barRow.appendChild(pctEl);
-  row.appendChild(barRow);
 
   const nameEl = document.createElement('div');
   nameEl.className   = 'book-name';
@@ -350,6 +359,23 @@ const TURTLE_PIXELS = [
   ['_', '_', 'K', '_', 'K', '_', 'K', 'K', 'K', '_', 'K', '_', 'K', '_', '_', '_'],
   ['_', 'K', '_', '_', '_', '_', 'K', '_', 'K', '_', '_', '_', '_', 'K', '_', '_'],
   ['_', '_', 'K', 'K', 'K', 'K', '_', '_', '_', 'K', 'K', 'K', 'K', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+];
+
+const EGG_PIXELS = [
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', '_', '_', 'K', 'K', 'K', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', '_', 'K', 'K', '_', '_', '_', 'K', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', 'K', '_', '_', '_', '_', '_', '_', 'K', '_', '_', '_'],
+  ['_', '_', '_', '_', 'K', '_', '_', '_', '_', '_', '_', '_', 'K', '_', '_', '_'],
+  ['_', '_', '_', 'K', '_', '_', '_', '_', '_', '_', '_', '_', 'K', '_', '_', '_'],
+  ['_', '_', '_', 'K', '_', '_', '_', '_', '_', '_', '_', 'K', '_', '_', '_', '_'],
+  ['_', '_', '_', 'K', '_', '_', '_', '_', '_', '_', '_', 'K', '_', '_', '_', '_'],
+  ['_', '_', '_', 'K', '_', '_', '_', '_', '_', '_', 'K', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', 'K', '_', '_', '_', '_', 'K', '_', '_', '_', '_', '_', '_'],
+  ['_', '_', '_', '_', '_', 'K', 'K', 'K', 'K', '_', '_', '_', '_', '_', '_', '_'],
   ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
   ['_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'],
 ];

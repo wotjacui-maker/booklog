@@ -239,5 +239,19 @@
     "lat": null,
     "lng": null,
     "addedAt": "2026-06-17"
+  },
+  {
+    "id": "custom_1781680656552",
+    "name": "pdf seoul",
+    "address": "",
+    "memo": "잡지 중심이라 방향성은 다르지만 중앙에 책을 읽을 수 있는 테이블이 있다는 점이 마음에 든다",
+    "images": [
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781680644880_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781680649759_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781680653828_1.jpg"
+    ],
+    "lat": null,
+    "lng": null,
+    "addedAt": "2026-06-17"
   }
 ]

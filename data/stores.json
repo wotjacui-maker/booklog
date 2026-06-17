@@ -225,5 +225,19 @@
     "lat": 37.58,
     "lng": 126.971,
     "addedAt": "2026-06-10"
+  },
+  {
+    "id": "custom_1781680523471",
+    "name": "스토리지북앤필름",
+    "address": "",
+    "memo": "아무래도 퀄리티가 낮은 독립 출판물이 좀 보이긴 해도, 큐레이션이 다양하다는 게 장점. 제품이 꽉 차있는 건 내가 원하는 분위기다",
+    "images": [
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781680507611_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781680517106_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781680520158_1.jpg"
+    ],
+    "lat": null,
+    "lng": null,
+    "addedAt": "2026-06-17"
   }
 ]

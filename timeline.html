@@ -130,12 +130,6 @@
       border-top: 2px solid #111;
     }
 
-    /* 빈 셀 — 테두리 숨겨서 바깥 테두리 정리 */
-    td:empty:not(.m):not(.travel) {
-      border-color: transparent;
-      background: transparent;
-    }
-
     /* 현재 주차 핑크 */
     td.current-week { color: hotpink; }
     td.current-week .s { color: hotpink; }
@@ -628,6 +622,7 @@ function highlightCurrentWeek() {
 }
 
 load();
+cleanEmptyRows();
 highlightCurrentWeek();
 </script>
 

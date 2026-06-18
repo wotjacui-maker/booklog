@@ -253,5 +253,20 @@
     "lat": null,
     "lng": null,
     "addedAt": "2026-06-17"
+  },
+  {
+    "id": "custom_1781764833428",
+    "name": "더북소사이어티 회현",
+    "address": "",
+    "memo": "",
+    "images": [
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781764819691_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781764823820_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781764827383_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1781764830120_1.jpg"
+    ],
+    "lat": null,
+    "lng": null,
+    "addedAt": "2026-06-18"
   }
 ]

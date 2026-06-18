@@ -124,6 +124,14 @@
   document.addEventListener('mouseout', function(e) {
     if (e.target.closest('img.switchable')) tip.style.display = 'none';
   });
+  // 우클릭으로 수정 모달 열기
+  document.addEventListener('contextmenu', function(e) {
+    var img = e.target.closest('img.switchable, img.card-img');
+    if (!img) return;
+    e.preventDefault();
+    var storeId = img.dataset.storeId;
+    if (storeId) openEditModal(storeId);
+  });
 })();
 </script>
 
@@ -171,6 +179,7 @@ function buildMobileCards() {
         img.dataset.images = srcImg.dataset.images || JSON.stringify([srcImg.src]);
         img.dataset.index  = '0';
         img.dataset.name   = name;
+        img.dataset.storeId = srcImg.dataset.storeId || '';
         img.addEventListener('click', function() {
           // 첫 탭: 컬러로 전환
           if (!this.classList.contains('color')) { this.classList.add('color'); return; }
@@ -375,6 +384,7 @@ function makeStoreCell(store, type) {
       img.dataset.index = '0';
       img.dataset.memo = store.memo || '';
       img.dataset.name = store.name || '';
+      img.dataset.storeId = store.id || '';
       img.addEventListener('click', function() { switchImage(this); });
       td.appendChild(img);
     }
@@ -420,6 +430,7 @@ function fillTableSlots() {
       img.dataset.index = '0';
       img.dataset.memo = store.memo || '';
       img.dataset.name = store.name || '';
+      img.dataset.storeId = store.id || '';
       img.addEventListener('click', function() { switchImage(this); });
       photoSlots[i].appendChild(img);
     }

@@ -200,6 +200,7 @@
   <a class="back-link" href="index.html">←</a>
   <span style="font-size:7pt;letter-spacing:2px;">TIMELINE</span>
   <button id="edit-btn" onclick="toggleEdit()">EDIT</button>
+  <button id="export-btn" onclick="exportHTML()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:7pt;letter-spacing:2px;color:#aaa;padding:0;margin-left:12px;">EXPORT</button>
 </header>
 
 <div class="page-header">
@@ -619,6 +620,21 @@ function highlightCurrentWeek() {
     }
     break;
   }
+}
+
+function exportHTML() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(document.documentElement.outerHTML, 'text/html');
+  const tbl = doc.getElementById('timeline-table');
+  if (saved && tbl) tbl.innerHTML = saved;
+  // export 버튼 제거 (내보내기 파일엔 불필요)
+  doc.querySelectorAll('#export-btn').forEach(el => el.remove());
+  const blob = new Blob(['<!DOCTYPE html>\n' + doc.documentElement.outerHTML], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'timeline.html';
+  a.click();
 }
 
 load();

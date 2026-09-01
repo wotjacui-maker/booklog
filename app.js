@@ -447,33 +447,41 @@ function fmtDate(iso) {
 // ── 알라딘 검색 (CORS 프록시 순차 시도) ──
 const ALADIN_TTB = 'ttbwotjacui1421001';
 
-async function googleSearch(query, size = 5) {
-  const apiUrl = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx` +
-    `?TTBKey=${ALADIN_TTB}&Query=${encodeURIComponent(query)}` +
-    `&QueryType=Title&MaxResults=${size}&SearchTarget=Book&output=js&Version=20131101`;
+function googleSearch(query, size = 5) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_aladin_' + Date.now();
+    const script = document.createElement('script');
+    const timer = setTimeout(() => {
+      delete window[cbName];
+      script.remove();
+      reject(new Error('검색 시간 초과'));
+    }, 8000);
 
-  const proxies = [
-    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-  ];
+    window[cbName] = function(data) {
+      clearTimeout(timer);
+      delete window[cbName];
+      script.remove();
+      resolve((data.item || []).map(item => ({
+        title:     item.title || '',
+        authors:   [item.author || ''],
+        publisher: item.publisher || '',
+        pages:     item.itemPage || 0,
+      })));
+    };
 
-  let books;
-  for (const makeUrl of proxies) {
-    try {
-      const res = await fetch(makeUrl(apiUrl));
-      if (!res.ok) continue;
-      books = await res.json();
-      if (books) break;
-    } catch {}
-  }
-  if (!books) throw new Error('검색 서비스 연결 실패');
-  return (books.item || []).map(item => ({
-    title:     item.title || '',
-    authors:   [item.author || ''],
-    publisher: item.publisher || '',
-    pages:     item.itemPage || 0,
-  }));
+    script.onerror = () => {
+      clearTimeout(timer);
+      delete window[cbName];
+      script.remove();
+      reject(new Error('검색 서비스 연결 실패'));
+    };
+
+    script.src = `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx` +
+      `?TTBKey=${ALADIN_TTB}&Query=${encodeURIComponent(query)}` +
+      `&QueryType=Title&MaxResults=${size}&SearchTarget=Book&output=js&Version=20131101&jsCallback=${cbName}`;
+
+    document.head.appendChild(script);
+  });
 }
 
 function fillForm(item) {

@@ -495,23 +495,6 @@
         <button class="close-btn" id="closeAddModal">✕</button>
       </div>
 
-      <!-- 검색 -->
-      <div class="book-search-wrap">
-        <div class="book-search-row">
-          <input type="text" id="bookSearchInput" placeholder="제목으로 검색…" autocomplete="off" />
-          <button type="button" class="btn btn-sm btn-primary" id="bookSearchBtn">검색</button>
-        </div>
-        <div class="ttb-key-row" id="ttbKeyRow">
-          <span>알라딘 TTB키가 없으면 검색이 안 돼요.</span>
-          <button type="button" class="key-link" id="showKeyInput">키 설정</button>
-        </div>
-        <div class="ttb-key-edit hidden" id="ttbKeyEdit">
-          <input type="text" id="ttbKeyInput" placeholder="ttbxxxxxxxx (aladin.co.kr에서 무료 발급)" />
-          <button type="button" class="btn btn-sm btn-primary" id="saveKeyBtn">저장</button>
-        </div>
-        <ul class="book-search-results hidden" id="bookSearchResults"></ul>
-      </div>
-
       <form id="addBookForm" autocomplete="off">
         <label>제목 <span class="required">*</span>
           <input type="text" id="inputTitle" required placeholder="책 제목" />
@@ -553,7 +536,6 @@
         <div>
           <div class="detail-title" id="detailTitle"></div>
           <div class="detail-author" id="detailAuthor"></div>
-          <button class="lookup-btn" id="lookupBtn">↗ 검색</button>
         </div>
         <button class="close-btn" id="closeDetailModal">✕</button>
       </div>
@@ -629,7 +611,7 @@
   </script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 <script src="cursor.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const CACHE = 'booklog-v4';
+const CACHE = 'booklog-v5';
 const ASSETS = [
   '/booklog/',
   '/booklog/index.html',

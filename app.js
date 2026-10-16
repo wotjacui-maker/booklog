@@ -117,6 +117,14 @@ function renderList() {
         b.author.toLowerCase().includes(currentSearch);
       return matchStatus && matchSearch;
     });
+    // 최근 완독 / 독서 진도 기록 순으로 표시한다.
+    // 날짜가 없는 이전 기록은 등록일을 사용한다.
+    if (status === 'done' || status === 'reading') {
+      const dateKey = status === 'done' ? 'completedAt' : 'updatedAt';
+      const timestamp = book =>
+        Date.parse(book[dateKey]) || Date.parse(book.createdAt) || 0;
+      filtered.sort((a, b) => timestamp(b) - timestamp(a));
+    }
     if (filtered.length === 0) return;
     total += filtered.length;
 

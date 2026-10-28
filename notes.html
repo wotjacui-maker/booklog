@@ -143,30 +143,27 @@
       text-align: center;
     }
 
-    /* 이미지 — 텍스트 바로 아래 */
+    /* 작은 독서 스티커 */
+    .book-art { height: 108px; display: flex; flex-direction: column; align-items: center; gap: 7px; }
     .book-img-wrap {
-      margin-top: 12px;
-      cursor: pointer;
-      width: 110px;
+      width: 72px; height: 72px; border: 0; padding: 0;
+      background: #eee9df; color: #77715f; cursor: pointer;
+      overflow: hidden; display: grid; place-items: center;
+      transform: rotate(var(--tilt, 0deg)); transition: transform .2s;
     }
-    .book-img-wrap img {
-      width: 110px;
-      height: 154px;
-      object-fit: contain;
-      display: block;
-    }
-    .book-img-placeholder {
-      width: 110px;
-      height: 154px;
-      background: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #ccc;
-    }
-    .book-img-wrap:hover img,
-    .book-img-wrap:hover .book-img-placeholder { opacity: 0.6; }
+    .book-img-wrap img, .book-img-wrap svg { width: 100%; height: 100%; object-fit: cover; grid-area: 1 / 1; }
+    .book-img-wrap svg { padding: 19px; }
+    .book-img-wrap:hover { transform: rotate(0deg) scale(1.07); }
+    .book-img-wrap:focus-visible { outline: 2px solid #111; outline-offset: -5px; }
+    .shape-circle { border-radius: 50%; }
+    .shape-pebble { border-radius: 40% 60% 65% 35% / 55% 35% 65% 45%; }
+    .shape-arch { border-radius: 50% 50% 8% 8%; }
+    .shape-leaf { border-radius: 4% 65% 4% 65%; }
+    .shape-oval { border-radius: 50%; width: 84px; height: 62px; margin: 5px 0; }
+    .shape-flower { clip-path: polygon(50% 0%, 61% 12%, 79% 5%, 83% 23%, 100% 29%, 91% 47%, 100% 64%, 82% 72%, 79% 92%, 60% 88%, 50% 100%, 38% 88%, 19% 94%, 17% 74%, 0% 65%, 9% 48%, 0% 31%, 18% 23%, 21% 5%, 39% 12%); }
+    .photo-credit { font-size: 7px; color: #999; text-decoration: none; }
+    .photo-credit:hover { color: #111; }
+    @media (prefers-reduced-motion: reduce) { .book-img-wrap { transition: none; } }
 
     .empty-state {
       padding: 80px 24px;
@@ -186,7 +183,6 @@
   <div id="notesList" class="notes-list"></div>
   <div class="empty-state" id="emptyState" style="display:none">완독한 책이 없어요.</div>
 
-  <input type="file" accept="image/*" id="imageInput" style="display:none">
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -204,7 +200,6 @@
     const booksRef = firebase.database().ref('bookshelf_v1');
 
     let allBooks = [];
-    let pendingImageBookId = null;
     let _skipNextRender = false;
 
     function saveBooks() {
@@ -219,49 +214,63 @@
       return `(${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')})`;
     }
 
-    // 이미지 압축
-    function compressImage(file, cb) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          const MAX_W = 200, MAX_H = 280;
-          let w = img.width, h = img.height;
-          const ratio = w / h;
-          if (ratio > MAX_W / MAX_H) { w = MAX_W; h = Math.round(MAX_W / ratio); }
-          else { h = MAX_H; w = Math.round(MAX_H * ratio); }
-          const canvas = document.createElement('canvas');
-          canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          const isPng = file.type === 'image/png';
-          if (!isPng) {
-            // JPEG는 투명 없음 — 흰 배경 깔기
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(0, 0, w, h);
-          }
-          ctx.drawImage(img, 0, 0, w, h);
-          cb(canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', 0.82));
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    // 공개 독서 사진 중 책마다 일정한 조합을 선택한다. 클릭한 선택은 기기에 저장한다.
+    const READING_PHOTOS = [
+      { image: 'photo-1593724382028-100d4e0d180d', page: '0aajGG8nqTU', author: 'Giancarlo Duarte' },
+      { image: 'photo-1567168539593-59673ababaae', page: 'Kyoshy7BJIQ', author: 'Dollar Gill' },
+      { image: 'photo-1683178861337-ca70ef8c0db3', page: 'xYyJAC0IdyI', author: 'Zetong Li' },
+      { image: 'photo-1763368230845-150be8503232', page: 'J7lC6BzGuZs', author: 'Emmanuel Black' },
+    ];
+    const ART_SHAPES = ['circle', 'pebble', 'arch', 'leaf', 'oval', 'flower'];
+    function artSeed(value) {
+      let hash = 2166136261;
+      for (const char of String(value)) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619);
+      return hash >>> 0;
     }
-
-    const imageInput = document.getElementById('imageInput');
-    imageInput.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file || !pendingImageBookId) return;
-      compressImage(file, dataUrl => {
-        const book = allBooks.find(b => b.id === pendingImageBookId);
-        if (!book) return;
-        book.image = dataUrl;
-        saveBooks();
-        const wrap = document.querySelector(`[data-id="${pendingImageBookId}"] .book-img-wrap`);
-        if (wrap) wrap.innerHTML = `<img src="${dataUrl}" alt="">`;
-        pendingImageBookId = null;
+    function createBookArt(book) {
+      const key = 'book-art-v1:' + (book.id || book.title);
+      const seed = artSeed(book.id || book.title);
+      let variant = 0;
+      try { variant = Number(localStorage.getItem(key)) || 0; } catch {}
+      if (!Number.isSafeInteger(variant) || variant < 0) variant = 0;
+      const art = document.createElement('div');
+      art.className = 'book-art';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.title = '누르면 다른 독서 스티커로 바뀌어요';
+      button.setAttribute('aria-label', `${book.title || '책'} 독서 스티커 바꾸기`);
+      const credit = document.createElement('a');
+      credit.className = 'photo-credit';
+      credit.target = '_blank';
+      credit.rel = 'noopener noreferrer';
+      function paint() {
+        const photo = READING_PHOTOS[(seed + variant) % READING_PHOTOS.length];
+        button.className = 'book-img-wrap shape-' + ART_SHAPES[((seed >>> 8) + variant) % ART_SHAPES.length];
+        button.style.setProperty('--tilt', (((seed >>> 16) + variant * 3) % 13 - 6) + 'deg');
+        // 네트워크가 끊겨도 빈칸 대신 작은 책 심볼을 표시한다.
+        button.innerHTML = '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M16 8C12 5 6 5 3 6v20c4-1 9-1 13 2 4-3 9-3 13-2V6c-3-1-9-1-13 2Zm0 0v20"/></svg>';
+        const img = document.createElement('img');
+        img.alt = '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.referrerPolicy = 'no-referrer';
+        img.addEventListener('error', () => img.remove(), { once: true });
+        img.src = `https://images.unsplash.com/${photo.image}?auto=format&fit=crop&w=180&h=180&q=80`;
+        button.appendChild(img);
+        credit.href = 'https://unsplash.com/photos/' + photo.page;
+        credit.textContent = 'Unsplash';
+        credit.title = `사진: ${photo.author} / Unsplash`;
+        credit.setAttribute('aria-label', `${photo.author}의 원본 사진 보기`);
+      }
+      button.addEventListener('click', () => {
+        variant += 1;
+        try { localStorage.setItem(key, String(variant)); } catch {}
+        paint();
       });
-      imageInput.value = '';
-    });
+      paint();
+      art.append(button, credit);
+      return art;
+    }
 
     // 메모 편집
     function startMemoEdit(book, memoWrap) {
@@ -344,25 +353,7 @@
         renderMemo(book, memoWrap);
         content.appendChild(memoWrap);
 
-        // 이미지 — 텍스트 위
-        const imgWrap = document.createElement('div');
-        imgWrap.className = 'book-img-wrap';
-        if (book.image) {
-          const img = document.createElement('img');
-          img.src = book.image;
-          img.alt = '';
-          imgWrap.appendChild(img);
-        } else {
-          const ph = document.createElement('div');
-          ph.className = 'book-img-placeholder';
-          ph.textContent = '+';
-          imgWrap.appendChild(ph);
-        }
-        imgWrap.addEventListener('click', () => {
-          pendingImageBookId = book.id;
-          imageInput.click();
-        });
-        entry.appendChild(imgWrap);
+        entry.appendChild(createBookArt(book));
 
         entry.appendChild(content);
 

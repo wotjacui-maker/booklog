@@ -63,8 +63,6 @@ function closeModal(m) { m.classList.add('hidden'); }
 document.getElementById('openAddModal').addEventListener('click', () => openModal(addModal));
 document.getElementById('closeDetailModal').addEventListener('click', () => {
   closeModal(detailModal);
-  document.getElementById('lookupResult').classList.add('hidden');
-  document.getElementById('lookupBtn').textContent = '↗ 검색';
 });
 document.getElementById('closeEditModal').addEventListener('click',  () => closeModal(editModal));
 document.getElementById('closeEditModal2').addEventListener('click', () => closeModal(editModal));

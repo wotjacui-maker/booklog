@@ -465,6 +465,14 @@
       main { padding: 16px; }
       .search-wrap { padding: 10px 16px 0; }
     }
+    .title-suggestions { margin-top: 8px; border: 1px solid #ddd; padding: 8px; }
+    .title-suggestions[hidden] { display: none; }
+    .title-search-status, .title-search-source { font-size: 10px; color: #777; line-height: 1.6; }
+    .title-suggestions > div[role="group"] { max-height: 200px; overflow-y: auto; }
+    .title-suggestion { display: block; width: 100%; text-align: left; background: white; border: 0; border-bottom: 1px solid #eee; padding: 10px 4px; color: #111; font: inherit; cursor: pointer; }
+    .title-suggestion span { display: block; font-size: 12px; }
+    .title-suggestion small { display: block; font-size: 10px; color: #777; margin-top: 4px; }
+    .title-suggestion:hover, .title-suggestion:focus-visible { background: #f4f4f4; outline: 1px solid #aaa; outline-offset: -1px; }
   </style>
 </head>
 <body>
@@ -611,7 +619,8 @@
   </script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
+  <script src="book-autocomplete.js?v=1"></script>
 <script src="cursor.js"></script>
 </body>
 </html>

@@ -1,10 +1,11 @@
-const CACHE = 'booklog-v7';
+const CACHE = 'booklog-v8';
 const ASSETS = [
   '/booklog/',
   '/booklog/index.html',
   '/booklog/books.html',
   '/booklog/notes.html',
   '/booklog/app.js',
+  '/booklog/book-autocomplete.js?v=1',
   '/booklog/cursor.js',
 ];
 

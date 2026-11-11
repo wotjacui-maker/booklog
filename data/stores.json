@@ -267,5 +267,19 @@
     "lat": null,
     "lng": null,
     "addedAt": "2026-06-18"
+  },
+  {
+    "id": "custom_1794370092567",
+    "name": "도미노프레스",
+    "address": "연남",
+    "memo": "",
+    "images": [
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1794370084831_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1794370087336_2.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1794370089008_3.jpg"
+    ],
+    "lat": null,
+    "lng": null,
+    "addedAt": "2026-11-11"
   }
 ]

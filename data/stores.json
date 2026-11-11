@@ -281,5 +281,21 @@
     "lat": null,
     "lng": null,
     "addedAt": "2026-11-11"
+  },
+  {
+    "id": "custom_1794370162045",
+    "name": "톺",
+    "address": "",
+    "memo": "",
+    "images": [
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1794370147366_1.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1794370150138_2.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1794370152702_3.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1794370154639_4.jpg",
+      "https://raw.githubusercontent.com/wotjacui-maker/booklog/main/data/images/1794370156937_5.jpg"
+    ],
+    "lat": null,
+    "lng": null,
+    "addedAt": "2026-11-11"
   }
 ]
